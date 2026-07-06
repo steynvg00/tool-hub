@@ -61,6 +61,7 @@ import RatioCalc from './components/RatioCalc'
 import SnippetManager from './components/SnippetManager'
 // Data-alchemie
 import EncodingChain from './components/EncodingChain'
+import Steganography from './components/Steganography'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -614,6 +615,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_ALCHEMY,
     description: 'Jaag tekst door lagen Base64/hex/binair/morse heen en terug, met elke tussenstap zichtbaar.',
     render: () => <EncodingChain />
+  },
+  {
+    id: 'steganography',
+    label: 'Steganografie',
+    icon: '🕵️',
+    category: CAT_ALCHEMY,
+    description: 'Verberg tekst in de minst-significante bits van een afbeelding en haal het er weer uit.',
+    render: () => <Steganography />
   }
 ]
 

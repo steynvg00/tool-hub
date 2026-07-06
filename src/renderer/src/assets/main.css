@@ -1593,6 +1593,21 @@ code {
   height: 380px;
 }
 
+/* Steganografie / byte-art preview */
+.tk-stego-preview {
+  margin-top: 12px;
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-background);
+}
+.tk-stego-preview img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
 /* Encoding-keten: stacked stages */
 .tk-chain {
   display: flex;
