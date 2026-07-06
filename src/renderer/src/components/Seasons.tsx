@@ -39,7 +39,7 @@ function Seasons(): JSX.Element {
         <dl className="tk-kv">
           {seasons.map((s) => (
             <div key={s.name} style={{ display: 'contents' }}>
-              <dt>{s.label}</dt>
+              <dt>{s.name}</dt>
               <dd>{formatLocal(s.date)}</dd>
             </div>
           ))}
