@@ -59,6 +59,8 @@ import DiscountCalc from './components/DiscountCalc'
 import RatioCalc from './components/RatioCalc'
 // Notities
 import SnippetManager from './components/SnippetManager'
+// Data-alchemie
+import EncodingChain from './components/EncodingChain'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -92,6 +94,7 @@ const CAT_TIMERS = 'Timers'
 const CAT_MATH = 'Wiskunde'
 const CAT_CALC = 'Rekenaars'
 const CAT_NOTES = 'Notities'
+const CAT_ALCHEMY = 'Data-alchemie'
 
 /** Tools that call the Python sidecar are gated on backend readiness. */
 function BackendGate({
@@ -601,6 +604,16 @@ export const TOOLS: ToolDef[] = [
     category: CAT_NOTES,
     description: 'Bewaar korte teksten met een label, doorzoekbaar, met kopieerknop per snippet.',
     render: () => <SnippetManager />
+  },
+
+  // ---- Data-alchemie ----
+  {
+    id: 'encoding-chain',
+    label: 'Encoding-keten',
+    icon: '⛓️',
+    category: CAT_ALCHEMY,
+    description: 'Jaag tekst door lagen Base64/hex/binair/morse heen en terug, met elke tussenstap zichtbaar.',
+    render: () => <EncodingChain />
   }
 ]
 
