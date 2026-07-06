@@ -51,6 +51,7 @@ import MathExpression from './components/MathExpression'
 import EquationSolver from './components/EquationSolver'
 import UnitConverter from './components/UnitConverter'
 import FunctionPlotter from './components/FunctionPlotter'
+import PercentInterest from './components/PercentInterest'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -539,6 +540,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_MATH,
     description: 'Teken de grafiek van f(x) met een instelbaar bereik en automatische y-schaal.',
     render: () => <FunctionPlotter />
+  },
+  {
+    id: 'percent-interest',
+    label: 'Percentage & rente',
+    icon: '📊',
+    category: CAT_MATH,
+    description: 'Procent van een waarde, procentuele verandering en samengestelde rente met inleg.',
+    render: () => <PercentInterest />
   }
 ]
 
