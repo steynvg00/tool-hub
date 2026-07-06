@@ -1,0 +1,34 @@
+{
+  "presets": [
+    {
+      "id": "badge_cream",
+      "name": "Badge / logo op crème achtergrond",
+      "description": "Verified op de esports-badges: flood fill houdt de letters en highlights binnenin behouden, erode haalt de crème-halo weg, feather geeft een zachte rand.",
+      "steps": [
+        { "type": "flood_fill", "params": { "tolerance": 10 } },
+        { "type": "morphology", "params": { "op": "erode", "kernel": 3, "iterations": 1 } },
+        { "type": "feather", "params": { "radius": 1 } }
+      ]
+    },
+    {
+      "id": "product_white",
+      "name": "Product op witte achtergrond (startpunt)",
+      "description": "Zelfde idee als de badge-preset, iets ruimere tolerance voor egaal wit. Tune de tolerance per foto.",
+      "steps": [
+        { "type": "flood_fill", "params": { "tolerance": 15 } },
+        { "type": "morphology", "params": { "op": "erode", "kernel": 3, "iterations": 1 } },
+        { "type": "feather", "params": { "radius": 2 } }
+      ]
+    },
+    {
+      "id": "green_screen",
+      "name": "Greenscreen (startpunt)",
+      "description": "Chroma key verwijdert de egale groene kleur overal; close vult kleine gaatjes, feather verzacht. Tune de tolerance op je specifieke groen.",
+      "steps": [
+        { "type": "chroma_key", "params": { "tolerance": 60 } },
+        { "type": "morphology", "params": { "op": "close", "kernel": 5, "iterations": 1 } },
+        { "type": "feather", "params": { "radius": 2 } }
+      ]
+    }
+  ]
+}

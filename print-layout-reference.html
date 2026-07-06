@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A4 Print Layout</title>
+<style>
+  :root {
+    --bg: #14161a;
+    --panel: #1d2027;
+    --panel2: #262a33;
+    --line: #333844;
+    --text: #e7e9ee;
+    --muted: #9aa1ad;
+    --accent: #5b6cff;
+    --accent-press: #4757e0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: grid; grid-template-columns: 320px 1fr; height: 100vh;
+  }
+
+  /* ---------- control panel ---------- */
+  .panel { background: var(--panel); border-right: 1px solid var(--line); padding: 20px; overflow-y: auto; }
+  .panel h1 { font-size: 18px; margin: 0 0 2px; }
+  .panel .sub { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+  .group { margin-bottom: 18px; }
+  .group > label.title { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 8px; }
+  .seg { display: flex; background: var(--panel2); border-radius: 9px; padding: 3px; gap: 3px; }
+  .seg button { flex: 1; border: 0; background: transparent; color: var(--muted); padding: 8px 6px; border-radius: 7px; cursor: pointer; font-size: 13px; }
+  .seg button.on { background: var(--accent); color: #fff; }
+  .row { display: flex; gap: 10px; }
+  .field { flex: 1; margin-bottom: 10px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .field input[type=number] { width: 100%; background: var(--panel2); border: 1px solid var(--line); color: var(--text); border-radius: 7px; padding: 8px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .drop { border: 1.5px dashed var(--line); border-radius: 10px; padding: 18px; text-align: center; color: var(--muted); cursor: pointer; font-size: 13px; }
+  .drop.hl { border-color: var(--accent); color: var(--text); }
+  .aligngrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; }
+  .aligngrid button { background: var(--panel2); border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: 9px 0; cursor: pointer; }
+  .aligngrid button:hover { color: var(--text); border-color: var(--accent); }
+  .printbtn { width: 100%; background: var(--accent); color: #fff; border: 0; border-radius: 9px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .printbtn:hover { background: var(--accent-press); }
+  .printbtn:disabled { opacity: .4; cursor: default; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+  /* ---------- stage ---------- */
+  .stage { display: flex; align-items: center; justify-content: center; overflow: auto; padding: 30px; }
+  .stage-inner { transform-origin: center center; }
+
+  /* the page is EXACTLY A4 in mm -> what you see prints 1:1 */
+  #page {
+    width: 210mm; height: 297mm; background: #fff; position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,.5); overflow: hidden;
+  }
+  #page.landscape { width: 297mm; height: 210mm; }
+
+  /* free mode: one draggable image */
+  #freeImg { position: absolute; cursor: grab; user-select: none; }
+  #freeImg.dragging { cursor: grabbing; }
+  #freeImg img { display: block; width: 100%; height: 100%; }
+
+  /* grid mode */
+  #grid { position: absolute; inset: 0; display: grid; }
+  #grid .cell { display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #grid .cell img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+  .empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 14px; }
+
+  /* ---------- print ---------- */
+  @media print {
+    @page { size: A4; margin: 0; }
+    body { display: block; }
+    .panel, .stage { all: unset; }
+    .panel { display: none; }
+    .stage { display: block; padding: 0; overflow: visible; }
+    .stage-inner { transform: none !important; }
+    #page { box-shadow: none; margin: 0; }
+    #page.landscape { /* handled via @page in JS note */ }
+  }
+</style>
+</head>
+<body>
+  <aside class="panel">
+    <h1>A4 Print Layout</h1>
+    <p class="sub">Plaats je afbeelding, kies formaat of raster, en print op echte A4-maat.</p>
+
+    <div class="group">
+      <div id="drop" class="drop">Klik of sleep een afbeelding hierheen</div>
+      <input id="file" type="file" accept="image/*" hidden>
+    </div>
+
+    <div class="group">
+      <label class="title">Oriëntatie</label>
+      <div class="seg" id="orient">
+        <button data-v="portrait" class="on">Staand</button>
+        <button data-v="landscape">Liggend</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label class="title">Modus</label>
+      <div class="seg" id="mode">
+        <button data-v="free" class="on">Enkel plaatsen</button>
+        <button data-v="grid">Raster</button>
+      </div>
+    </div>
+
+    <!-- FREE controls -->
+    <div id="freeCtl">
+      <div class="field">
+        <label>Breedte: <span id="wLabel">80</span> mm</label>
+        <input id="wRange" type="range" min="10" max="297" value="80">
+      </div>
+      <div class="group">
+        <label class="title">Uitlijnen</label>
+        <div class="aligngrid">
+          <button data-a="tl">↖</button><button data-a="tc">↑</button><button data-a="tr">↗</button>
+          <button data-a="ml">←</button><button data-a="mc">●</button><button data-a="mr">→</button>
+          <button data-a="bl">↙</button><button data-a="bc">↓</button><button data-a="br">↘</button>
+        </div>
+        <p class="hint">Of sleep de afbeelding vrij op de pagina.</p>
+      </div>
+    </div>
+
+    <!-- GRID controls -->
+    <div id="gridCtl" style="display:none">
+      <div class="row">
+        <div class="field"><label>Kolommen</label><input id="cols" type="number" min="1" max="20" value="3"></div>
+        <div class="field"><label>Rijen</label><input id="rows" type="number" min="1" max="20" value="5"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Tussenruimte (mm)</label><input id="gap" type="number" min="0" max="50" value="4"></div>
+        <div class="field"><label>Paginamarge (mm)</label><input id="margin" type="number" min="0" max="30" value="8"></div>
+      </div>
+      <p class="hint">Dezelfde afbeelding wordt in elk vak herhaald — handig voor labels of kaartjes.</p>
+    </div>
+
+    <div class="group" style="margin-top:22px">
+      <button id="print" class="printbtn" disabled>Printen</button>
+      <p class="hint">Zet in de printdialoog de schaal op <b>100% / werkelijke grootte</b> en marges op <b>geen</b>, dan klopt het formaat exact. (Let op: de meeste printers laten de buitenste ~3–5&nbsp;mm onbedrukt.)</p>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-inner" id="stageInner">
+      <div id="page">
+        <div class="empty" id="empty">Nog geen afbeelding</div>
+        <div id="freeImg" style="display:none"><img id="freeImgEl" alt=""></div>
+        <div id="grid" style="display:none"></div>
+      </div>
+    </div>
+  </main>
+
+<script>
+(function () {
+  const MM = 96 / 25.4; // px per mm at 96dpi (screen)
+  const state = {
+    src: null, natW: 1, natH: 1,
+    orient: "portrait", mode: "free",
+    wMm: 80, xMm: 20, yMm: 20,     // free placement (top-left in mm)
+    cols: 3, rows: 5, gap: 4, margin: 8,
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const page = $("page"), freeImg = $("freeImg"), freeImgEl = $("freeImgEl"),
+        grid = $("grid"), empty = $("empty");
+
+  function pageSizeMm() {
+    return state.orient === "portrait" ? { w: 210, h: 297 } : { w: 297, h: 210 };
+  }
+
+  // scale the preview so a full A4 fits comfortably on screen
+  function fitPreview() {
+    const stage = document.querySelector(".stage");
+    const p = pageSizeMm();
+    const availH = stage.clientHeight - 60, availW = stage.clientWidth - 60;
+    const scale = Math.min(availW / (p.w * MM), availH / (p.h * MM), 1);
+    $("stageInner").style.transform = `scale(${scale})`;
+  }
+  window.addEventListener("resize", fitPreview);
+
+  function render() {
+    const p = pageSizeMm();
+    page.classList.toggle("landscape", state.orient === "landscape");
+    empty.style.display = state.src ? "none" : "flex";
+    if (!state.src) { freeImg.style.display = "none"; grid.style.display = "none"; fitPreview(); return; }
+
+    if (state.mode === "free") {
+      grid.style.display = "none";
+      freeImg.style.display = "block";
+      const hMm = state.wMm * (state.natH / state.natW);
+      freeImg.style.width = state.wMm + "mm";
+      freeImg.style.height = hMm + "mm";
+      // clamp inside page
+      state.xMm = Math.max(0, Math.min(state.xMm, p.w - state.wMm));
+      state.yMm = Math.max(0, Math.min(state.yMm, p.h - hMm));
+      freeImg.style.left = state.xMm + "mm";
+      freeImg.style.top = state.yMm + "mm";
+      freeImgEl.src = state.src;
+    } else {
+      freeImg.style.display = "none";
+      grid.style.display = "grid";
+      grid.style.padding = state.margin + "mm";
+      grid.style.gap = state.gap + "mm";
+      grid.style.gridTemplateColumns = `repeat(${state.cols}, 1fr)`;
+      grid.style.gridTemplateRows = `repeat(${state.rows}, 1fr)`;
+      grid.innerHTML = "";
+      for (let i = 0; i < state.cols * state.rows; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        const im = document.createElement("img");
+        im.src = state.src;
+        cell.appendChild(im);
+        grid.appendChild(cell);
+      }
+    }
+    fitPreview();
+  }
+
+  // ---------- file loading ----------
+  function loadFile(file) {
+    if (!file || !file.type.startsWith("image/")) return;
+    const r = new FileReader();
+    r.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        state.src = r.result; state.natW = img.naturalWidth; state.natH = img.naturalHeight;
+        $("print").disabled = false;
+        // sensible default width: ~1/3 of page width
+        state.wMm = Math.round(pageSizeMm().w / 3);
+        $("wRange").value = state.wMm; $("wLabel").textContent = state.wMm;
+        render();
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  }
+  $("file").addEventListener("change", (e) => loadFile(e.target.files[0]));
+  const drop = $("drop");
+  drop.addEventListener("click", () => $("file").click());
+  ["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("hl"); }));
+  ["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("hl"); }));
+  drop.addEventListener("drop", e => loadFile(e.dataTransfer.files[0]));
+
+  // ---------- segmented controls ----------
+  function seg(id, key, after) {
+    $(id).addEventListener("click", (e) => {
+      const b = e.target.closest("button"); if (!b) return;
+      [...$(id).children].forEach(c => c.classList.remove("on"));
+      b.classList.add("on"); state[key] = b.dataset.v; after && after(); render();
+    });
+  }
+  seg("orient", "orient");
+  seg("mode", "mode", () => {
+    $("freeCtl").style.display = state.mode === "free" ? "block" : "none";
+    $("gridCtl").style.display = state.mode === "grid" ? "block" : "none";
+  });
+
+  // ---------- free controls ----------
+  $("wRange").addEventListener("input", (e) => {
+    state.wMm = +e.target.value; $("wLabel").textContent = state.wMm; render();
+  });
+  document.querySelectorAll(".aligngrid button").forEach(b => {
+    b.addEventListener("click", () => {
+      const p = pageSizeMm(), hMm = state.wMm * (state.natH / state.natW);
+      const a = b.dataset.a;
+      if (a[1] === "l") state.xMm = 0;
+      else if (a[1] === "c") state.xMm = (p.w - state.wMm) / 2;
+      else state.xMm = p.w - state.wMm;
+      if (a[0] === "t") state.yMm = 0;
+      else if (a[0] === "m") state.yMm = (p.h - hMm) / 2;
+      else state.yMm = p.h - hMm;
+      render();
+    });
+  });
+
+  // drag the image in free mode
+  let drag = null;
+  freeImg.addEventListener("mousedown", (e) => {
+    const scale = getScale();
+    drag = { sx: e.clientX, sy: e.clientY, ox: state.xMm, oy: state.yMm, scale };
+    freeImg.classList.add("dragging"); e.preventDefault();
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!drag) return;
+    const dxMm = (e.clientX - drag.sx) / (MM * drag.scale);
+    const dyMm = (e.clientY - drag.sy) / (MM * drag.scale);
+    state.xMm = drag.ox + dxMm; state.yMm = drag.oy + dyMm;
+    render();
+  });
+  window.addEventListener("mouseup", () => { if (drag) { drag = null; freeImg.classList.remove("dragging"); } });
+  function getScale() {
+    const t = $("stageInner").style.transform.match(/scale\(([\d.]+)\)/);
+    return t ? +t[1] : 1;
+  }
+
+  // ---------- grid controls ----------
+  ["cols","rows","gap","margin"].forEach(k => {
+    $(k).addEventListener("input", (e) => { state[k] = Math.max(0, +e.target.value || 0); render(); });
+  });
+
+  // ---------- print ----------
+  $("print").addEventListener("click", () => {
+    // set the @page size to match orientation so the sheet feeds correctly
+    let style = document.getElementById("pageRule");
+    if (!style) { style = document.createElement("style"); style.id = "pageRule"; document.head.appendChild(style); }
+    style.textContent = `@media print { @page { size: A4 ${state.orient}; margin: 0; } }`;
+    window.print();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
