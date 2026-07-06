@@ -63,6 +63,7 @@ import SnippetManager from './components/SnippetManager'
 import EncodingChain from './components/EncodingChain'
 import Steganography from './components/Steganography'
 import ByteReinterpret from './components/ByteReinterpret'
+import SpectrogramMessage from './components/SpectrogramMessage'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -632,6 +633,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_ALCHEMY,
     description: 'Lees de rauwe bytes van een bestand als afbeelding of als geluid — speels en downloadbaar.',
     render: () => <ByteReinterpret />
+  },
+  {
+    id: 'spectrogram-message',
+    label: 'Spectrogram-boodschap',
+    icon: '🔊',
+    category: CAT_ALCHEMY,
+    description: 'Render audio als spectrogram, of brand tekst in een geluid zodat het zichtbaar wordt.',
+    render: () => <SpectrogramMessage />
   }
 ]
 
