@@ -1,4 +1,5 @@
 import { JSX, useEffect, useRef, useState } from 'react'
+import { fileFromDataTransfer } from '../lib/collectedFiles'
 
 // px per mm at 96dpi — used only for the on-screen preview scale & drag math.
 // The page itself is sized in real mm, so what you see prints 1:1.
@@ -187,7 +188,7 @@ function PrintLayout(): JSX.Element {
             onDrop={(e) => {
               e.preventDefault()
               setHl(false)
-              loadFile(e.dataTransfer.files[0])
+              void fileFromDataTransfer(e.dataTransfer).then((f) => loadFile(f))
             }}
           >
             {src ? 'Andere afbeelding kiezen' : 'Klik of sleep een afbeelding hierheen'}

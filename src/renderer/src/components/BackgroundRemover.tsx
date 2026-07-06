@@ -12,6 +12,7 @@ import {
 } from '../lib/api'
 import type { UserPreset } from '../../../preload'
 import { ToolHeader } from './toolkit'
+import { fileFromDataTransfer, dragHasFile } from '../lib/collectedFiles'
 
 const BACKGROUND_REMOVER_INFO = (
   <>
@@ -66,6 +67,7 @@ function BackgroundRemover(): JSX.Element {
 
   const [image, setImage] = useState<File | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [dropOver, setDropOver] = useState(false)
 
   const [pipeline, setPipeline] = useState<PipelineStep[]>([])
 
@@ -126,11 +128,21 @@ function BackgroundRemover(): JSX.Element {
     [catalog]
   )
 
-  const onPickFile = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0] ?? null
+  const setPickedFile = (file: File | null): void => {
     setImage(file)
     setResult(null)
     setRunError(null)
+  }
+
+  const onPickFile = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setPickedFile(e.target.files?.[0] ?? null)
+  }
+
+  const onDropFile = async (e: React.DragEvent): Promise<void> => {
+    e.preventDefault()
+    setDropOver(false)
+    const f = await fileFromDataTransfer(e.dataTransfer)
+    if (f) setPickedFile(f)
   }
 
   const addStep = (def: StepDef): void => {
@@ -242,8 +254,19 @@ function BackgroundRemover(): JSX.Element {
             onChange={onPickFile}
             hidden
           />
-          <button className="btn" onClick={() => fileInputRef.current?.click()}>
-            {image ? 'Andere afbeelding kiezen' : 'Afbeelding uploaden'}
+          <button
+            className={dropOver ? 'btn btn-drop drag-over' : 'btn btn-drop'}
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => {
+              if (dragHasFile(e.dataTransfer)) {
+                e.preventDefault()
+                setDropOver(true)
+              }
+            }}
+            onDragLeave={() => setDropOver(false)}
+            onDrop={onDropFile}
+          >
+            {image ? 'Andere afbeelding kiezen' : 'Afbeelding uploaden of hierheen slepen'}
           </button>
           {imageUrl && (
             <div className="thumb">

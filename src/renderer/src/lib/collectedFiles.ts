@@ -20,3 +20,14 @@ export function dragHasFile(dt: DataTransfer): boolean {
   const types = Array.from(dt.types)
   return types.includes(FILE_DRAG_MIME) || types.includes('Files')
 }
+
+/**
+ * Resolve the single File from a drop — a file dragged from the Bestanden
+ * browser (read on demand) or an OS file dropped directly. Read the drag path
+ * synchronously (before awaiting) since dataTransfer is only valid during drop.
+ */
+export async function fileFromDataTransfer(dt: DataTransfer): Promise<File | null> {
+  const path = dt.getData(FILE_DRAG_MIME)
+  if (path) return readDraggedFile(path)
+  return dt.files?.[0] ?? null
+}
