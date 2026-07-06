@@ -1593,6 +1593,13 @@ code {
   height: 380px;
 }
 
+/* Rekenaars: selectable preset pill */
+.tk-pill.on {
+  background: #4a6cd4;
+  border-color: #4a6cd4;
+  color: #fff;
+}
+
 /* ---------- Print: show only the A4 page at true mm size ---------- */
 @media print {
   @page {

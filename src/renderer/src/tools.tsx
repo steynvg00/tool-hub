@@ -52,6 +52,8 @@ import EquationSolver from './components/EquationSolver'
 import UnitConverter from './components/UnitConverter'
 import FunctionPlotter from './components/FunctionPlotter'
 import PercentInterest from './components/PercentInterest'
+// Rekenaars
+import TipCalc from './components/TipCalc'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -83,6 +85,7 @@ const CAT_NETWORK = 'Netwerk & systeem'
 const CAT_GAMES = 'Spellen & random'
 const CAT_TIMERS = 'Timers'
 const CAT_MATH = 'Wiskunde'
+const CAT_CALC = 'Rekenaars'
 
 /** Tools that call the Python sidecar are gated on backend readiness. */
 function BackendGate({
@@ -548,6 +551,16 @@ export const TOOLS: ToolDef[] = [
     category: CAT_MATH,
     description: 'Procent van een waarde, procentuele verandering en samengestelde rente met inleg.',
     render: () => <PercentInterest />
+  },
+
+  // ---- Rekenaars ----
+  {
+    id: 'tip-calc',
+    label: 'Fooi-calculator',
+    icon: '🧾',
+    category: CAT_CALC,
+    description: 'Bereken de fooi en verdeel het totaal eerlijk over meerdere personen.',
+    render: () => <TipCalc />
   }
 ]
 
