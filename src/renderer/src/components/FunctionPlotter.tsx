@@ -1,5 +1,5 @@
 import { JSX, useEffect, useRef, useState } from 'react'
-import { compile } from 'mathjs'
+import { compile, type EvalFunction } from 'mathjs'
 import { ToolShell, TextInput, Note, ErrorBanner } from './toolkit'
 
 interface Range {
@@ -26,7 +26,7 @@ function FunctionPlotter(): JSX.Element {
   const xMax = Number(xMaxS)
 
   let error: string | null = null
-  let compiled: ReturnType<typeof compile> | null = null
+  let compiled: EvalFunction | null = null
   if (Number.isNaN(xMin) || Number.isNaN(xMax) || xMin >= xMax) {
     error = 'Ongeldig bereik: x-min moet kleiner zijn dan x-max.'
   } else if (expr.trim() === '') {
