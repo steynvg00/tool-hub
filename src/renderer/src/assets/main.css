@@ -1530,6 +1530,41 @@ code {
   margin-left: 8px;
 }
 
+/* ---------- Wiskunde: expression worksheet ---------- */
+.tk-mathsheet {
+  background: var(--color-background);
+  border: 1px solid var(--ev-c-gray-2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-height: 120px;
+  max-height: 340px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  user-select: text;
+}
+.tk-mathrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 1px 0;
+}
+.tk-mathrow.muted .tk-mathrow-src {
+  color: var(--ev-c-text-3);
+}
+.tk-mathrow-src {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tk-mathrow-val {
+  color: #3ecf8e;
+  font-weight: 600;
+}
+.tk-mathrow-err {
+  color: #e05a5a;
+}
+
 /* ---------- Print: show only the A4 page at true mm size ---------- */
 @media print {
   @page {

@@ -46,6 +46,8 @@ import Stopwatch from './components/Stopwatch'
 import CountdownTimer from './components/CountdownTimer'
 import Pomodoro from './components/Pomodoro'
 import Metronome from './components/Metronome'
+// Wiskunde
+import MathExpression from './components/MathExpression'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -76,6 +78,7 @@ const CAT_DATETIME = 'Datum & tijd'
 const CAT_NETWORK = 'Netwerk & systeem'
 const CAT_GAMES = 'Spellen & random'
 const CAT_TIMERS = 'Timers'
+const CAT_MATH = 'Wiskunde'
 
 /** Tools that call the Python sidecar are gated on backend readiness. */
 function BackendGate({
@@ -499,6 +502,16 @@ export const TOOLS: ToolDef[] = [
     category: CAT_TIMERS,
     description: 'Instelbare BPM en maatsoort met een klik via de Web Audio API.',
     render: () => <Metronome />
+  },
+
+  // ---- Wiskunde ----
+  {
+    id: 'math-expression',
+    label: 'Expressie-rekenmachine',
+    icon: '🧮',
+    category: CAT_MATH,
+    description: 'Wetenschappelijke expressies met variabelen en eigen functies, regel voor regel.',
+    render: () => <MathExpression />
   }
 ]
 
