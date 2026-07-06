@@ -49,6 +49,7 @@ import Metronome from './components/Metronome'
 // Wiskunde
 import MathExpression from './components/MathExpression'
 import EquationSolver from './components/EquationSolver'
+import UnitConverter from './components/UnitConverter'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -521,6 +522,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_MATH,
     description: 'Los lineaire en kwadratische vergelijkingen op, met tussenstappen en discriminant.',
     render: () => <EquationSolver />
+  },
+  {
+    id: 'unit-converter',
+    label: 'Eenheden-omrekenaar',
+    icon: '📏',
+    category: CAT_MATH,
+    description: 'Reken om tussen lengte, gewicht, temperatuur, oppervlak, volume, snelheid en data.',
+    render: () => <UnitConverter />
   }
 ]
 
