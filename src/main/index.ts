@@ -15,6 +15,11 @@ import {
 } from './userPresets'
 import { initAutoUpdater, checkForUpdatesManually } from './updater'
 import { listFavorites, toggleFavorite } from './favorites'
+import {
+  listCustomCategories,
+  addCustomCategory,
+  removeCustomCategory
+} from './customCategories'
 import { listSnippets, saveSnippet, deleteSnippet } from './snippets'
 import { getLocalIps, getPublicIp } from './network'
 import {
@@ -124,6 +129,11 @@ app.whenReady().then(() => {
   // Favourite tools, persisted in userData.
   ipcMain.handle('favorites:list', () => listFavorites())
   ipcMain.handle('favorites:toggle', (_e, id: string) => toggleFavorite(id))
+
+  // User-added randomizer categories, persisted in userData.
+  ipcMain.handle('categories:list', () => listCustomCategories())
+  ipcMain.handle('categories:add', (_e, name: string) => addCustomCategory(name))
+  ipcMain.handle('categories:remove', (_e, name: string) => removeCustomCategory(name))
 
   // User-saved text snippets, persisted in userData.
   ipcMain.handle('snippets:list', () => listSnippets())

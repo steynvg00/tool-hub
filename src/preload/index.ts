@@ -76,6 +76,11 @@ const api = {
     list: (): Promise<string[]> => ipcRenderer.invoke('favorites:list'),
     toggle: (id: string): Promise<string[]> => ipcRenderer.invoke('favorites:toggle', id)
   },
+  categories: {
+    list: (): Promise<string[]> => ipcRenderer.invoke('categories:list'),
+    add: (name: string): Promise<string[]> => ipcRenderer.invoke('categories:add', name),
+    remove: (name: string): Promise<string[]> => ipcRenderer.invoke('categories:remove', name)
+  },
   snippets: {
     list: (): Promise<Snippet[]> => ipcRenderer.invoke('snippets:list'),
     save: (input: { id?: string; label: string; text: string }): Promise<Snippet[]> =>

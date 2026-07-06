@@ -1870,6 +1870,21 @@ code {
   flex: 1 1 200px;
 }
 
+/* Removable pill (custom categories) */
+.tk-pill-x {
+  margin-left: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--ev-c-text-3);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+}
+.tk-pill-x:hover {
+  color: #e05a5a;
+}
+
 /* Schijf opruimen */
 .dc-groups {
   display: flex;

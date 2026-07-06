@@ -66,6 +66,11 @@ export interface ToolHubAPI {
     list: () => Promise<string[]>
     toggle: (id: string) => Promise<string[]>
   }
+  categories: {
+    list: () => Promise<string[]>
+    add: (name: string) => Promise<string[]>
+    remove: (name: string) => Promise<string[]>
+  }
   snippets: {
     list: () => Promise<Snippet[]>
     save: (input: { id?: string; label: string; text: string }) => Promise<Snippet[]>

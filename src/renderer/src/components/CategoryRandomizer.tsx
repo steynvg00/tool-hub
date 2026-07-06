@@ -1,9 +1,9 @@
-import { JSX, useState } from 'react'
-import { ToolShell, Toggle, Note } from './toolkit'
+import { JSX, useEffect, useState } from 'react'
+import { ToolShell, TextInput, Toggle, Note } from './toolkit'
 
 // A rich pool of categories to draw from — handy for party games, brainstorms,
 // tekenspellen, "noem er 5 van …", enzovoort.
-const CATEGORIES: string[] = [
+const BUILTIN: string[] = [
   'Bekende personen',
   'Dieren',
   'Eten & drinken',
@@ -75,11 +75,16 @@ const CATEGORY_INFO = (
     <h4>Opties</h4>
     <ul>
       <li>
-        <b>Trek een categorie</b> — toont een willekeurige categorie uit de lijst.
+        <b>Trek een categorie</b> — toont een willekeurige categorie uit de ingebouwde én je eigen
+        categorieën samen.
       </li>
       <li>
         <b>Trek zonder herhaling</b> — elke categorie komt maar één keer langs totdat ze allemaal
         geweest zijn; met <b>Reset</b> begin je opnieuw.
+      </li>
+      <li>
+        <b>Eigen categorieën</b> — voeg je eigen categorieën toe; ze worden bewaard en meegenomen in
+        de trekking. Met het kruisje verwijder je er weer een.
       </li>
     </ul>
   </>
@@ -89,8 +94,15 @@ function CategoryRandomizer(): JSX.Element {
   const [result, setResult] = useState<string | null>(null)
   const [noRepeat, setNoRepeat] = useState(false)
   const [drawn, setDrawn] = useState<string[]>([])
+  const [custom, setCustom] = useState<string[]>([])
+  const [newCat, setNewCat] = useState('')
 
-  const remaining = CATEGORIES.filter((c) => !drawn.includes(c))
+  useEffect(() => {
+    window.api.categories.list().then(setCustom).catch(() => {})
+  }, [])
+
+  const all = [...BUILTIN, ...custom]
+  const remaining = all.filter((c) => !drawn.includes(c))
   const exhausted = noRepeat && remaining.length === 0
 
   const draw = (): void => {
@@ -100,7 +112,7 @@ function CategoryRandomizer(): JSX.Element {
       setDrawn((d) => [...d, pick])
       setResult(pick)
     } else {
-      setResult(CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)])
+      setResult(all[Math.floor(Math.random() * all.length)])
     }
   }
 
@@ -109,10 +121,20 @@ function CategoryRandomizer(): JSX.Element {
     setResult(null)
   }
 
+  const addCategory = async (): Promise<void> => {
+    const name = newCat.trim()
+    if (!name) return
+    setCustom(await window.api.categories.add(name))
+    setNewCat('')
+  }
+  const removeCategory = async (name: string): Promise<void> => {
+    setCustom(await window.api.categories.remove(name))
+  }
+
   return (
     <ToolShell
       title="Categorie-randomizer"
-      subtitle="Trek een willekeurige categorie uit een ruime lijst."
+      subtitle="Trek een willekeurige categorie uit een ruime lijst — inclusief je eigen categorieën."
       info={CATEGORY_INFO}
     >
       <div className="panel tool-panel">
@@ -141,8 +163,48 @@ function CategoryRandomizer(): JSX.Element {
           <Note>
             {exhausted
               ? 'Alle categorieën zijn geweest — klik op Reset om opnieuw te beginnen.'
-              : `${drawn.length} van ${CATEGORIES.length} getrokken.`}
+              : `${drawn.length} van ${all.length} getrokken.`}
           </Note>
+        )}
+      </div>
+
+      <div className="panel tool-panel">
+        <h2>Eigen categorieën</h2>
+        <div className="tk-row">
+          <TextInput
+            label="Nieuwe categorie"
+            value={newCat}
+            onChange={setNewCat}
+            placeholder="bv. Bordspellen uit de jaren 90"
+          />
+          <button
+            className="btn btn-primary"
+            style={{ width: 'auto' }}
+            onClick={addCategory}
+            disabled={!newCat.trim()}
+          >
+            Toevoegen
+          </button>
+        </div>
+        {custom.length === 0 ? (
+          <Note>
+            Nog geen eigen categorieën. De trekking gebruikt nu de {BUILTIN.length} ingebouwde.
+          </Note>
+        ) : (
+          <div className="tk-pills">
+            {custom.map((c) => (
+              <span key={c} className="tk-pill">
+                {c}
+                <button
+                  className="tk-pill-x"
+                  title="Verwijderen"
+                  onClick={() => removeCategory(c)}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
         )}
       </div>
     </ToolShell>
