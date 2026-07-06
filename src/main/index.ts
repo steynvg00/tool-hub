@@ -112,7 +112,7 @@ app.whenReady().then(() => {
       setBackendStatus({ state: 'error', baseUrl: BACKEND_URL, error: err.message })
     })
 
-  // Check for app updates (no-op in dev; downloads then prompts in production).
+  // Check for app updates (no-op in dev; prompts to open the release page in production).
   initAutoUpdater()
 
   app.on('activate', function () {

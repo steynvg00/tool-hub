@@ -1,9 +1,13 @@
-import { app, dialog, BrowserWindow, MessageBoxOptions } from 'electron'
-import electronUpdater from 'electron-updater'
+import { app, dialog, shell, BrowserWindow, MessageBoxOptions } from 'electron'
+import electronUpdater, { type UpdateInfo } from 'electron-updater'
 
 // electron-updater is CommonJS; destructure autoUpdater for ESM interop.
 // See https://github.com/electron-userland/electron-builder/issues/7976
 const { autoUpdater } = electronUpdater
+
+// GitHub repo that hosts the releases (see electron-builder.yml `publish`).
+const GITHUB_OWNER = 'steynvg00'
+const GITHUB_REPO = 'tool-hub'
 
 // Whether the in-progress check was triggered by the user (so we give feedback
 // even when there's no update / an error) vs. the silent check at startup.
@@ -19,6 +23,36 @@ function showDialog(options: MessageBoxOptions): Promise<Electron.MessageBoxRetu
   return win ? dialog.showMessageBox(win, options) : dialog.showMessageBox(options)
 }
 
+// Page that lists the downloadable assets (.dmg) for a given release. The app
+// isn't code-signed, so electron-updater can't self-install on macOS
+// ("Could not get code signature for running application"). Instead we send the
+// user here to download and install the update by hand.
+function releaseUrl(version: string): string {
+  return `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases/tag/v${version}`
+}
+
+/**
+ * Notify the user that an update exists and offer to open the release page in
+ * the browser, where they can download the .dmg and install it manually.
+ */
+async function promptToDownload(info: UpdateInfo): Promise<void> {
+  manualCheck = false
+  const { response } = await showDialog({
+    type: 'info',
+    title: 'Update beschikbaar',
+    message: `Versie ${info.version} is beschikbaar.`,
+    detail:
+      'Open de downloadpagina om de nieuwe versie te downloaden en te installeren. ' +
+      'Sleep daarna Tool Hub opnieuw naar je Programma’s-map.',
+    buttons: ['Download openen', 'Later'],
+    defaultId: 0,
+    cancelId: 1
+  })
+  if (response === 0) {
+    shell.openExternal(releaseUrl(info.version))
+  }
+}
+
 /**
  * Wire up autoUpdater once and run a silent check. Only active in a packaged
  * app — during `npm run dev` there is no app-update.yml, so we no-op.
@@ -27,14 +61,18 @@ export function initAutoUpdater(): void {
   if (!app.isPackaged || initialized) return
   initialized = true
 
-  // Download a found update automatically, but never install it silently — the
-  // app isn't code-signed, so installing happens only after the user agrees.
-  autoUpdater.autoDownload = true
+  // Don't download or install anything automatically: the app isn't
+  // code-signed, so electron-updater's self-install fails on macOS. We only
+  // check for updates and point the user at the release page to install by hand.
+  autoUpdater.autoDownload = false
   autoUpdater.autoInstallOnAppQuit = false
 
   autoUpdater.on('checking-for-update', () => log('checking for update'))
-  autoUpdater.on('update-available', (info) => log('update available:', info.version))
-  autoUpdater.on('download-progress', (p) => log(`downloading ${Math.round(p.percent)}%`))
+
+  autoUpdater.on('update-available', (info) => {
+    log('update available:', info.version)
+    void promptToDownload(info)
+  })
 
   autoUpdater.on('update-not-available', () => {
     log('no update available')
@@ -46,24 +84,6 @@ export function initAutoUpdater(): void {
         message: 'Je gebruikt al de nieuwste versie van Tool Hub.',
         buttons: ['OK']
       })
-    }
-  })
-
-  autoUpdater.on('update-downloaded', async (info) => {
-    manualCheck = false
-    log('update downloaded:', info.version)
-    const { response } = await showDialog({
-      type: 'info',
-      title: 'Update gereed',
-      message: `Nieuwe versie ${info.version} is gedownload.`,
-      detail: 'Wil je Tool Hub nu herstarten om de update te installeren?',
-      buttons: ['Nu herstarten', 'Later'],
-      defaultId: 0,
-      cancelId: 1
-    })
-    if (response === 0) {
-      // Let the dialog close before quitting.
-      setImmediate(() => autoUpdater.quitAndInstall())
     }
   })
 
