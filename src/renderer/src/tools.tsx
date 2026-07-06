@@ -31,6 +31,21 @@ import CsvJson from './components/CsvJson'
 import QrCode from './components/QrCode'
 import ExifTool from './components/ExifTool'
 import FileChecksum from './components/FileChecksum'
+import OppositeColor from './components/OppositeColor'
+import ColorSet from './components/ColorSet'
+import ColorHarmonies from './components/ColorHarmonies'
+// Spellen & random
+import CategoryRandomizer from './components/CategoryRandomizer'
+import NameTeamDraw from './components/NameTeamDraw'
+import Dice from './components/Dice'
+import CoinFlip from './components/CoinFlip'
+import WheelOfFortune from './components/WheelOfFortune'
+import Shuffle from './components/Shuffle'
+// Timers
+import Stopwatch from './components/Stopwatch'
+import CountdownTimer from './components/CountdownTimer'
+import Pomodoro from './components/Pomodoro'
+import Metronome from './components/Metronome'
 
 // Everything a tool needs from the app shell to render.
 export interface ToolContext {
@@ -51,6 +66,8 @@ const CAT_PRINT = 'Printen'
 const CAT_TEXT = 'Tekst'
 const CAT_DATETIME = 'Datum & tijd'
 const CAT_CONVERT = 'Omzetters & data'
+const CAT_GAMES = 'Spellen & random'
+const CAT_TIMERS = 'Timers'
 
 /** Tools that call the Python sidecar are gated on backend readiness. */
 function BackendGate({
@@ -319,6 +336,114 @@ export const TOOLS: ToolDef[] = [
     category: CAT_CONVERT,
     description: 'Bereken de SHA-256 van een bestand en vergelijk met een verwachte hash.',
     render: () => <FileChecksum />
+  },
+  {
+    id: 'opposite-color',
+    label: 'Tegenovergestelde kleur',
+    icon: '🎭',
+    category: CAT_CONVERT,
+    description: 'Complementaire kleur, RGB-inversie en de beste leesbare tekstkleur.',
+    render: () => <OppositeColor />
+  },
+  {
+    id: 'color-set',
+    label: 'Kleurenset-generator',
+    icon: '🖌️',
+    category: CAT_CONVERT,
+    description: 'Maak N passende kleuren uit een basiskleur (harmonisch, analoog of monochroom).',
+    render: () => <ColorSet />
+  },
+  {
+    id: 'color-harmony',
+    label: 'Kleurharmonieën',
+    icon: '🖍️',
+    category: CAT_CONVERT,
+    description: 'Complementair, analoog, triadisch, tetradisch, split-complementair en monochroom.',
+    render: () => <ColorHarmonies />
+  },
+
+  // ---- Spellen & random ----
+  {
+    id: 'randomizer',
+    label: 'Categorie-randomizer',
+    icon: '🗂️',
+    category: CAT_GAMES,
+    description: 'Kies een categorie en trek een willekeurig item — met je eigen bewerkbare lijsten.',
+    render: () => <CategoryRandomizer />
+  },
+  {
+    id: 'name-draw',
+    label: 'Naam- & teamtrekker',
+    icon: '🎯',
+    category: CAT_GAMES,
+    description: 'Trek een willekeurige winnaar of verdeel namen eerlijk over teams.',
+    render: () => <NameTeamDraw />
+  },
+  {
+    id: 'dice',
+    label: 'Dobbelsteen',
+    icon: '🎲',
+    category: CAT_GAMES,
+    description: 'Gooi met een instelbaar aantal dobbelstenen en zijden; toont worpen en som.',
+    render: () => <Dice />
+  },
+  {
+    id: 'coin',
+    label: 'Munt opgooien',
+    icon: '🪙',
+    category: CAT_GAMES,
+    description: 'Kop of munt, met een korte animatie en een teller.',
+    render: () => <CoinFlip />
+  },
+  {
+    id: 'wheel',
+    label: 'Rad van fortuin',
+    icon: '🎡',
+    category: CAT_GAMES,
+    description: 'Voer eigen opties in en laat een draaiend rad een winnaar aanwijzen.',
+    render: () => <WheelOfFortune />
+  },
+  {
+    id: 'shuffle',
+    label: 'Volgorde / shuffle',
+    icon: '🔁',
+    category: CAT_GAMES,
+    description: 'Zet een lijst in willekeurige volgorde — handig voor wie er aan de beurt is.',
+    render: () => <Shuffle />
+  },
+
+  // ---- Timers ----
+  {
+    id: 'stopwatch',
+    label: 'Stopwatch',
+    icon: '⏱️',
+    category: CAT_TIMERS,
+    description: 'Start, stop en reset met ronde-tijden (laps).',
+    render: () => <Stopwatch />
+  },
+  {
+    id: 'timer',
+    label: 'Afteltimer',
+    icon: '⏲️',
+    category: CAT_TIMERS,
+    description: 'Meerdere afteltimers met labels tegelijk, met geluidssignaal bij afloop.',
+    render: () => <CountdownTimer />
+  },
+  {
+    id: 'pomodoro',
+    label: 'Pomodoro',
+    icon: '🍅',
+    category: CAT_TIMERS,
+    description: 'Werk- en pauzecycli met een teller van voltooide sessies.',
+    render: () => <Pomodoro />
+  },
+  {
+    id: 'metronome',
+    label: 'Metronoom',
+    icon: '🎵',
+    category: CAT_TIMERS,
+    description: 'Instelbare BPM en maatsoort met een klik via de Web Audio API.',
+    render: () => <Metronome />
   }
 ]
 

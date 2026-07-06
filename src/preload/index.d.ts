@@ -13,6 +13,7 @@ export type UserPreset = {
   description?: string
   steps: PresetStep[]
 }
+export type CustomRandomList = { id: string; name: string; items: string[] }
 
 export interface ToolHubAPI {
   backend: {
@@ -30,6 +31,11 @@ export interface ToolHubAPI {
   favorites: {
     list: () => Promise<string[]>
     toggle: (id: string) => Promise<string[]>
+  }
+  randomLists: {
+    list: () => Promise<CustomRandomList[]>
+    save: (input: { id?: string; name: string; items: string[] }) => Promise<CustomRandomList[]>
+    delete: (id: string) => Promise<CustomRandomList[]>
   }
 }
 

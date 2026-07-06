@@ -15,6 +15,11 @@ import {
 } from './userPresets'
 import { initAutoUpdater, checkForUpdatesManually } from './updater'
 import { listFavorites, toggleFavorite } from './favorites'
+import {
+  listCustomRandomLists,
+  saveCustomRandomList,
+  deleteCustomRandomList
+} from './randomLists'
 
 // Tracks the sidecar lifecycle so the renderer can show a loading / error gate.
 type BackendStatus = {
@@ -101,6 +106,13 @@ app.whenReady().then(() => {
   // Favourite tools, persisted in userData.
   ipcMain.handle('favorites:list', () => listFavorites())
   ipcMain.handle('favorites:toggle', (_e, id: string) => toggleFavorite(id))
+
+  // User-defined randomizer lists, persisted in userData.
+  ipcMain.handle('random-lists:list', () => listCustomRandomLists())
+  ipcMain.handle('random-lists:save', (_e, input: { id?: string; name: string; items: string[] }) =>
+    saveCustomRandomList(input)
+  )
+  ipcMain.handle('random-lists:delete', (_e, id: string) => deleteCustomRandomList(id))
 
   createWindow()
 

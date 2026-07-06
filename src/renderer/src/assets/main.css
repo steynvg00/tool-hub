@@ -1315,6 +1315,221 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Spellen, timers & kleur ---------- */
+/* Big centred result (randomizer / draw winner). */
+.tk-result {
+  text-align: center;
+  padding: 22px 16px;
+  margin: 14px 0;
+  background: var(--color-background-mute);
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 12px;
+  font-size: 28px;
+  font-weight: 800;
+  word-break: break-word;
+  user-select: text;
+}
+.tk-result.empty {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ev-c-text-3);
+}
+
+/* Dice. */
+.tk-dice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+.tk-die {
+  min-width: 58px;
+  height: 58px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #1b1b1f;
+  border-radius: 12px;
+  font-size: 26px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Coin flip. */
+.tk-coin {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+  color: #5a4600;
+  background: radial-gradient(circle at 35% 30%, #ffe07a, #e6b450 60%, #b8860b);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  margin: 14px auto;
+}
+.tk-coin.flipping {
+  animation: tk-coinflip 0.6s ease-in-out;
+}
+@keyframes tk-coinflip {
+  0% {
+    transform: rotateX(0);
+  }
+  100% {
+    transform: rotateX(1800deg);
+  }
+}
+
+/* Wheel of fortune. */
+.tk-wheel-wrap {
+  position: relative;
+  display: inline-block;
+  margin: 8px auto;
+}
+.tk-wheel-pointer {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 20px solid #e05a5a;
+  z-index: 2;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4));
+}
+.tk-center {
+  text-align: center;
+}
+
+/* Timers: big monospace readout. */
+.tk-timer-display {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 44px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  margin: 6px 0;
+  user-select: text;
+}
+.tk-timer-display.sm {
+  font-size: 30px;
+}
+.tk-laps {
+  list-style: none;
+  margin: 10px 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.tk-laps li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--ev-c-gray-3);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+}
+.tk-timer-card {
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: var(--color-background-mute);
+}
+.tk-timer-card.done {
+  border-color: #e6b450;
+}
+.tk-pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.tk-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 13px;
+  background: #4a6cd4;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Editable name/team lists → grouped result columns. */
+.tk-teams {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.tk-team {
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--color-background-mute);
+}
+.tk-team h3 {
+  font-size: 13px;
+  margin: 0 0 6px;
+  color: var(--ev-c-text-2);
+}
+.tk-team ol,
+.tk-team ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+.tk-team li {
+  padding: 1px 0;
+}
+
+/* Saved-list rows (randomizer custom lists). */
+.tk-listrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background: var(--color-background-mute);
+}
+.tk-listrow .tk-listrow-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+}
+.tk-listrow .tk-listrow-count {
+  font-size: 12px;
+  color: var(--ev-c-text-3);
+}
+
+/* Colour swatch grid built on the existing .swatch styles, clickable to copy. */
+.tk-harmony-group {
+  margin-top: 14px;
+}
+.tk-harmony-group > h3 {
+  font-size: 13px;
+  color: var(--ev-c-text-2);
+  margin-bottom: 6px;
+}
+.tk-copied-hint {
+  color: #3ecf8e;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
 /* ---------- Print: show only the A4 page at true mm size ---------- */
 @media print {
   @page {
