@@ -1,11 +1,8 @@
 import { JSX, useEffect, useRef, useState } from 'react'
 import { formatBytes } from '../lib/api'
+import { FILE_DRAG_MIME } from '../lib/collectedFiles'
 
 type CollectedFile = Awaited<ReturnType<typeof window.api.files.list>>[number]
-
-// Custom drag payload so a tool's file-input can recognise a file dragged from
-// this panel (as opposed to an arbitrary OS drag).
-export const FILE_DRAG_MIME = 'application/x-toolhub-file'
 
 function iconFor(type: string): string {
   if (type.startsWith('image/')) return '🖼️'

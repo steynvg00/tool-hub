@@ -39,6 +39,13 @@ body {
   margin-top: 6px;
 }
 
+/* Tool file-input as a drop target for files dragged from the Bestanden panel */
+.btn-drop.drag-over {
+  border-color: #4a6cd4;
+  background: rgba(74, 108, 212, 0.14);
+  color: var(--ev-c-text-1);
+}
+
 /* Sidebar tab switcher (Tools / Bestanden) */
 .sidebar-tabs {
   display: flex;

@@ -1,5 +1,6 @@
-import { JSX, useEffect, useRef, useState } from 'react'
+import { JSX, useEffect, useRef, useState, type DragEvent } from 'react'
 import { formatBytes, type FileResult } from '../lib/api'
+import { FILE_DRAG_MIME, collectedFileToFile, dragHasFile } from '../lib/collectedFiles'
 
 /**
  * Thumbnail preview for a picked file: a live image thumbnail for images,
@@ -47,6 +48,21 @@ export function FileButton({
   onPick: (f: File | null) => void
 }): JSX.Element {
   const ref = useRef<HTMLInputElement>(null)
+  const [over, setOver] = useState(false)
+
+  const onDrop = async (e: DragEvent<HTMLButtonElement>): Promise<void> => {
+    e.preventDefault()
+    setOver(false)
+    const id = e.dataTransfer.getData(FILE_DRAG_MIME)
+    if (id) {
+      const f = await collectedFileToFile(id)
+      if (f) onPick(f)
+      return
+    }
+    const osFile = e.dataTransfer.files?.[0]
+    if (osFile) onPick(osFile)
+  }
+
   return (
     <div className="tool-field">
       <label className="tool-label">{label}</label>
@@ -57,8 +73,19 @@ export function FileButton({
         hidden
         onChange={(e) => onPick(e.target.files?.[0] ?? null)}
       />
-      <button className="btn" onClick={() => ref.current?.click()}>
-        {file ? 'Ander bestand kiezen' : 'Bestand kiezen'}
+      <button
+        className={over ? 'btn btn-drop drag-over' : 'btn btn-drop'}
+        onClick={() => ref.current?.click()}
+        onDragOver={(e) => {
+          if (dragHasFile(e.dataTransfer)) {
+            e.preventDefault()
+            setOver(true)
+          }
+        }}
+        onDragLeave={() => setOver(false)}
+        onDrop={onDrop}
+      >
+        {file ? 'Ander bestand kiezen' : 'Bestand kiezen of hierheen slepen'}
       </button>
       <FilePreview file={file} />
     </div>
@@ -77,6 +104,21 @@ export function MultiFileButton({
   onPick: (f: File[]) => void
 }): JSX.Element {
   const ref = useRef<HTMLInputElement>(null)
+  const [over, setOver] = useState(false)
+
+  const onDrop = async (e: DragEvent<HTMLButtonElement>): Promise<void> => {
+    e.preventDefault()
+    setOver(false)
+    const id = e.dataTransfer.getData(FILE_DRAG_MIME)
+    if (id) {
+      const f = await collectedFileToFile(id)
+      if (f) onPick([...files, f])
+      return
+    }
+    const dropped = Array.from(e.dataTransfer.files ?? [])
+    if (dropped.length) onPick([...files, ...dropped])
+  }
+
   return (
     <div className="tool-field">
       <label className="tool-label">{label}</label>
@@ -88,8 +130,19 @@ export function MultiFileButton({
         hidden
         onChange={(e) => onPick(Array.from(e.target.files ?? []))}
       />
-      <button className="btn" onClick={() => ref.current?.click()}>
-        {files.length ? `${files.length} bestand(en) gekozen` : 'Bestanden kiezen'}
+      <button
+        className={over ? 'btn btn-drop drag-over' : 'btn btn-drop'}
+        onClick={() => ref.current?.click()}
+        onDragOver={(e) => {
+          if (dragHasFile(e.dataTransfer)) {
+            e.preventDefault()
+            setOver(true)
+          }
+        }}
+        onDragLeave={() => setOver(false)}
+        onDrop={onDrop}
+      >
+        {files.length ? `${files.length} bestand(en) gekozen` : 'Bestanden kiezen of hierheen slepen'}
       </button>
       {files.length > 0 && (
         <div className="tk-file-previews">
