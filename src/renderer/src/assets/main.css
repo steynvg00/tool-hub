@@ -1006,6 +1006,315 @@ code {
   font-size: 14px;
 }
 
+/* ---------- Utility ("gereedschap") tools ---------- */
+.tk-area {
+  width: 100%;
+  background: var(--color-background);
+  border: 1px solid var(--ev-c-gray-2);
+  color: var(--ev-c-text-1);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  user-select: text;
+}
+.tk-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.tool-field textarea.tk-area::placeholder {
+  color: var(--ev-c-text-3);
+}
+.tk-output-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tk-copy {
+  flex-shrink: 0;
+  background: var(--ev-c-gray-3);
+  border: 1px solid var(--ev-c-gray-2);
+  color: var(--ev-c-text-1);
+  border-radius: 7px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tk-copy:hover:not(:disabled) {
+  background: var(--ev-c-gray-2);
+}
+.tk-copy:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Two-column layout (input | output / left | right). */
+.tk-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .tk-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A row of controls that wraps. */
+.tk-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.tk-row > * {
+  margin-bottom: 0;
+}
+.tk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 4px;
+}
+.tk-actions .btn {
+  width: auto;
+  margin: 0;
+}
+
+.tk-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--ev-c-text-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Stat chips (live counters). */
+.tk-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0;
+}
+.tk-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 84px;
+  padding: 10px 14px;
+  background: var(--color-background-mute);
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 10px;
+}
+.tk-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.tk-stat-label {
+  font-size: 11px;
+  color: var(--ev-c-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tk-note {
+  font-size: 12px;
+  color: var(--ev-c-text-3);
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+/* Read-only rendered output block (rich results). */
+.tk-output {
+  background: var(--color-background);
+  border: 1px solid var(--ev-c-gray-2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  overflow-x: auto;
+  user-select: text;
+}
+.tk-output.tk-mono {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Diff (line-level). */
+.tk-diff {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.55;
+  user-select: text;
+  overflow-x: auto;
+}
+.tk-diff-line {
+  display: flex;
+  gap: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 0 6px;
+}
+.tk-diff-gutter {
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+  color: var(--ev-c-text-3);
+}
+.diff-add {
+  background: rgba(62, 207, 142, 0.16);
+}
+.diff-del {
+  background: rgba(224, 90, 90, 0.16);
+}
+
+/* Regex highlighting. */
+.rx-mark {
+  background: rgba(230, 180, 80, 0.35);
+  border-radius: 3px;
+  padding: 0 1px;
+}
+.rx-groups {
+  margin-top: 12px;
+}
+.rx-invalid {
+  border-color: #e05a5a !important;
+}
+
+/* Generic data table (CSV/JSON preview, EXIF, timezones). */
+.tk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  user-select: text;
+}
+.tk-table th,
+.tk-table td {
+  border: 1px solid var(--ev-c-gray-3);
+  padding: 5px 9px;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-word;
+}
+.tk-table th {
+  background: var(--color-background-mute);
+  font-weight: 600;
+  color: var(--ev-c-text-2);
+}
+.tk-table-wrap {
+  max-height: 420px;
+  overflow: auto;
+  border-radius: 8px;
+}
+
+/* Colour tool. */
+.tk-color-preview {
+  height: 90px;
+  border-radius: 10px;
+  border: 1px solid var(--ev-c-gray-2);
+}
+.tk-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* QR code. */
+.tk-qr {
+  display: inline-block;
+  background: #fff;
+  padding: 14px;
+  border-radius: 12px;
+}
+.tk-qr canvas,
+.tk-qr img {
+  display: block;
+}
+
+/* Password strength meter. */
+.tk-strength {
+  height: 8px;
+  border-radius: 5px;
+  background: var(--color-background-mute);
+  overflow: hidden;
+  margin: 8px 0 4px;
+}
+.tk-strength-bar {
+  height: 100%;
+  transition:
+    width 160ms,
+    background 160ms;
+}
+.s-weak {
+  background: #e05a5a;
+}
+.s-fair {
+  background: #e6b450;
+}
+.s-good {
+  background: #6aa9e6;
+}
+.s-strong {
+  background: #3ecf8e;
+}
+
+/* Big single-value readout (countdown, unix, leap answer). */
+.tk-readout {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin: 8px 0;
+}
+.tk-readout.tk-mono {
+  font-size: 22px;
+}
+.tk-yes {
+  color: #3ecf8e;
+}
+.tk-no {
+  color: #e05a5a;
+}
+
+/* Wrapping list of small pills (uuid list, leap years). */
+.tk-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  user-select: text;
+}
+.tk-pill {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  background: var(--color-background-mute);
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 6px;
+  padding: 4px 9px;
+}
+
+/* Definition-style key/value results. */
+.tk-kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  font-size: 14px;
+  margin: 10px 0;
+  user-select: text;
+}
+.tk-kv dt {
+  color: var(--ev-c-text-3);
+}
+.tk-kv dd {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- Print: show only the A4 page at true mm size ---------- */
 @media print {
   @page {
