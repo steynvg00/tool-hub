@@ -6,6 +6,7 @@ import { ToolShell, TextInput, Note } from './toolkit'
 interface Unit {
   id: string
   label: string
+  factor?: number // size relative to the base unit (linear units only)
   toBase: (v: number) => number
   fromBase: (v: number) => number
 }
@@ -13,6 +14,7 @@ interface Unit {
 const linear = (id: string, label: string, factor: number): Unit => ({
   id,
   label,
+  factor,
   toBase: (v) => v * factor,
   fromBase: (v) => v / factor
 })
@@ -137,6 +139,32 @@ function fmt(n: number): string {
   return r.toLocaleString('nl-NL', { maximumFractionDigits: 8 })
 }
 
+// Exact conversion formulas for temperature (affine, not a simple factor).
+const TEMP_FORMULA: Record<string, string> = {
+  'c->f': '°F = °C × 9/5 + 32',
+  'c->k': 'K = °C + 273,15',
+  'f->c': '°C = (°F − 32) × 5/9',
+  'f->k': 'K = (°F − 32) × 5/9 + 273,15',
+  'k->c': '°C = K − 273,15',
+  'k->f': '°F = (K − 273,15) × 9/5 + 32'
+}
+
+// The bit in parentheses of a label ("Millimeter (mm)" -> "mm"), else the label.
+function abbr(label: string): string {
+  const m = /\(([^)]+)\)/.exec(label)
+  return m ? m[1] : label
+}
+
+/** Human-readable description of how `from` converts to `to`. */
+function describe(from: Unit, to: Unit, catId: string): string {
+  if (from.id === to.id) return 'zelfde eenheid'
+  if (catId === 'temperature') return TEMP_FORMULA[`${from.id}->${to.id}`] ?? ''
+  if (from.factor && to.factor) {
+    return `1 ${abbr(from.label)} = ${fmt(from.factor / to.factor)} ${abbr(to.label)}`
+  }
+  return ''
+}
+
 const UNIT_CONVERTER_INFO = (
   <>
     <h4>Wat doet deze tool?</h4>
@@ -184,7 +212,11 @@ function UnitConverter(): JSX.Element {
   const rows = useMemo(() => {
     const from = category.units.find((u) => u.id === fromId) ?? category.units[0]
     const base = valid ? from.toBase(num) : NaN
-    return category.units.map((u) => ({ unit: u, value: fmt(u.fromBase(base)) }))
+    return category.units.map((u) => ({
+      unit: u,
+      value: fmt(u.fromBase(base)),
+      how: describe(from, u, category.id)
+    }))
   }, [category, fromId, num, valid])
 
   return (
@@ -219,11 +251,19 @@ function UnitConverter(): JSX.Element {
         </div>
         <div className="tk-table-wrap" style={{ marginTop: 12 }}>
           <table className="tk-table">
+            <thead>
+              <tr>
+                <th>Eenheid</th>
+                <th>Waarde</th>
+                <th>Omrekening</th>
+              </tr>
+            </thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.unit.id}>
-                  <th style={{ width: '55%' }}>{r.unit.label}</th>
+                  <th style={{ width: '34%' }}>{r.unit.label}</th>
                   <td className="tk-mono">{r.value}</td>
+                  <td className="tk-unit-how">{r.how}</td>
                 </tr>
               ))}
             </tbody>

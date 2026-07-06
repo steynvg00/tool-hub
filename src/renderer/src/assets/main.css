@@ -1530,6 +1530,14 @@ code {
   margin-left: 8px;
 }
 
+/* Unit converter: conversion-formula column */
+.tk-unit-how {
+  font-size: 12px;
+  color: var(--ev-c-text-3);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: nowrap;
+}
+
 /* Label row with an inline "voorbeeld" badge (subnet calc, etc.) */
 .tk-label-row {
   display: flex;
