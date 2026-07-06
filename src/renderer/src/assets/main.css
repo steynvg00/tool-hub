@@ -1608,6 +1608,11 @@ code {
   margin: 0 auto;
 }
 
+.tk-audio {
+  width: 100%;
+  margin-top: 12px;
+}
+
 /* Encoding-keten: stacked stages */
 .tk-chain {
   display: flex;

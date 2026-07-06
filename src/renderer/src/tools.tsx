@@ -62,6 +62,7 @@ import SnippetManager from './components/SnippetManager'
 // Data-alchemie
 import EncodingChain from './components/EncodingChain'
 import Steganography from './components/Steganography'
+import ByteReinterpret from './components/ByteReinterpret'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -623,6 +624,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_ALCHEMY,
     description: 'Verberg tekst in de minst-significante bits van een afbeelding en haal het er weer uit.',
     render: () => <Steganography />
+  },
+  {
+    id: 'byte-reinterpret',
+    label: 'Byte-herinterpretatie',
+    icon: '🧬',
+    category: CAT_ALCHEMY,
+    description: 'Lees de rauwe bytes van een bestand als afbeelding of als geluid — speels en downloadbaar.',
+    render: () => <ByteReinterpret />
   }
 ]
 
