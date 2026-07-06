@@ -1870,6 +1870,40 @@ code {
   flex: 1 1 200px;
 }
 
+/* Bingo card gallery */
+.bingo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+.bingo-card {
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--color-background-mute);
+}
+.bingo-card canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.bingo-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+.bingo-card-foot .btn {
+  width: auto;
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
 /* ---------- Wiskunde: expression worksheet ---------- */
 .tk-mathsheet {
   background: var(--color-background);
