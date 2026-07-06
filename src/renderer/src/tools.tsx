@@ -59,6 +59,13 @@ import DiscountCalc from './components/DiscountCalc'
 import RatioCalc from './components/RatioCalc'
 // Notities
 import SnippetManager from './components/SnippetManager'
+// Audio
+import AudioConvert from './components/AudioConvert'
+import AudioTrim from './components/AudioTrim'
+import AudioVolume from './components/AudioVolume'
+import AudioNormalize from './components/AudioNormalize'
+import AudioFade from './components/AudioFade'
+import AudioExtract from './components/AudioExtract'
 // Data-alchemie
 import EncodingChain from './components/EncodingChain'
 import Steganography from './components/Steganography'
@@ -98,6 +105,7 @@ const CAT_MATH = 'Wiskunde'
 const CAT_CALC = 'Rekenaars'
 const CAT_NOTES = 'Notities'
 const CAT_ALCHEMY = 'Data-alchemie'
+const CAT_AUDIO = 'Audio'
 
 /** Tools that call the Python sidecar are gated on backend readiness. */
 function BackendGate({
@@ -641,6 +649,56 @@ export const TOOLS: ToolDef[] = [
     category: CAT_ALCHEMY,
     description: 'Render audio als spectrogram, of brand tekst in een geluid zodat het zichtbaar wordt.',
     render: () => <SpectrogramMessage />
+  },
+
+  // ---- Audio ----
+  {
+    id: 'audio-convert',
+    label: 'Audio converteren',
+    icon: '🎧',
+    category: CAT_AUDIO,
+    description: 'Zet audio om naar MP3, WAV, FLAC, M4A, AAC of OGG, met instelbare bitrate.',
+    render: gated(<AudioConvert />)
+  },
+  {
+    id: 'audio-trim',
+    label: 'Audio knippen',
+    icon: '✂️',
+    category: CAT_AUDIO,
+    description: 'Selecteer een bereik in de golfvorm en knip dat fragment uit het bestand.',
+    render: gated(<AudioTrim />)
+  },
+  {
+    id: 'audio-volume',
+    label: 'Volume aanpassen',
+    icon: '🔊',
+    category: CAT_AUDIO,
+    description: 'Maak een audiobestand luider of zachter met een versterking in decibel.',
+    render: gated(<AudioVolume />)
+  },
+  {
+    id: 'audio-normalize',
+    label: 'Audio normaliseren',
+    icon: '📊',
+    category: CAT_AUDIO,
+    description: 'Breng het volume naar een consistent, standaard luidheidsniveau (EBU R128).',
+    render: gated(<AudioNormalize />)
+  },
+  {
+    id: 'audio-fade',
+    label: 'Fades toevoegen',
+    icon: '🎚️',
+    category: CAT_AUDIO,
+    description: 'Laat een fragment geleidelijk in- en uitfaden aan begin en einde.',
+    render: gated(<AudioFade />)
+  },
+  {
+    id: 'audio-extract',
+    label: 'Audio uit video',
+    icon: '🎬',
+    category: CAT_AUDIO,
+    description: 'Haal de audiotrack uit een videobestand en sla die op als los audiobestand.',
+    render: gated(<AudioExtract />)
   }
 ]
 

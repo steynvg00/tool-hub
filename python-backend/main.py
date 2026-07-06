@@ -19,6 +19,7 @@ from fastapi.responses import JSONResponse
 from pipeline.engine import run_pipeline
 from pipeline.registry import list_steps
 from routes_files import router as files_router
+from routes_audio import router as audio_router
 
 # When frozen by PyInstaller, bundled data files (presets.json) live under
 # sys._MEIPASS; running from source they sit next to this file.
@@ -36,6 +37,9 @@ app.add_middleware(
 
 # Image & file tools (resize, convert, PDF utilities, palette).
 app.include_router(files_router)
+
+# Audio tools (convert, trim, volume, normalize, fade, extract) via bundled ffmpeg.
+app.include_router(audio_router)
 
 
 @app.get("/health")

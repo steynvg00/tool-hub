@@ -6,11 +6,15 @@ hiddenimports += collect_submodules('uvicorn')
 hiddenimports += collect_submodules('encodings')
 hiddenimports += collect_submodules('pypdf')
 
+# Bundle the static ffmpeg binary (from imageio-ffmpeg) at the bundle root, so
+# the frozen backend can run audio/video processing with no system ffmpeg.
+import imageio_ffmpeg
+_ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
 
 a = Analysis(
     ['run_server.py'],
     pathex=[],
-    binaries=[],
+    binaries=[(_ffmpeg, '.')],
     datas=[('presets.json', '.')],
     hiddenimports=hiddenimports,
     hookspath=[],

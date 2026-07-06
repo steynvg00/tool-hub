@@ -1613,6 +1613,15 @@ code {
   margin-top: 12px;
 }
 
+/* Audio knippen: waveform container */
+.tk-waveform {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--ev-c-gray-2);
+  border-radius: 10px;
+  background: var(--color-background);
+}
+
 /* Encoding-keten: stacked stages */
 .tk-chain {
   display: flex;
