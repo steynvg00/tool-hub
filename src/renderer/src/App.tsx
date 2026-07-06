@@ -1,10 +1,12 @@
 import { JSX, useEffect, useState } from 'react'
 import type { BackendStatus } from '../../preload'
 import Home from './components/Home'
+import FilesPanel from './components/FilesPanel'
 import { TOOLS, groupByCategory, type ToolDef } from './tools'
 
 // 'home' shows the landing page; any other value is a tool id.
 type View = 'home' | string
+type SidebarTab = 'tools' | 'files'
 
 const FAV_SECTION = 'Favorieten'
 
@@ -46,6 +48,7 @@ function App(): JSX.Element {
   })
   const [favorites, setFavorites] = useState<string[]>([])
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>('tools')
 
   useEffect(() => {
     window.api.backend.getStatus().then(setStatus).catch(() => {})
@@ -125,25 +128,48 @@ function App(): JSX.Element {
           Home
         </button>
 
-        {favTools.length > 0 && (
-          <div className="nav-section">
-            <button className="nav-cat" onClick={() => toggleCollapse(FAV_SECTION)}>
-              <span className="nav-cat-chevron">{collapsed.has(FAV_SECTION) ? '▸' : '▾'}</span>
-              {FAV_SECTION}
-            </button>
-            {!collapsed.has(FAV_SECTION) && favTools.map(renderTool)}
-          </div>
+        <div className="sidebar-tabs">
+          <button
+            className={sidebarTab === 'tools' ? 'sb-tab on' : 'sb-tab'}
+            onClick={() => setSidebarTab('tools')}
+          >
+            Tools
+          </button>
+          <button
+            className={sidebarTab === 'files' ? 'sb-tab on' : 'sb-tab'}
+            onClick={() => setSidebarTab('files')}
+          >
+            Bestanden
+          </button>
+        </div>
+
+        {sidebarTab === 'tools' && (
+          <>
+            {favTools.length > 0 && (
+              <div className="nav-section">
+                <button className="nav-cat" onClick={() => toggleCollapse(FAV_SECTION)}>
+                  <span className="nav-cat-chevron">{collapsed.has(FAV_SECTION) ? '▸' : '▾'}</span>
+                  {FAV_SECTION}
+                </button>
+                {!collapsed.has(FAV_SECTION) && favTools.map(renderTool)}
+              </div>
+            )}
+
+            {groups.map((group) => (
+              <div className="nav-section" key={group.category}>
+                <button className="nav-cat" onClick={() => toggleCollapse(group.category)}>
+                  <span className="nav-cat-chevron">
+                    {collapsed.has(group.category) ? '▸' : '▾'}
+                  </span>
+                  {group.category}
+                </button>
+                {!collapsed.has(group.category) && group.tools.map(renderTool)}
+              </div>
+            ))}
+          </>
         )}
 
-        {groups.map((group) => (
-          <div className="nav-section" key={group.category}>
-            <button className="nav-cat" onClick={() => toggleCollapse(group.category)}>
-              <span className="nav-cat-chevron">{collapsed.has(group.category) ? '▸' : '▾'}</span>
-              {group.category}
-            </button>
-            {!collapsed.has(group.category) && group.tools.map(renderTool)}
-          </div>
-        ))}
+        {sidebarTab === 'files' && <FilesPanel />}
 
         <button className="nav-update" onClick={() => window.api.updates.check()}>
           Controleer op updates
