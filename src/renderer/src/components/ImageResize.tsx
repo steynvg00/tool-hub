@@ -49,7 +49,7 @@ function ImageResize(): JSX.Element {
   return (
     <div className="tool">
       <header className="tool-header">
-        <h1>Afbeelding verkleinen</h1>
+        <h1>Afbeelding schalen</h1>
         <p>Schaal een afbeelding naar een kleinere maat of exacte afmetingen.</p>
       </header>
 

@@ -64,7 +64,7 @@ function Countdown(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Aftellen" subtitle="Tel live af naar een doeldatum en -tijd.">
+    <ToolShell title="Aftellen naar datum" subtitle="Tel live af naar een doeldatum en -tijd.">
       <div className="panel tool-panel">
         <label className="tool-field">
           <span className="tool-label">Doeldatum</span>

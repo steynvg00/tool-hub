@@ -43,7 +43,7 @@ function ImagePalette(): JSX.Element {
   return (
     <div className="tool">
       <header className="tool-header">
-        <h1>Kleuren uit afbeelding</h1>
+        <h1>Color pick</h1>
         <p>Haal de dominante kleuren op. Klik op een staaltje om de hex-code te kopiëren.</p>
       </header>
 

@@ -25,7 +25,7 @@ import AgeCalc from './components/AgeCalc'
 import Countdown from './components/Countdown'
 import UnixTime from './components/UnixTime'
 import TimezoneConvert from './components/TimezoneConvert'
-// Omzetters & data
+// Kleuren, tekst-data & bestanden
 import ColorConvert from './components/ColorConvert'
 import CsvJson from './components/CsvJson'
 import QrCode from './components/QrCode'
@@ -46,6 +46,12 @@ import Stopwatch from './components/Stopwatch'
 import CountdownTimer from './components/CountdownTimer'
 import Pomodoro from './components/Pomodoro'
 import Metronome from './components/Metronome'
+// Netwerk & systeem
+import WifiQr from './components/WifiQr'
+import MyIp from './components/MyIp'
+import SubnetCalc from './components/SubnetCalc'
+import SystemInfo from './components/SystemInfo'
+import PortReference from './components/PortReference'
 
 // Everything a tool needs from the app shell to render.
 export interface ToolContext {
@@ -61,11 +67,13 @@ export interface ToolDef {
   render: (ctx: ToolContext) => JSX.Element
 }
 
-const CAT_IMAGES = 'Beeld & bestanden'
+const CAT_IMAGES = 'Afbeelding'
+const CAT_FILES = 'Bestanden'
 const CAT_PRINT = 'Printen'
+const CAT_COLORS = 'Kleuren'
 const CAT_TEXT = 'Tekst'
 const CAT_DATETIME = 'Datum & tijd'
-const CAT_CONVERT = 'Omzetters & data'
+const CAT_NETWORK = 'Netwerk & systeem'
 const CAT_GAMES = 'Spellen & random'
 const CAT_TIMERS = 'Timers'
 
@@ -107,6 +115,7 @@ const gated =
 // Single source of truth: the sidebar nav and the homepage tiles both derive
 // from this list, so adding a tool is just one more entry (with its category).
 export const TOOLS: ToolDef[] = [
+  // ---- Afbeelding ----
   {
     id: 'background',
     label: 'Achtergrond verwijderen',
@@ -117,7 +126,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     id: 'resize',
-    label: 'Afbeelding verkleinen',
+    label: 'Afbeelding schalen',
     icon: '📐',
     category: CAT_IMAGES,
     description: 'Schaal een afbeelding naar een kleinere maat of exacte afmetingen.',
@@ -133,20 +142,40 @@ export const TOOLS: ToolDef[] = [
   },
   {
     id: 'palette',
-    label: 'Kleuren uit afbeelding',
+    label: 'Color pick',
     icon: '🎨',
     category: CAT_IMAGES,
     description: 'Haal de dominante kleuren op als klikbare staaltjes met hex-code.',
     render: gated(<ImagePalette />)
   },
   {
+    id: 'exif',
+    label: 'EXIF-viewer & stripper',
+    icon: '📷',
+    category: CAT_IMAGES,
+    description: 'Bekijk EXIF-data (incl. GPS) en download een kopie zonder metadata.',
+    render: () => <ExifTool />
+  },
+
+  // ---- Bestanden ----
+  {
     id: 'pdf',
     label: 'PDF-gereedschap',
     icon: '📄',
-    category: CAT_IMAGES,
+    category: CAT_FILES,
     description: 'Voeg samen, splits, draai of comprimeer PDF-bestanden.',
     render: gated(<PdfTools />)
   },
+  {
+    id: 'checksum',
+    label: 'Bestand-checksum',
+    icon: '#️⃣',
+    category: CAT_FILES,
+    description: 'Bereken de SHA-256 van een bestand en vergelijk met een verwachte hash.',
+    render: () => <FileChecksum />
+  },
+
+  // ---- Printen ----
   {
     id: 'print',
     label: 'Print layout',
@@ -154,6 +183,40 @@ export const TOOLS: ToolDef[] = [
     category: CAT_PRINT,
     description: 'Plaats een afbeelding op A4 — enkel of als raster — en print op ware grootte.',
     render: () => <PrintLayout />
+  },
+
+  // ---- Kleuren ----
+  {
+    id: 'color',
+    label: 'Kleur-omzetter',
+    icon: '🌈',
+    category: CAT_COLORS,
+    description: 'Zet kleuren om tussen hex, rgb en hsl, met een live kleurstaal.',
+    render: () => <ColorConvert />
+  },
+  {
+    id: 'opposite-color',
+    label: 'Tegenovergestelde kleur',
+    icon: '🎭',
+    category: CAT_COLORS,
+    description: 'Complementaire kleur, RGB-inversie en de beste leesbare tekstkleur.',
+    render: () => <OppositeColor />
+  },
+  {
+    id: 'color-set',
+    label: 'Kleurenset-generator',
+    icon: '🖌️',
+    category: CAT_COLORS,
+    description: 'Maak N passende kleuren uit een basiskleur (harmonisch, analoog of monochroom).',
+    render: () => <ColorSet />
+  },
+  {
+    id: 'color-harmony',
+    label: 'Kleurharmonieën',
+    icon: '🖍️',
+    category: CAT_COLORS,
+    description: 'Complementair, analoog, triadisch, tetradisch, split-complementair en monochroom.',
+    render: () => <ColorHarmonies />
   },
 
   // ---- Tekst ----
@@ -174,12 +237,28 @@ export const TOOLS: ToolDef[] = [
     render: () => <JsonTool />
   },
   {
+    id: 'csv-json',
+    label: 'CSV ↔ JSON',
+    icon: '🔀',
+    category: CAT_TEXT,
+    description: 'Zet CSV om naar JSON en terug, met detectie van de kop-rij.',
+    render: () => <CsvJson />
+  },
+  {
     id: 'base64-url',
     label: 'Base64 & URL',
     icon: '🔤',
     category: CAT_TEXT,
     description: 'Coderen en decoderen van Base64 en URL-tekst, met een schakelaar.',
     render: () => <Base64Url />
+  },
+  {
+    id: 'qr',
+    label: 'QR-code generator',
+    icon: '🔳',
+    category: CAT_TEXT,
+    description: 'Maak een QR-code van tekst of een URL en download hem als PNG.',
+    render: () => <QrCode />
   },
   {
     id: 'hash',
@@ -196,6 +275,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_TEXT,
     description: 'Genereer één of meer willekeurige versie-4 UUID’s.',
     render: () => <UuidGen />
+  },
+  {
+    id: 'password',
+    label: 'Wachtwoord-generator',
+    icon: '🔑',
+    category: CAT_TEXT,
+    description: 'Genereer sterke wachtwoorden met instelbare lengte, tekensets en sterkte-indicatie.',
+    render: () => <PasswordGen />
   },
   {
     id: 'lorem',
@@ -220,14 +307,6 @@ export const TOOLS: ToolDef[] = [
     category: CAT_TEXT,
     description: 'Test een patroon met vlaggen tegen tekst; live matches en capture-groups.',
     render: () => <RegexTester />
-  },
-  {
-    id: 'password',
-    label: 'Wachtwoord-generator',
-    icon: '🔑',
-    category: CAT_TEXT,
-    description: 'Genereer sterke wachtwoorden met instelbare lengte, tekensets en sterkte-indicatie.',
-    render: () => <PasswordGen />
   },
 
   // ---- Datum & tijd ----
@@ -273,7 +352,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     id: 'countdown',
-    label: 'Aftellen',
+    label: 'Aftellen naar datum',
     icon: '⏳',
     category: CAT_DATETIME,
     description: 'Live aftellen naar een gekozen datum en tijd.',
@@ -296,70 +375,46 @@ export const TOOLS: ToolDef[] = [
     render: () => <TimezoneConvert />
   },
 
-  // ---- Omzetters & data ----
+  // ---- Netwerk & systeem ----
   {
-    id: 'color',
-    label: 'Kleur-omzetter',
-    icon: '🌈',
-    category: CAT_CONVERT,
-    description: 'Zet kleuren om tussen hex, rgb en hsl, met een live kleurstaal.',
-    render: () => <ColorConvert />
+    id: 'wifi-qr',
+    label: 'Wifi-QR',
+    icon: '📶',
+    category: CAT_NETWORK,
+    description: 'Maak een scanbare QR-code waarmee je telefoon direct met je wifi verbindt.',
+    render: () => <WifiQr />
   },
   {
-    id: 'csv-json',
-    label: 'CSV ↔ JSON',
-    icon: '🔀',
-    category: CAT_CONVERT,
-    description: 'Zet CSV om naar JSON en terug, met detectie van de kop-rij.',
-    render: () => <CsvJson />
+    id: 'my-ip',
+    label: 'Mijn IP',
+    icon: '📡',
+    category: CAT_NETWORK,
+    description: 'Toont je publieke en lokale IP-adres.',
+    render: () => <MyIp />
   },
   {
-    id: 'qr',
-    label: 'QR-code generator',
-    icon: '🔳',
-    category: CAT_CONVERT,
-    description: 'Maak een QR-code van tekst of een URL en download hem als PNG.',
-    render: () => <QrCode />
+    id: 'subnet',
+    label: 'Subnet-calculator',
+    icon: '🧮',
+    category: CAT_NETWORK,
+    description: 'Bereken netwerkadres, broadcast, hostbereik en aantal hosts uit IP + subnet/CIDR.',
+    render: () => <SubnetCalc />
   },
   {
-    id: 'exif',
-    label: 'EXIF-viewer & stripper',
-    icon: '📷',
-    category: CAT_CONVERT,
-    description: 'Bekijk EXIF-data (incl. GPS) en download een kopie zonder metadata.',
-    render: () => <ExifTool />
+    id: 'useragent',
+    label: 'User-agent & systeeminfo',
+    icon: '🖥️',
+    category: CAT_NETWORK,
+    description: 'Browser- en OS-info, schermresolutie, tijdzone en taal van je apparaat.',
+    render: () => <SystemInfo />
   },
   {
-    id: 'checksum',
-    label: 'Bestand-checksum',
-    icon: '#️⃣',
-    category: CAT_CONVERT,
-    description: 'Bereken de SHA-256 van een bestand en vergelijk met een verwachte hash.',
-    render: () => <FileChecksum />
-  },
-  {
-    id: 'opposite-color',
-    label: 'Tegenovergestelde kleur',
-    icon: '🎭',
-    category: CAT_CONVERT,
-    description: 'Complementaire kleur, RGB-inversie en de beste leesbare tekstkleur.',
-    render: () => <OppositeColor />
-  },
-  {
-    id: 'color-set',
-    label: 'Kleurenset-generator',
-    icon: '🖌️',
-    category: CAT_CONVERT,
-    description: 'Maak N passende kleuren uit een basiskleur (harmonisch, analoog of monochroom).',
-    render: () => <ColorSet />
-  },
-  {
-    id: 'color-harmony',
-    label: 'Kleurharmonieën',
-    icon: '🖍️',
-    category: CAT_CONVERT,
-    description: 'Complementair, analoog, triadisch, tetradisch, split-complementair en monochroom.',
-    render: () => <ColorHarmonies />
+    id: 'ports',
+    label: 'Poort-referentie',
+    icon: '🔌',
+    category: CAT_NETWORK,
+    description: 'Doorzoekbare lijst van veelgebruikte netwerkpoorten en wat erop draait.',
+    render: () => <PortReference />
   },
 
   // ---- Spellen & random ----
