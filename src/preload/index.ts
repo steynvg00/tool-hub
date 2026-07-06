@@ -15,9 +15,16 @@ export type UserPreset = {
   steps: PresetStep[]
 }
 export type Snippet = { id: string; label: string; text: string; updatedAt: number }
-export type DirEntry = { name: string; path: string; isDirectory: boolean; type: string }
+export type SortMode = 'name' | 'recent'
+export type DirEntry = {
+  name: string
+  path: string
+  isDirectory: boolean
+  type: string
+  mtime?: number
+}
 export type Shortcut = { label: string; path: string }
-export type BrowserState = { pinned: string[]; lastDir: string | null }
+export type BrowserState = { pinned: string[]; lastDir: string | null; sort: SortMode }
 export type FileBytes = { name: string; type: string; data: Uint8Array }
 
 // Custom APIs for renderer
@@ -58,8 +65,9 @@ const api = {
   },
   browser: {
     shortcuts: (): Promise<Shortcut[]> => ipcRenderer.invoke('browser:shortcuts'),
-    list: (path: string): Promise<{ path: string; entries: DirEntry[] }> =>
-      ipcRenderer.invoke('browser:list', path),
+    list: (path: string, sort: SortMode): Promise<{ path: string; entries: DirEntry[] }> =>
+      ipcRenderer.invoke('browser:list', path, sort),
+    setSort: (sort: SortMode): Promise<void> => ipcRenderer.invoke('browser:set-sort', sort),
     read: (path: string): Promise<FileBytes> => ipcRenderer.invoke('browser:read', path),
     thumbnail: (path: string): Promise<Uint8Array | null> =>
       ipcRenderer.invoke('browser:thumbnail', path),

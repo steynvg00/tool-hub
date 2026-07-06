@@ -1,7 +1,9 @@
 import { app, nativeImage } from 'electron'
 import { join, basename, extname, dirname } from 'path'
 import { existsSync } from 'fs'
-import { readdir, readFile, writeFile, rm } from 'fs/promises'
+import { readdir, readFile, writeFile, rm, stat } from 'fs/promises'
+
+export type SortMode = 'name' | 'recent'
 
 // A live filesystem browser: the renderer navigates the user's own folders and
 // nothing is copied. Reads happen here (main process) via fs; the renderer only
@@ -12,6 +14,7 @@ export interface DirEntry {
   path: string
   isDirectory: boolean
   type: string // mime, empty for directories
+  mtime?: number // only populated when sorting by "recent"
 }
 
 export interface Shortcut {
@@ -22,6 +25,7 @@ export interface Shortcut {
 export interface BrowserState {
   pinned: string[]
   lastDir: string | null
+  sort: SortMode
 }
 
 const MIME: Record<string, string> = {
@@ -75,11 +79,15 @@ export function shortcuts(): Shortcut[] {
 }
 
 /**
- * List a directory. Uses withFileTypes so no per-entry stat is needed — stays
- * fast even for large folders. Hidden dotfiles are skipped. Directories first,
- * then files, alphabetically.
+ * List a directory. Uses withFileTypes so the default name sort needs no
+ * per-entry stat — stays fast even for large folders. Hidden dotfiles are
+ * skipped. For sort='recent' we stat each entry (only then) to get mtime and
+ * order newest-first; sort='name' keeps directories-first, alphabetical.
  */
-export async function listDir(dirPath: string): Promise<{ path: string; entries: DirEntry[] }> {
+export async function listDir(
+  dirPath: string,
+  sort: SortMode = 'name'
+): Promise<{ path: string; entries: DirEntry[] }> {
   const dirents = await readdir(dirPath, { withFileTypes: true })
   const entries: DirEntry[] = []
   for (const d of dirents) {
@@ -92,11 +100,25 @@ export async function listDir(dirPath: string): Promise<{ path: string; entries:
       type: isDirectory ? '' : mimeFor(d.name)
     })
   }
-  entries.sort(
-    (a, b) =>
-      Number(b.isDirectory) - Number(a.isDirectory) ||
-      a.name.localeCompare(b.name, 'nl', { sensitivity: 'base' })
-  )
+
+  if (sort === 'recent') {
+    const times = await Promise.all(
+      entries.map((e) =>
+        stat(e.path).then(
+          (s) => s.mtimeMs,
+          () => 0
+        )
+      )
+    )
+    entries.forEach((e, i) => (e.mtime = times[i]))
+    entries.sort((a, b) => (b.mtime ?? 0) - (a.mtime ?? 0))
+  } else {
+    entries.sort(
+      (a, b) =>
+        Number(b.isDirectory) - Number(a.isDirectory) ||
+        a.name.localeCompare(b.name, 'nl', { sensitivity: 'base' })
+    )
+  }
   return { path: dirPath, entries }
 }
 
@@ -129,11 +151,18 @@ export async function getState(): Promise<BrowserState> {
     const d = JSON.parse(await readFile(stateFile(), 'utf-8'))
     return {
       pinned: Array.isArray(d?.pinned) ? d.pinned.filter((p: unknown) => typeof p === 'string') : [],
-      lastDir: typeof d?.lastDir === 'string' ? d.lastDir : null
+      lastDir: typeof d?.lastDir === 'string' ? d.lastDir : null,
+      sort: d?.sort === 'recent' ? 'recent' : 'name'
     }
   } catch {
-    return { pinned: [], lastDir: null }
+    return { pinned: [], lastDir: null, sort: 'name' }
   }
+}
+
+export async function setSort(sort: SortMode): Promise<void> {
+  const s = await getState()
+  s.sort = sort === 'recent' ? 'recent' : 'name'
+  await saveState(s)
 }
 
 async function saveState(s: BrowserState): Promise<void> {

@@ -14,9 +14,16 @@ export type UserPreset = {
   steps: PresetStep[]
 }
 export type Snippet = { id: string; label: string; text: string; updatedAt: number }
-export type DirEntry = { name: string; path: string; isDirectory: boolean; type: string }
+export type SortMode = 'name' | 'recent'
+export type DirEntry = {
+  name: string
+  path: string
+  isDirectory: boolean
+  type: string
+  mtime?: number
+}
 export type Shortcut = { label: string; path: string }
-export type BrowserState = { pinned: string[]; lastDir: string | null }
+export type BrowserState = { pinned: string[]; lastDir: string | null; sort: SortMode }
 export type FileBytes = { name: string; type: string; data: Uint8Array }
 
 export interface ToolHubAPI {
@@ -47,7 +54,8 @@ export interface ToolHubAPI {
   }
   browser: {
     shortcuts: () => Promise<Shortcut[]>
-    list: (path: string) => Promise<{ path: string; entries: DirEntry[] }>
+    list: (path: string, sort: SortMode) => Promise<{ path: string; entries: DirEntry[] }>
+    setSort: (sort: SortMode) => Promise<void>
     read: (path: string) => Promise<FileBytes>
     thumbnail: (path: string) => Promise<Uint8Array | null>
     getState: () => Promise<BrowserState>

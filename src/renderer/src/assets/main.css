@@ -81,6 +81,28 @@ body {
   flex-direction: column;
   gap: 1px;
 }
+.fb-controls {
+  display: flex;
+  gap: 6px;
+  padding: 4px 4px 2px;
+}
+.fb-seg {
+  flex: 0 0 auto;
+}
+.fb-seg button {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+.fb-filter {
+  flex: 1;
+  min-width: 0;
+  background: var(--color-background);
+  border: 1px solid var(--ev-c-gray-2);
+  color: var(--ev-c-text-1);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 12px;
+}
 .fb-actions {
   padding: 4px 4px 6px;
 }

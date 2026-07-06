@@ -26,7 +26,9 @@ import {
   pinDir,
   unpinDir,
   setLastDir,
-  cleanupLegacyCollectedFiles
+  setSort as setBrowserSort,
+  cleanupLegacyCollectedFiles,
+  type SortMode
 } from './browser'
 
 // Tracks the sidecar lifecycle so the renderer can show a loading / error gate.
@@ -128,7 +130,8 @@ app.whenReady().then(() => {
 
   // Live filesystem browser for the "Bestanden" panel. Nothing is copied.
   ipcMain.handle('browser:shortcuts', () => browserShortcuts())
-  ipcMain.handle('browser:list', (_e, path: string) => listDir(path))
+  ipcMain.handle('browser:list', (_e, path: string, sort: SortMode) => listDir(path, sort))
+  ipcMain.handle('browser:set-sort', (_e, sort: SortMode) => setBrowserSort(sort))
   ipcMain.handle('browser:read', (_e, path: string) => readFileBytes(path))
   ipcMain.handle('browser:thumbnail', (_e, path: string) => thumbnail(path))
   ipcMain.handle('browser:get-state', () => getBrowserState())
