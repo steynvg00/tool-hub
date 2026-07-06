@@ -14,7 +14,6 @@ export type UserPreset = {
   description?: string
   steps: PresetStep[]
 }
-export type CustomRandomList = { id: string; name: string; items: string[] }
 export type Snippet = { id: string; label: string; text: string; updatedAt: number }
 
 // Custom APIs for renderer
@@ -42,13 +41,6 @@ const api = {
   favorites: {
     list: (): Promise<string[]> => ipcRenderer.invoke('favorites:list'),
     toggle: (id: string): Promise<string[]> => ipcRenderer.invoke('favorites:toggle', id)
-  },
-  randomLists: {
-    list: (): Promise<CustomRandomList[]> => ipcRenderer.invoke('random-lists:list'),
-    save: (input: { id?: string; name: string; items: string[] }): Promise<CustomRandomList[]> =>
-      ipcRenderer.invoke('random-lists:save', input),
-    delete: (id: string): Promise<CustomRandomList[]> =>
-      ipcRenderer.invoke('random-lists:delete', id)
   },
   snippets: {
     list: (): Promise<Snippet[]> => ipcRenderer.invoke('snippets:list'),
