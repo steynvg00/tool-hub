@@ -54,3 +54,4 @@ publish:
   provider: github
   owner: steynvg00
   repo: tool-hub
+  releaseType: release
