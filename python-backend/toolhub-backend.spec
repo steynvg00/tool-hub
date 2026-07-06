@@ -4,6 +4,7 @@ from PyInstaller.utils.hooks import collect_submodules
 hiddenimports = ['cv2']
 hiddenimports += collect_submodules('uvicorn')
 hiddenimports += collect_submodules('encodings')
+hiddenimports += collect_submodules('pypdf')
 
 
 a = Analysis(

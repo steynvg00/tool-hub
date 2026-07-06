@@ -33,6 +33,13 @@ const api = {
       ipcRenderer.invoke('presets:save-user', preset),
     deleteUser: (id: string): Promise<UserPreset[]> =>
       ipcRenderer.invoke('presets:delete-user', id)
+  },
+  updates: {
+    check: (): Promise<void> => ipcRenderer.invoke('updates:check')
+  },
+  favorites: {
+    list: (): Promise<string[]> => ipcRenderer.invoke('favorites:list'),
+    toggle: (id: string): Promise<string[]> => ipcRenderer.invoke('favorites:toggle', id)
   }
 }
 

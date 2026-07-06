@@ -4,3 +4,4 @@ opencv-python-headless==4.11.0.86
 numpy==2.2.1
 pillow==11.1.0
 python-multipart==0.0.20
+pypdf==5.9.0

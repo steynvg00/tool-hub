@@ -24,6 +24,13 @@ export interface ToolHubAPI {
     saveUser: (preset: { name: string; steps: PresetStep[] }) => Promise<UserPreset[]>
     deleteUser: (id: string) => Promise<UserPreset[]>
   }
+  updates: {
+    check: () => Promise<void>
+  }
+  favorites: {
+    list: () => Promise<string[]>
+    toggle: (id: string) => Promise<string[]>
+  }
 }
 
 declare global {

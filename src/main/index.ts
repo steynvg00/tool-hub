@@ -13,6 +13,8 @@ import {
   deleteUserPreset,
   type PresetStep
 } from './userPresets'
+import { initAutoUpdater, checkForUpdatesManually } from './updater'
+import { listFavorites, toggleFavorite } from './favorites'
 
 // Tracks the sidecar lifecycle so the renderer can show a loading / error gate.
 type BackendStatus = {
@@ -93,6 +95,13 @@ app.whenReady().then(() => {
   )
   ipcMain.handle('presets:delete-user', (_e, id: string) => deleteUserPreset(id))
 
+  // Manual "check for updates" trigger from the renderer.
+  ipcMain.handle('updates:check', () => checkForUpdatesManually())
+
+  // Favourite tools, persisted in userData.
+  ipcMain.handle('favorites:list', () => listFavorites())
+  ipcMain.handle('favorites:toggle', (_e, id: string) => toggleFavorite(id))
+
   createWindow()
 
   // Start the Python sidecar and wait for /health, then tell the renderer.
@@ -102,6 +111,9 @@ app.whenReady().then(() => {
       console.error('[backend] failed to start:', err)
       setBackendStatus({ state: 'error', baseUrl: BACKEND_URL, error: err.message })
     })
+
+  // Check for app updates (no-op in dev; downloads then prompts in production).
+  initAutoUpdater()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

@@ -1,10 +1,42 @@
 import { JSX, useEffect, useState } from 'react'
 import type { BackendStatus } from '../../preload'
 import Home from './components/Home'
-import { TOOLS } from './tools'
+import { TOOLS, groupByCategory, type ToolDef } from './tools'
 
 // 'home' shows the landing page; any other value is a tool id.
 type View = 'home' | string
+
+const FAV_SECTION = 'Favorieten'
+
+function NavTool({
+  tool,
+  active,
+  isFav,
+  onOpen,
+  onToggleFav
+}: {
+  tool: ToolDef
+  active: boolean
+  isFav: boolean
+  onOpen: () => void
+  onToggleFav: () => void
+}): JSX.Element {
+  return (
+    <div className="nav-row">
+      <button className={active ? 'nav-item on' : 'nav-item'} onClick={onOpen}>
+        <span className="nav-icon">{tool.icon}</span>
+        {tool.label}
+      </button>
+      <button
+        className={isFav ? 'nav-star on' : 'nav-star'}
+        title={isFav ? 'Verwijder uit favorieten' : 'Voeg toe aan favorieten'}
+        onClick={onToggleFav}
+      >
+        {isFav ? '★' : '☆'}
+      </button>
+    </div>
+  )
+}
 
 function App(): JSX.Element {
   const [view, setView] = useState<View>('home')
@@ -12,11 +44,28 @@ function App(): JSX.Element {
     state: 'starting',
     baseUrl: 'http://127.0.0.1:8756'
   })
+  const [favorites, setFavorites] = useState<string[]>([])
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     window.api.backend.getStatus().then(setStatus).catch(() => {})
-    return window.api.backend.onStatus(setStatus)
+    const unsub = window.api.backend.onStatus(setStatus)
+    window.api.favorites.list().then(setFavorites).catch(() => {})
+    return unsub
   }, [])
+
+  const toggleFav = (id: string): void => {
+    window.api.favorites.toggle(id).then(setFavorites).catch(() => {})
+  }
+
+  const toggleCollapse = (key: string): void => {
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
 
   const statusLabel =
     status.state === 'ready'
@@ -26,6 +75,21 @@ function App(): JSX.Element {
         : 'Backend offline'
 
   const activeTool = TOOLS.find((t) => t.id === view)
+  const groups = groupByCategory(TOOLS)
+  const favTools = favorites
+    .map((id) => TOOLS.find((t) => t.id === id))
+    .filter((t): t is ToolDef => Boolean(t))
+
+  const renderTool = (tool: ToolDef): JSX.Element => (
+    <NavTool
+      key={tool.id}
+      tool={tool}
+      active={view === tool.id}
+      isFav={favorites.includes(tool.id)}
+      onOpen={() => setView(tool.id)}
+      onToggleFav={() => toggleFav(tool.id)}
+    />
+  )
 
   return (
     <div className="app-shell">
@@ -40,16 +104,29 @@ function App(): JSX.Element {
           Home
         </button>
 
-        {TOOLS.map((t) => (
-          <button
-            key={t.id}
-            className={view === t.id ? 'nav-item on' : 'nav-item'}
-            onClick={() => setView(t.id)}
-          >
-            <span className="nav-icon">{t.icon}</span>
-            {t.label}
-          </button>
+        {favTools.length > 0 && (
+          <div className="nav-section">
+            <button className="nav-cat" onClick={() => toggleCollapse(FAV_SECTION)}>
+              <span className="nav-cat-chevron">{collapsed.has(FAV_SECTION) ? '▸' : '▾'}</span>
+              {FAV_SECTION}
+            </button>
+            {!collapsed.has(FAV_SECTION) && favTools.map(renderTool)}
+          </div>
+        )}
+
+        {groups.map((group) => (
+          <div className="nav-section" key={group.category}>
+            <button className="nav-cat" onClick={() => toggleCollapse(group.category)}>
+              <span className="nav-cat-chevron">{collapsed.has(group.category) ? '▸' : '▾'}</span>
+              {group.category}
+            </button>
+            {!collapsed.has(group.category) && group.tools.map(renderTool)}
+          </div>
         ))}
+
+        <button className="nav-update" onClick={() => window.api.updates.check()}>
+          Controleer op updates
+        </button>
 
         <div className="app-backend" title={status.error ?? statusLabel}>
           <span className={`status-dot ${status.state}`} />
@@ -61,7 +138,12 @@ function App(): JSX.Element {
         {activeTool ? (
           activeTool.render({ backendStatus: status })
         ) : (
-          <Home tools={TOOLS} onOpen={setView} />
+          <Home
+            tools={TOOLS}
+            onOpen={setView}
+            favorites={favorites}
+            onToggleFavorite={toggleFav}
+          />
         )}
       </main>
     </div>

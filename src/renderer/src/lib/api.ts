@@ -100,3 +100,70 @@ export async function removeBackground(
   }
   return data as RemoveResult
 }
+
+// --- Image & file tools (raw-bytes downloads) ------------------------------
+
+export interface FileResult {
+  blob: Blob
+  filename: string
+  url: string // object URL for a download link; revoke when done
+  size: number
+}
+
+function filenameFromDisposition(res: Response, fallback: string): string {
+  const cd = res.headers.get('Content-Disposition') ?? ''
+  const m = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd)
+  return m ? decodeURIComponent(m[1]) : fallback
+}
+
+/**
+ * POST a multipart form to an endpoint that returns the finished file as raw
+ * bytes, and turn the response into a downloadable blob + object URL. On a
+ * backend error (JSON {error}) it throws with that message.
+ */
+export async function processToFile(
+  path: string,
+  form: FormData,
+  fallbackName = 'download'
+): Promise<FileResult> {
+  const res = await fetch(`${BASE_URL}${path}`, { method: 'POST', body: form })
+  if (!res.ok) {
+    let msg = `POST ${path} failed: ${res.status}`
+    try {
+      const j = await res.json()
+      if (j?.error) msg = j.error
+    } catch {
+      /* body wasn't JSON */
+    }
+    throw new Error(msg)
+  }
+  const blob = await res.blob()
+  return {
+    blob,
+    filename: filenameFromDisposition(res, fallbackName),
+    url: URL.createObjectURL(blob),
+    size: blob.size
+  }
+}
+
+export interface PaletteColour {
+  hex: string
+  rgb: [number, number, number]
+  fraction: number
+}
+
+export async function extractPalette(image: File, count: number): Promise<PaletteColour[]> {
+  const form = new FormData()
+  form.append('image', image)
+  form.append('count', String(count))
+  const res = await fetch(`${BASE_URL}/image/palette`, { method: 'POST', body: form })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data?.error ?? `POST /image/palette failed: ${res.status}`)
+  return data.colours as PaletteColour[]
+}
+
+export function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`
+  return `${(n / (1024 * 1024)).toFixed(2)} MB`
+}
