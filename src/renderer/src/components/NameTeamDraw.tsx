@@ -1,5 +1,5 @@
 import { JSX, useState } from 'react'
-import { ToolShell, TextArea, Segmented, Note } from './toolkit'
+import { ToolShell, LineListEditor, Segmented, Note } from './toolkit'
 import { NumberField } from './ToolFields'
 
 type Mode = 'winner' | 'teams'
@@ -24,7 +24,8 @@ const NAMETEAM_INFO = (
     <h4>Opties</h4>
     <ul>
       <li>
-        <b>Namen</b> — één naam per regel; lege regels worden genegeerd.
+        <b>Namen</b> — vul één naam per regel in; zodra je typt verschijnt er een lege regel eronder,
+        en met het kruisje verwijder je een naam.
       </li>
       <li>
         <b>Eén winnaar</b> — kiest één willekeurige naam uit de lijst.
@@ -41,16 +42,11 @@ const NAMETEAM_INFO = (
 )
 
 function NameTeamDraw(): JSX.Element {
-  const [text, setText] = useState('')
+  const [names, setNames] = useState<string[]>([])
   const [mode, setMode] = useState<Mode>('winner')
   const [teamCount, setTeamCount] = useState(2)
   const [winner, setWinner] = useState<string | null>(null)
   const [teams, setTeams] = useState<string[][]>([])
-
-  const names = text
-    .split(/\r?\n/)
-    .map((s) => s.trim())
-    .filter((s) => s !== '')
 
   const clampedTeams = Math.max(2, Math.min(20, Math.floor(teamCount) || 2))
 
@@ -74,14 +70,8 @@ function NameTeamDraw(): JSX.Element {
       info={NAMETEAM_INFO}
     >
       <div className="panel">
-        <TextArea
-          label="Namen (één per regel)"
-          value={text}
-          onChange={setText}
-          rows={8}
-          mono={false}
-          placeholder={'Anna\nBram\nCarlijn\nDaan'}
-        />
+        <label className="tool-label">Namen</label>
+        <LineListEditor initial={[]} onChange={setNames} placeholder="naam toevoegen…" />
 
         <div className="tk-field" style={{ marginTop: 12 }}>
           <Segmented<Mode>

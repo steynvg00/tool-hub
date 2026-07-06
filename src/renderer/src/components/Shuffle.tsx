@@ -1,5 +1,5 @@
 import { JSX, useState } from 'react'
-import { ToolShell, TextArea, CopyButton, Toggle, Note } from './toolkit'
+import { ToolShell, LineListEditor, CopyButton, Toggle, Note } from './toolkit'
 
 /** Fisher-Yates shuffle returning a new array. */
 function shuffle<T>(input: T[]): T[] {
@@ -21,7 +21,7 @@ const SHUFFLE_INFO = (
     <h4>Opties</h4>
     <ul>
       <li>
-        <b>Items</b> — één item per regel; lege regels worden genegeerd.
+        <b>Items</b> — vul één item per regel in; met het kruisje verwijder je een regel.
       </li>
       <li>
         <b>Shuffle</b> — bepaalt een nieuwe willekeurige volgorde.
@@ -38,14 +38,9 @@ const SHUFFLE_INFO = (
 )
 
 function Shuffle(): JSX.Element {
-  const [text, setText] = useState('')
+  const [items, setItems] = useState<string[]>([])
   const [numbered, setNumbered] = useState(true)
   const [order, setOrder] = useState<string[]>([])
-
-  const items = text
-    .split(/\r?\n/)
-    .map((s) => s.trim())
-    .filter((s) => s !== '')
 
   const doShuffle = (): void => {
     setOrder(shuffle(items))
@@ -60,14 +55,8 @@ function Shuffle(): JSX.Element {
       info={SHUFFLE_INFO}
     >
       <div className="panel">
-        <TextArea
-          label="Items (één per regel)"
-          value={text}
-          onChange={setText}
-          rows={8}
-          mono={false}
-          placeholder={'Item 1\nItem 2\nItem 3'}
-        />
+        <label className="tool-label">Items</label>
+        <LineListEditor initial={[]} onChange={setItems} placeholder="item toevoegen…" />
 
         <div className="tk-actions">
           <button

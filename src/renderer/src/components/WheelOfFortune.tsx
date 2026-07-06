@@ -1,8 +1,9 @@
 import { JSX, useEffect, useRef, useState } from 'react'
-import { ToolShell, TextArea, Note } from './toolkit'
+import { ToolShell, LineListEditor, Note } from './toolkit'
 
 const SIZE = 300
 const TAU = Math.PI * 2
+const DEFAULT_OPTIONS = ['Ja', 'Nee', 'Misschien', 'Opnieuw']
 
 const WHEEL_INFO = (
   <>
@@ -14,8 +15,8 @@ const WHEEL_INFO = (
     <h4>Opties</h4>
     <ul>
       <li>
-        <b>Opties</b> — één optie per regel; elke regel wordt een gekleurde taartpunt op het rad. Je
-        hebt minstens twee opties nodig om te kunnen draaien.
+        <b>Opties</b> — vul één optie per regel in (met een kruisje om te verwijderen); elke optie
+        wordt een gekleurde taartpunt. Je hebt minstens twee opties nodig om te kunnen draaien.
       </li>
       <li>
         <b>Draai</b> — laat het rad draaien; na afloop verschijnt de gekozen optie.
@@ -25,18 +26,13 @@ const WHEEL_INFO = (
 )
 
 function WheelOfFortune(): JSX.Element {
-  const [raw, setRaw] = useState('Ja\nNee\nMisschien\nOpnieuw')
+  const [options, setOptions] = useState<string[]>(DEFAULT_OPTIONS)
   const [rotation, setRotation] = useState(0)
   const [spinning, setSpinning] = useState(false)
   const [winner, setWinner] = useState<string | null>(null)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const frame = useRef<number | undefined>(undefined)
-
-  const options = raw
-    .split(/\r?\n/)
-    .map((s) => s.trim())
-    .filter((s) => s !== '')
 
   // Cancel any pending animation frame on unmount.
   useEffect(
@@ -152,12 +148,11 @@ function WheelOfFortune(): JSX.Element {
       info={WHEEL_INFO}
     >
       <div className="panel">
-        <TextArea
-          label="Opties (één per regel)"
-          value={raw}
-          onChange={setRaw}
-          rows={6}
-          mono={false}
+        <label className="tool-label">Opties</label>
+        <LineListEditor
+          initial={DEFAULT_OPTIONS}
+          onChange={setOptions}
+          placeholder="optie toevoegen…"
         />
 
         {options.length < 2 && <Note>Voeg minstens twee opties toe om te kunnen draaien.</Note>}

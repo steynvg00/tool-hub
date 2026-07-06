@@ -1530,6 +1530,46 @@ code {
   margin-left: 8px;
 }
 
+/* Editable line list (names, wheel options, shuffle items) */
+.tk-linelist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 6px 0 4px;
+}
+.tk-linerow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tk-lineinput {
+  flex: 1;
+  min-width: 0;
+  background: var(--color-background);
+  border: 1px solid var(--ev-c-gray-2);
+  color: var(--ev-c-text-1);
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 14px;
+}
+.tk-linedel {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid var(--ev-c-gray-3);
+  background: var(--color-background-mute);
+  color: var(--ev-c-text-2);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tk-linedel:hover {
+  background: rgba(224, 90, 90, 0.18);
+  border-color: #e05a5a;
+  color: #e05a5a;
+}
+
 /* Unit converter: conversion-formula column */
 .tk-unit-how {
   font-size: 12px;

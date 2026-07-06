@@ -251,3 +251,72 @@ export function StatRow({ stats }: { stats: { label: string; value: string | num
 export function Note({ children }: { children: ReactNode }): JSX.Element {
   return <p className="tk-note">{children}</p>
 }
+
+// Keep exactly one empty row at the end, and collapse accidental double-empties.
+function withTrailingEmpty(arr: string[]): string[] {
+  const out = arr.slice()
+  while (out.length >= 2 && out[out.length - 1].trim() === '' && out[out.length - 2].trim() === '') {
+    out.pop()
+  }
+  if (out.length === 0 || out[out.length - 1].trim() !== '') out.push('')
+  return out
+}
+
+/**
+ * An editable list of single-line entries: one input per entry, each with a ×
+ * to remove it, and always one empty trailing row so typing a new entry makes
+ * the next row appear. Reports the non-empty, trimmed entries via onChange.
+ */
+export function LineListEditor({
+  initial = [],
+  onChange,
+  placeholder = 'toevoegen…'
+}: {
+  initial?: string[]
+  onChange: (values: string[]) => void
+  placeholder?: string
+}): JSX.Element {
+  const [items, setItems] = useState<string[]>(() => withTrailingEmpty(initial))
+
+  const emit = (next: string[]): void => {
+    setItems(next)
+    onChange(next.map((s) => s.trim()).filter((s) => s !== ''))
+  }
+  const setAt = (i: number, val: string): void => {
+    const next = items.slice()
+    next[i] = val
+    emit(withTrailingEmpty(next))
+  }
+  const removeAt = (i: number): void => {
+    emit(withTrailingEmpty(items.filter((_, j) => j !== i)))
+  }
+
+  return (
+    <div className="tk-linelist">
+      {items.map((it, i) => {
+        const isLast = i === items.length - 1
+        return (
+          <div className="tk-linerow" key={i}>
+            <input
+              className="tk-lineinput"
+              value={it}
+              placeholder={isLast ? placeholder : ''}
+              spellCheck={false}
+              onChange={(e) => setAt(i, e.target.value)}
+            />
+            <button
+              className="tk-linedel"
+              aria-label="Regel verwijderen"
+              title="Verwijderen"
+              tabIndex={-1}
+              onClick={() => removeAt(i)}
+              style={{ visibility: isLast ? 'hidden' : 'visible' }}
+            >
+              ×
+            </button>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
