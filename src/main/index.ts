@@ -17,7 +17,17 @@ import { initAutoUpdater, checkForUpdatesManually } from './updater'
 import { listFavorites, toggleFavorite } from './favorites'
 import { listSnippets, saveSnippet, deleteSnippet } from './snippets'
 import { getLocalIps, getPublicIp } from './network'
-import { listFiles, addFiles, removeFile, setPinned, readFileBytes } from './files'
+import {
+  shortcuts as browserShortcuts,
+  listDir,
+  readFileBytes,
+  thumbnail,
+  getState as getBrowserState,
+  pinDir,
+  unpinDir,
+  setLastDir,
+  cleanupLegacyCollectedFiles
+} from './browser'
 
 // Tracks the sidecar lifecycle so the renderer can show a loading / error gate.
 type BackendStatus = {
@@ -116,21 +126,27 @@ app.whenReady().then(() => {
   ipcMain.handle('network:local-ips', () => getLocalIps())
   ipcMain.handle('network:public-ip', () => getPublicIp())
 
-  // Collected files ("Bestanden" panel), copied into userData.
-  ipcMain.handle('files:list', () => listFiles())
-  ipcMain.handle('files:add-paths', (_e, paths: string[]) => addFiles(paths))
-  ipcMain.handle('files:add-dialog', async () => {
+  // Live filesystem browser for the "Bestanden" panel. Nothing is copied.
+  ipcMain.handle('browser:shortcuts', () => browserShortcuts())
+  ipcMain.handle('browser:list', (_e, path: string) => listDir(path))
+  ipcMain.handle('browser:read', (_e, path: string) => readFileBytes(path))
+  ipcMain.handle('browser:thumbnail', (_e, path: string) => thumbnail(path))
+  ipcMain.handle('browser:get-state', () => getBrowserState())
+  ipcMain.handle('browser:set-last-dir', (_e, path: string) => setLastDir(path))
+  ipcMain.handle('browser:unpin', (_e, path: string) => unpinDir(path))
+  ipcMain.handle('browser:pin-dialog', async () => {
     const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
     const res = await dialog.showOpenDialog(win, {
-      title: 'Bestanden of map kiezen',
-      properties: ['openFile', 'openDirectory', 'multiSelections']
+      title: 'Map vastpinnen',
+      properties: ['openDirectory']
     })
-    if (res.canceled || res.filePaths.length === 0) return listFiles()
-    return addFiles(res.filePaths)
+    const state = await getBrowserState()
+    if (res.canceled || res.filePaths.length === 0) return state.pinned
+    return pinDir(res.filePaths[0])
   })
-  ipcMain.handle('files:remove', (_e, id: string) => removeFile(id))
-  ipcMain.handle('files:pin', (_e, id: string, pinned: boolean) => setPinned(id, pinned))
-  ipcMain.handle('files:read', (_e, id: string) => readFileBytes(id))
+
+  // Best-effort removal of the previous copy-based collection.
+  cleanupLegacyCollectedFiles()
 
   createWindow()
 

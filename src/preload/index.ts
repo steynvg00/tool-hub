@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, webUtils } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 export type BackendStatus = {
@@ -15,15 +15,10 @@ export type UserPreset = {
   steps: PresetStep[]
 }
 export type Snippet = { id: string; label: string; text: string; updatedAt: number }
-export type CollectedFile = {
-  id: string
-  name: string
-  type: string
-  size: number
-  addedAt: number
-  pinned: boolean
-}
-export type CollectedFileBytes = { name: string; type: string; data: Uint8Array }
+export type DirEntry = { name: string; path: string; isDirectory: boolean; type: string }
+export type Shortcut = { label: string; path: string }
+export type BrowserState = { pinned: string[]; lastDir: string | null }
+export type FileBytes = { name: string; type: string; data: Uint8Array }
 
 // Custom APIs for renderer
 const api = {
@@ -61,18 +56,17 @@ const api = {
     getLocalIps: (): Promise<string[]> => ipcRenderer.invoke('network:local-ips'),
     getPublicIp: (): Promise<string> => ipcRenderer.invoke('network:public-ip')
   },
-  files: {
-    list: (): Promise<CollectedFile[]> => ipcRenderer.invoke('files:list'),
-    addViaDialog: (): Promise<CollectedFile[]> => ipcRenderer.invoke('files:add-dialog'),
-    addPaths: (paths: string[]): Promise<CollectedFile[]> =>
-      ipcRenderer.invoke('files:add-paths', paths),
-    remove: (id: string): Promise<CollectedFile[]> => ipcRenderer.invoke('files:remove', id),
-    setPinned: (id: string, pinned: boolean): Promise<CollectedFile[]> =>
-      ipcRenderer.invoke('files:pin', id, pinned),
-    read: (id: string): Promise<CollectedFileBytes | null> =>
-      ipcRenderer.invoke('files:read', id),
-    /** Resolve the on-disk path of a File dropped from the OS (Electron webUtils). */
-    getPathForFile: (file: File): string => webUtils.getPathForFile(file)
+  browser: {
+    shortcuts: (): Promise<Shortcut[]> => ipcRenderer.invoke('browser:shortcuts'),
+    list: (path: string): Promise<{ path: string; entries: DirEntry[] }> =>
+      ipcRenderer.invoke('browser:list', path),
+    read: (path: string): Promise<FileBytes> => ipcRenderer.invoke('browser:read', path),
+    thumbnail: (path: string): Promise<Uint8Array | null> =>
+      ipcRenderer.invoke('browser:thumbnail', path),
+    getState: (): Promise<BrowserState> => ipcRenderer.invoke('browser:get-state'),
+    setLastDir: (path: string): Promise<void> => ipcRenderer.invoke('browser:set-last-dir', path),
+    unpin: (path: string): Promise<string[]> => ipcRenderer.invoke('browser:unpin', path),
+    pinViaDialog: (): Promise<string[]> => ipcRenderer.invoke('browser:pin-dialog')
   }
 }
 

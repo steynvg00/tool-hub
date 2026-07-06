@@ -1,6 +1,6 @@
 import { JSX, useEffect, useRef, useState, type DragEvent } from 'react'
 import { formatBytes, type FileResult } from '../lib/api'
-import { FILE_DRAG_MIME, collectedFileToFile, dragHasFile } from '../lib/collectedFiles'
+import { FILE_DRAG_MIME, readDraggedFile, dragHasFile } from '../lib/collectedFiles'
 
 /**
  * Thumbnail preview for a picked file: a live image thumbnail for images,
@@ -53,9 +53,9 @@ export function FileButton({
   const onDrop = async (e: DragEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault()
     setOver(false)
-    const id = e.dataTransfer.getData(FILE_DRAG_MIME)
-    if (id) {
-      const f = await collectedFileToFile(id)
+    const path = e.dataTransfer.getData(FILE_DRAG_MIME)
+    if (path) {
+      const f = await readDraggedFile(path)
       if (f) onPick(f)
       return
     }
@@ -109,9 +109,9 @@ export function MultiFileButton({
   const onDrop = async (e: DragEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault()
     setOver(false)
-    const id = e.dataTransfer.getData(FILE_DRAG_MIME)
-    if (id) {
-      const f = await collectedFileToFile(id)
+    const path = e.dataTransfer.getData(FILE_DRAG_MIME)
+    if (path) {
+      const f = await readDraggedFile(path)
       if (f) onPick([...files, f])
       return
     }
