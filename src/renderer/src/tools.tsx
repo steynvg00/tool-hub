@@ -79,6 +79,7 @@ import MyIp from './components/MyIp'
 import SubnetCalc from './components/SubnetCalc'
 import SystemInfo from './components/SystemInfo'
 import PortReference from './components/PortReference'
+import DiskCleaner from './components/DiskCleaner'
 
 // Everything a tool needs from the app shell to render.
 export interface ToolContext {
@@ -449,6 +450,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_NETWORK,
     description: 'Doorzoekbare lijst van veelgebruikte netwerkpoorten en wat erop draait.',
     render: () => <PortReference />
+  },
+  {
+    id: 'disk-cleaner',
+    label: 'Schijf opruimen',
+    icon: '🧽',
+    category: CAT_NETWORK,
+    description: 'Scan een map, groepeer wat ruimte kost en verplaats bestanden veilig naar de prullenbak.',
+    render: () => <DiskCleaner />
   },
 
   // ---- Spellen & random ----
