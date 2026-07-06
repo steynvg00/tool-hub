@@ -50,6 +50,7 @@ import Metronome from './components/Metronome'
 import MathExpression from './components/MathExpression'
 import EquationSolver from './components/EquationSolver'
 import UnitConverter from './components/UnitConverter'
+import FunctionPlotter from './components/FunctionPlotter'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -530,6 +531,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_MATH,
     description: 'Reken om tussen lengte, gewicht, temperatuur, oppervlak, volume, snelheid en data.',
     render: () => <UnitConverter />
+  },
+  {
+    id: 'function-plotter',
+    label: 'Functie-plotter',
+    icon: '📈',
+    category: CAT_MATH,
+    description: 'Teken de grafiek van f(x) met een instelbaar bereik en automatische y-schaal.',
+    render: () => <FunctionPlotter />
   }
 ]
 
