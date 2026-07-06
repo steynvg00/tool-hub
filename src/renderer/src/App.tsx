@@ -54,6 +54,27 @@ function App(): JSX.Element {
     return unsub
   }, [])
 
+  // Select the contents of any number input on focus, so a pre-filled value
+  // (e.g. a "0") is replaced the moment you start typing instead of forcing you
+  // to delete it first. Deferred a frame so it survives a mouse click's caret
+  // placement. Applies app-wide to every <input type="number">.
+  useEffect(() => {
+    const onFocusIn = (e: FocusEvent): void => {
+      const t = e.target
+      if (t instanceof HTMLInputElement && t.type === 'number') {
+        requestAnimationFrame(() => {
+          try {
+            t.select()
+          } catch {
+            /* input detached before the frame ran */
+          }
+        })
+      }
+    }
+    document.addEventListener('focusin', onFocusIn)
+    return () => document.removeEventListener('focusin', onFocusIn)
+  }, [])
+
   const toggleFav = (id: string): void => {
     window.api.favorites.toggle(id).then(setFavorites).catch(() => {})
   }

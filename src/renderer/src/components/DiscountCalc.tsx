@@ -55,7 +55,7 @@ function DiscountCalc(): JSX.Element {
       <div className="panel tool-panel">
         <div className="tk-row">
           <TextInput label="Originele prijs (€)" value={price} onChange={setPrice} mono />
-          <TextInput label="Korting (%)" value={discount} onChange={setDiscount} mono />
+          <TextInput label="Korting (%)" value={discount} onChange={setDiscount} mono placeholder="eigen %" />
           <TextInput label="Extra stapelkorting (%)" value={extra} onChange={setExtra} mono />
         </div>
         <div className="tk-pills">

@@ -76,7 +76,7 @@ function VatCalc(): JSX.Element {
         </div>
         <div className="tk-row" style={{ marginTop: 10 }}>
           <TextInput label="Bedrag (€)" value={amount} onChange={setAmount} mono />
-          <TextInput label="Btw-tarief (%)" value={rate} onChange={setRate} mono />
+          <TextInput label="Btw-tarief (%)" value={rate} onChange={setRate} mono placeholder="eigen %" />
         </div>
         <div className="tk-pills">
           {RATES.map((v) => (

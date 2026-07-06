@@ -58,7 +58,7 @@ function TipCalc(): JSX.Element {
       <div className="panel tool-panel">
         <div className="tk-row">
           <TextInput label="Rekening (€)" value={amount} onChange={setAmount} mono />
-          <TextInput label="Fooi (%)" value={tip} onChange={setTip} mono />
+          <TextInput label="Fooi (%)" value={tip} onChange={setTip} mono placeholder="eigen %" />
           <TextInput label="Aantal personen" value={people} onChange={setPeople} mono />
         </div>
         <div className="tk-pills">

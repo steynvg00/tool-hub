@@ -1530,6 +1530,28 @@ code {
   margin-left: 8px;
 }
 
+/* Label row with an inline "voorbeeld" badge (subnet calc, etc.) */
+.tk-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.tk-label-row .tool-label {
+  margin-bottom: 0;
+}
+.tk-badge-example {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #e6b450;
+  background: rgba(230, 180, 80, 0.15);
+  border: 1px solid rgba(230, 180, 80, 0.4);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+
 /* ---------- Info button + panel (per-tool help) ---------- */
 .tool-header-row {
   display: flex;

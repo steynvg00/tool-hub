@@ -1,5 +1,5 @@
 import { Fragment, JSX, useState } from 'react'
-import { ToolShell, TextInput, ErrorBanner } from './toolkit'
+import { ToolShell, TextInput, ErrorBanner, Note } from './toolkit'
 
 const toStr = (n: number): string => [24, 16, 8, 0].map((s) => (n >>> s) & 255).join('.')
 
@@ -63,9 +63,16 @@ const SUBNET_CALC_INFO = (
   </>
 )
 
+// A documentation-only address (RFC 5737 TEST-NET-1) so the default clearly
+// reads as a placeholder example, not the user's own network.
+const EXAMPLE_IP = '192.0.2.10'
+const EXAMPLE_CIDR = '/24'
+
 function SubnetCalc(): JSX.Element {
-  const [ip, setIp] = useState('192.168.1.10')
-  const [cidr, setCidr] = useState('/24')
+  const [ip, setIp] = useState(EXAMPLE_IP)
+  const [cidr, setCidr] = useState(EXAMPLE_CIDR)
+
+  const showingExample = ip === EXAMPLE_IP && cidr === EXAMPLE_CIDR
 
   const ipNum = parseIp(ip)
   const prefix = parsePrefix(cidr)
@@ -117,7 +124,20 @@ function SubnetCalc(): JSX.Element {
       info={SUBNET_CALC_INFO}
     >
       <div className="panel tool-panel">
-        <TextInput label="IP-adres" value={ip} onChange={setIp} mono placeholder="192.168.1.10" />
+        <div className="tool-field">
+          <div className="tk-label-row">
+            <span className="tool-label">IP-adres</span>
+            {showingExample && <span className="tk-badge-example">voorbeeld</span>}
+          </div>
+          <input
+            type="text"
+            className="tk-mono"
+            value={ip}
+            placeholder="192.0.2.10"
+            spellCheck={false}
+            onChange={(e) => setIp(e.target.value)}
+          />
+        </div>
         <TextInput
           label="CIDR of subnetmasker"
           value={cidr}
@@ -125,6 +145,12 @@ function SubnetCalc(): JSX.Element {
           mono
           placeholder="/24, 24 of 255.255.255.0"
         />
+        {showingExample && (
+          <Note>
+            Dit is een voorbeeld-IP uit het officiële documentatiebereik (192.0.2.0/24). Vervang het
+            door je eigen IP-adres om je eigen netwerk te berekenen.
+          </Note>
+        )}
         <ErrorBanner message={error} />
         {rows && (
           <dl className="tk-kv">
