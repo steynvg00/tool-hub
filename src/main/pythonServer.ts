@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'child_process'
+import { spawn, execSync, ChildProcess } from 'child_process'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { app } from 'electron'
@@ -45,6 +45,87 @@ function resolveBackendCommand(): BackendCommand {
     command: uvicorn,
     args: ['main:app', '--host', BACKEND_HOST, '--port', String(BACKEND_PORT)],
     cwd: backendDir
+  }
+}
+
+/** PIDs currently listening on the backend port. */
+function pidsOnPort(): number[] {
+  try {
+    if (process.platform === 'win32') {
+      const out = execSync('netstat -ano -p tcp', { encoding: 'utf-8' })
+      const pids = new Set<number>()
+      for (const line of out.split(/\r?\n/)) {
+        if (line.includes(`:${BACKEND_PORT}`) && /LISTENING/i.test(line)) {
+          const pid = Number(line.trim().split(/\s+/).pop())
+          if (pid) pids.add(pid)
+        }
+      }
+      return [...pids]
+    }
+    const out = execSync(`lsof -ti tcp:${BACKEND_PORT} -sTCP:LISTEN`, { encoding: 'utf-8' }).trim()
+    return out ? out.split(/\s+/).map(Number).filter(Boolean) : []
+  } catch {
+    // lsof/netstat exit non-zero when nothing is listening.
+    return []
+  }
+}
+
+/** Is this PID one of *our* sidecars (so it's safe to kill), not some other app? */
+function isOurBackend(pid: number): boolean {
+  try {
+    if (process.platform === 'win32') {
+      const out = execSync(`wmic process where processid=${pid} get commandline`, {
+        encoding: 'utf-8'
+      })
+      return /toolhub-backend/i.test(out) || (/uvicorn/i.test(out) && /main:app/i.test(out))
+    }
+    const out = execSync(`ps -p ${pid} -o command=`, { encoding: 'utf-8' })
+    return /toolhub-backend/.test(out) || (/uvicorn/.test(out) && /main:app/.test(out))
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Kill any orphaned sidecar of ours still holding the port — e.g. after the app
+ * was force-quit or crashed before `before-quit` could run. Only kills processes
+ * whose command line identifies them as our backend, never unrelated servers.
+ */
+export function freeStalePort(): void {
+  for (const pid of pidsOnPort()) {
+    if (isOurBackend(pid)) {
+      try {
+        process.kill(pid, 'SIGKILL')
+      } catch {
+        /* already gone */
+      }
+    }
+  }
+}
+
+async function waitPortFree(timeoutMs = 2500): Promise<void> {
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    if (!pidsOnPort().some(isOurBackend)) return
+    await new Promise((r) => setTimeout(r, 100))
+  }
+}
+
+/** Kill the child's whole process group (it's spawned detached), signal-safe. */
+function killTree(proc: ChildProcess, signal: NodeJS.Signals): void {
+  if (!proc.pid) return
+  try {
+    if (process.platform === 'win32') {
+      execSync(`taskkill /pid ${proc.pid} /T /F`)
+    } else {
+      process.kill(-proc.pid, signal)
+    }
+  } catch {
+    try {
+      proc.kill(signal)
+    } catch {
+      /* already exited */
+    }
   }
 }
 
@@ -108,11 +189,17 @@ export async function startPythonServer(): Promise<void> {
     )
   }
 
+  // Clean up any orphaned sidecar of ours before binding the port ourselves.
+  freeStalePort()
+  await waitPortFree()
+
   stopping = false
   child = spawn(command, args, {
     cwd,
     stdio: ['ignore', 'pipe', 'pipe'],
-    // The sidecar should shut down on SIGTERM; no reload workers.
+    // Own process group so we can kill the whole tree on quit; the sidecar
+    // shuts down on SIGTERM and runs no reload workers.
+    detached: true,
     env: { ...process.env, PYTHONUNBUFFERED: '1' }
   })
 
@@ -145,12 +232,10 @@ export function stopPythonServer(): void {
   const proc = child
   child = null
 
-  proc.kill('SIGTERM')
+  killTree(proc, 'SIGTERM')
 
-  // Escalate to SIGKILL if it refuses to exit in time.
-  const killTimer = setTimeout(() => {
-    if (!proc.killed) proc.kill('SIGKILL')
-  }, 5000)
+  // Escalate to a group SIGKILL if it refuses to exit in time.
+  const killTimer = setTimeout(() => killTree(proc, 'SIGKILL'), 4000)
   killTimer.unref?.()
   proc.once('exit', () => clearTimeout(killTimer))
 }

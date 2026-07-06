@@ -177,10 +177,17 @@ app.on('window-all-closed', () => {
   }
 })
 
-// Tear the sidecar down gracefully before the app exits.
-app.on('before-quit', () => {
-  stopPythonServer()
-})
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+// Tear the sidecar down on every shutdown path we can hook, so it never
+// outlives the app. before-quit/will-quit cover the normal GUI quit; the signal
+// handlers cover dev (Ctrl+C) and OS termination; process exit is the backstop.
+// Anything that still slips through (a hard crash) is cleaned by freeStalePort()
+// on the next startup.
+app.on('before-quit', () => stopPythonServer())
+app.on('will-quit', () => stopPythonServer())
+process.on('exit', () => stopPythonServer())
+for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
+  process.on(sig, () => {
+    stopPythonServer()
+    app.quit()
+  })
+}
