@@ -99,15 +99,15 @@ function wrapCentered(
 
 function drawCover(
   ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
+  img: ImageBitmap,
   x: number,
   y: number,
   w: number,
   h: number
 ): void {
-  const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight)
-  const dw = img.naturalWidth * scale
-  const dh = img.naturalHeight * scale
+  const scale = Math.max(w / img.width, h / img.height)
+  const dw = img.width * scale
+  const dh = img.height * scale
   ctx.save()
   ctx.beginPath()
   ctx.rect(x, y, w, h)
@@ -116,7 +116,7 @@ function drawCover(
   ctx.restore()
 }
 
-function drawCard(canvas: HTMLCanvasElement, card: Card, images: HTMLImageElement[]): void {
+function drawCard(canvas: HTMLCanvasElement, card: Card, images: ImageBitmap[]): void {
   const H = card.length
   const W = card[0].length
   const cell = 110
@@ -155,7 +155,7 @@ function drawCard(canvas: HTMLCanvasElement, card: Card, images: HTMLImageElemen
   }
 }
 
-function composeSet(cards: Card[], images: HTMLImageElement[]): string | null {
+function composeSet(cards: Card[], images: ImageBitmap[]): string | null {
   const tiles = cards.map((card) => {
     const cv = document.createElement('canvas')
     drawCard(cv, card, images)
@@ -197,7 +197,7 @@ function BingoCardView({
   openTool
 }: {
   card: Card
-  images: HTMLImageElement[]
+  images: ImageBitmap[]
   index: number
   openTool: (id: string) => void
 }): JSX.Element {
@@ -257,7 +257,7 @@ function Bingo({ openTool }: { openTool: (id: string) => void }): JSX.Element {
   const [countS, setCountS] = useState('2')
   const [wordsText, setWordsText] = useState('')
   const [imageFiles, setImageFiles] = useState<File[]>([])
-  const [images, setImages] = useState<HTMLImageElement[]>([])
+  const [images, setImages] = useState<ImageBitmap[]>([])
   const [cards, setCards] = useState<Card[]>([])
   const [error, setError] = useState<string | null>(null)
 
@@ -267,32 +267,26 @@ function Bingo({ openTool }: { openTool: (id: string) => void }): JSX.Element {
   const freeActive = freeCenter && cols % 2 === 1 && rows % 2 === 1
   const need = cols * rows - (freeActive ? 1 : 0)
 
-  // Load uploaded images into <img> elements for canvas drawing.
+  // Decode uploaded images into ImageBitmaps for canvas drawing. ImageBitmap is
+  // self-contained (no object URL to revoke), so it survives StrictMode's
+  // mount/cleanup/mount and can't lose its source before it's drawn.
   useEffect(() => {
     if (mode !== 'images' || imageFiles.length === 0) {
       setImages([])
       return
     }
-    const urls = imageFiles.map((f) => URL.createObjectURL(f))
     let alive = true
-    Promise.all(
-      urls.map(
-        (u) =>
-          new Promise<HTMLImageElement>((res, rej) => {
-            const im = new Image()
-            im.onload = () => res(im)
-            im.onerror = () => rej(new Error('img'))
-            im.src = u
-          })
-      )
-    )
-      .then((els) => {
-        if (alive) setImages(els)
+    let created: ImageBitmap[] = []
+    Promise.all(imageFiles.map((f) => createImageBitmap(f)))
+      .then((bitmaps) => {
+        created = bitmaps
+        if (alive) setImages(bitmaps)
+        else bitmaps.forEach((b) => b.close())
       })
       .catch(() => {})
     return () => {
       alive = false
-      urls.forEach((u) => URL.revokeObjectURL(u))
+      created.forEach((b) => b.close())
     }
   }, [imageFiles, mode])
 
