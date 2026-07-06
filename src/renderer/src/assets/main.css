@@ -1593,6 +1593,25 @@ code {
   height: 380px;
 }
 
+/* Verhouding: a : b = c : d row */
+.tk-ratio {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tk-ratio .tool-field {
+  flex: 1;
+  min-width: 70px;
+  margin-bottom: 0;
+}
+.tk-ratio-sep {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ev-c-text-2);
+  padding-bottom: 6px;
+}
+
 /* Rekenaars: selectable preset pill */
 .tk-pill.on {
   background: #4a6cd4;

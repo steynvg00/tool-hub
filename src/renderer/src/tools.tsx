@@ -54,6 +54,9 @@ import FunctionPlotter from './components/FunctionPlotter'
 import PercentInterest from './components/PercentInterest'
 // Rekenaars
 import TipCalc from './components/TipCalc'
+import VatCalc from './components/VatCalc'
+import DiscountCalc from './components/DiscountCalc'
+import RatioCalc from './components/RatioCalc'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -561,6 +564,30 @@ export const TOOLS: ToolDef[] = [
     category: CAT_CALC,
     description: 'Bereken de fooi en verdeel het totaal eerlijk over meerdere personen.',
     render: () => <TipCalc />
+  },
+  {
+    id: 'vat-calc',
+    label: 'BTW-rekenaar',
+    icon: '🧮',
+    category: CAT_CALC,
+    description: 'Reken tussen bedragen in- en exclusief btw, met instelbaar tarief.',
+    render: () => <VatCalc />
+  },
+  {
+    id: 'discount-calc',
+    label: 'Korting-rekenaar',
+    icon: '🏷️',
+    category: CAT_CALC,
+    description: 'Van originele prijs en korting naar eindprijs en besparing, met stapelkorting.',
+    render: () => <DiscountCalc />
+  },
+  {
+    id: 'ratio-calc',
+    label: 'Verhouding & schaal',
+    icon: '⚖️',
+    category: CAT_CALC,
+    description: 'Los een verhouding a : b = c : d op en vereenvoudig — laat één veld leeg.',
+    render: () => <RatioCalc />
   }
 ]
 
