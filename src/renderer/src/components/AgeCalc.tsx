@@ -21,6 +21,25 @@ function daysInMonth(y: number, m: number): number {
   return new Date(Date.UTC(y, m, 0)).getUTCDate()
 }
 
+const AGE_CALC_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Berekent de exacte leeftijd op een gekozen datum, uitgesplitst in jaren, maanden en dagen.
+      Daarnaast toont de tool het totaal aantal geleefde dagen.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Geboortedatum</b> — de datum waarop iemand geboren is.
+      </li>
+      <li>
+        <b>Op datum</b> — de referentiedatum waarop de leeftijd wordt berekend. Standaard vandaag.
+      </li>
+    </ul>
+  </>
+)
+
 function AgeCalc(): JSX.Element {
   const [birth, setBirth] = useState('')
   const [ref, setRef] = useState(todayLocalDate())
@@ -76,7 +95,11 @@ function AgeCalc(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Leeftijd-calculator" subtitle="Bereken de exacte leeftijd in jaren, maanden en dagen.">
+    <ToolShell
+      title="Leeftijd-calculator"
+      subtitle="Bereken de exacte leeftijd in jaren, maanden en dagen."
+      info={AGE_CALC_INFO}
+    >
       <div className="panel tool-panel">
         <label className="tool-field">
           <span className="tool-label">Geboortedatum</span>

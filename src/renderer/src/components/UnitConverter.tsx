@@ -137,6 +137,34 @@ function fmt(n: number): string {
   return r.toLocaleString('nl-NL', { maximumFractionDigits: 8 })
 }
 
+const UNIT_CONVERTER_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Rekent een waarde in één keer om naar alle andere eenheden binnen dezelfde grootheid. De tabel
+      toont meteen elke omrekening.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Grootheid</b> — kies wat je omrekent: lengte, gewicht, temperatuur, oppervlak, volume,
+        snelheid of data-grootte.
+      </li>
+      <li>
+        <b>Waarde</b> — het getal dat je wilt omrekenen (decimaal of negatief mag).
+      </li>
+      <li>
+        <b>Van eenheid</b> — de eenheid waarin je waarde is ingevoerd; alle rijen tonen de omgerekende
+        waarde.
+      </li>
+    </ul>
+    <p>
+      Bij data-grootte staan zowel de decimale eenheden (<code>kB</code>, <code>MB</code> = 1000) als de
+      binaire (<code>KiB</code>, <code>MiB</code> = 1024).
+    </p>
+  </>
+)
+
 function UnitConverter(): JSX.Element {
   const [catId, setCatId] = useState(CATEGORIES[0].id)
   const [value, setValue] = useState('1')
@@ -163,6 +191,7 @@ function UnitConverter(): JSX.Element {
     <ToolShell
       title="Eenheden-omrekenaar"
       subtitle="Reken om tussen lengte, gewicht, temperatuur, oppervlak, volume, snelheid en data-grootte."
+      info={UNIT_CONVERTER_INFO}
     >
       <div className="panel tool-panel">
         <label className="tool-field">

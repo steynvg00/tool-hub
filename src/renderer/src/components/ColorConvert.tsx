@@ -117,6 +117,32 @@ function parseHsl(input: string): Rgb | null {
   return hslToRgb(h, s, l)
 }
 
+const COLOR_CONVERT_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Zet één kleur om tussen de drie meestgebruikte notaties: <code>HEX</code>, <code>RGB</code>{' '}
+      en <code>HSL</code>. Je kunt de kleur kiezen met de kleurenkiezer of een waarde intypen in
+      een van de velden; alle notaties en het kleurstaal blijven meteen met elkaar in sync.
+    </p>
+    <h4>Notaties</h4>
+    <ul>
+      <li>
+        <b>HEX</b> — hexadecimale code, bijvoorbeeld <code>#4a6cd4</code> of de korte vorm{' '}
+        <code>#abc</code>.
+      </li>
+      <li>
+        <b>RGB</b> — rood, groen en blauw, elk <code>0–255</code>, bijvoorbeeld{' '}
+        <code>74, 108, 212</code>.
+      </li>
+      <li>
+        <b>HSL</b> — tint (<code>0–360</code>), verzadiging en lichtheid (beide <code>0–100%</code>),
+        bijvoorbeeld <code>223, 61%, 56%</code>.
+      </li>
+    </ul>
+  </>
+)
+
 function ColorConvert(): JSX.Element {
   const [rgb, setRgb] = useState<Rgb>({ r: 74, g: 108, b: 212 })
   const [hexText, setHexText] = useState('#4a6cd4')
@@ -172,6 +198,7 @@ function ColorConvert(): JSX.Element {
     <ToolShell
       title="Kleur-omzetter"
       subtitle="Bewerk een kleur als HEX, RGB of HSL — alles blijft in sync."
+      info={COLOR_CONVERT_INFO}
     >
       <div className="panel">
         <div className="tool-field">

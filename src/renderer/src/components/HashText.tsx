@@ -7,6 +7,17 @@ function toHex(buf: ArrayBuffer): string {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
+const HASH_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Berekent live de <code>SHA-1</code>, <code>SHA-256</code> en <code>SHA-512</code> hash van je
+      tekst. De hashes worden weergegeven als hexadecimale waarde en werken bij elke wijziging
+      direct bij.
+    </p>
+  </>
+)
+
 function HashText(): JSX.Element {
   const [text, setText] = useState('')
   const [hashes, setHashes] = useState<Hashes>({ sha1: '', sha256: '', sha512: '' })
@@ -27,7 +38,11 @@ function HashText(): JSX.Element {
   }, [text])
 
   return (
-    <ToolShell title="Hash-generator" subtitle="Live SHA-1, SHA-256 en SHA-512 van je tekst.">
+    <ToolShell
+      title="Hash-generator"
+      subtitle="Live SHA-1, SHA-256 en SHA-512 van je tekst."
+      info={HASH_INFO}
+    >
       <div className="panel">
         <TextArea label="Tekst" value={text} onChange={setText} rows={8} mono={false} />
       </div>

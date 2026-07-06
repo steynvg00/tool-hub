@@ -14,6 +14,32 @@ function shuffle<T>(input: T[]): T[] {
   return arr
 }
 
+const NAMETEAM_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Voer een lijst met namen in (één per regel) en trek willekeurig een winnaar, of verdeel de
+      namen eerlijk en willekeurig over een aantal teams.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Namen</b> — één naam per regel; lege regels worden genegeerd.
+      </li>
+      <li>
+        <b>Eén winnaar</b> — kiest één willekeurige naam uit de lijst.
+      </li>
+      <li>
+        <b>Verdeel in teams</b> — schudt de namen en verdeelt ze om de beurt over de teams, zodat de
+        teams zo gelijk mogelijk zijn.
+      </li>
+      <li>
+        <b>Aantal teams</b> — het aantal teams (2 tot 20) waarover verdeeld wordt.
+      </li>
+    </ul>
+  </>
+)
+
 function NameTeamDraw(): JSX.Element {
   const [text, setText] = useState('')
   const [mode, setMode] = useState<Mode>('winner')
@@ -45,6 +71,7 @@ function NameTeamDraw(): JSX.Element {
     <ToolShell
       title="Naam- & teamtrekker"
       subtitle="Trek een winnaar of verdeel namen eerlijk over teams."
+      info={NAMETEAM_INFO}
     >
       <div className="panel">
         <TextArea

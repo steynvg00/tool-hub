@@ -7,6 +7,29 @@ import { ToolShell, ErrorBanner, Note } from './toolkit'
 const FORMATS = ['mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg']
 const LOSSY = new Set(['mp3', 'm4a', 'aac', 'ogg'])
 
+const AUDIO_EXTRACT_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Haalt de audiotrack uit een videobestand (MP4, MOV, MKV, WEBM en meer) en slaat die op als
+      los audiobestand. De beeldsporen worden weggelaten.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Doelformaat</b> — het formaat van de geëxporteerde audio. <code>wav</code> en{' '}
+        <code>flac</code> zijn verliesvrij (lossless): volledige kwaliteit, grotere bestanden.{' '}
+        <code>mp3</code>, <code>m4a</code>, <code>aac</code> en <code>ogg</code> zijn lossy: ze
+        comprimeren voor kleinere bestanden.
+      </li>
+      <li>
+        <b>Bitrate (kbps)</b> — alleen bij lossy formaten. Meer kbps betekent hogere kwaliteit en
+        een groter bestand; <code>192</code> is een goede middenweg.
+      </li>
+    </ul>
+  </>
+)
+
 function AudioExtract(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
   const [format, setFormat] = useState('mp3')
@@ -41,6 +64,7 @@ function AudioExtract(): JSX.Element {
     <ToolShell
       title="Audio uit video"
       subtitle="Haal de audiotrack uit een videobestand en sla die op als los audiobestand."
+      info={AUDIO_EXTRACT_INFO}
     >
       <div className="panel tool-panel">
         <FileButton

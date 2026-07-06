@@ -3,6 +3,29 @@ import QRCode from 'qrcode'
 import { ToolShell, TextArea, ErrorBanner } from './toolkit'
 import { NumberField } from './ToolFields'
 
+const QR_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Maakt live een QR-code van de ingevoerde tekst of URL en laat je die als PNG-afbeelding
+      downloaden.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Tekst of URL</b> — de inhoud die in de QR-code wordt versleuteld.
+      </li>
+      <li>
+        <b>Grootte (px)</b> — de afmeting van de QR-code in pixels (tussen <code>64</code> en{' '}
+        <code>1024</code>).
+      </li>
+      <li>
+        <b>Download als PNG</b> — slaat de getoonde QR-code op als <code>qr.png</code>.
+      </li>
+    </ul>
+  </>
+)
+
 function QrCode(): JSX.Element {
   const [text, setText] = useState('')
   const [size, setSize] = useState(256)
@@ -53,6 +76,7 @@ function QrCode(): JSX.Element {
     <ToolShell
       title="QR-code generator"
       subtitle="Maak een QR-code van tekst of een URL en download hem als PNG."
+      info={QR_INFO}
     >
       <div className="panel">
         <TextArea label="Tekst of URL" value={text} onChange={setText} rows={4} mono={false} />

@@ -128,6 +128,30 @@ function jsonToCsv(input: string, header: boolean): string {
   throw new Error('JSON-array moet enkel objecten of enkel arrays bevatten.')
 }
 
+const CSV_JSON_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Zet CSV om naar JSON en omgekeerd. De CSV-parser gaat correct om met aanhalingstekens,
+      escapes (<code>&quot;&quot;</code>) en regeleinden.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Richting</b> — kies <code>CSV → JSON</code> of <code>JSON → CSV</code>.
+      </li>
+      <li>
+        <b>Eerste rij is kop</b> — aan: de eerste CSV-rij bevat kolomnamen, zodat JSON een lijst van
+        objecten wordt (en omgekeerd komt bij JSON → CSV een koprij boven de data). Uit: er wordt
+        gewerkt met kale rijen, oftewel een lijst van arrays.
+      </li>
+    </ul>
+    <p>
+      Voor JSON → CSV moet de invoer een array zijn van uitsluitend objecten of uitsluitend arrays.
+    </p>
+  </>
+)
+
 function CsvJson(): JSX.Element {
   const [dir, setDir] = useState<Dir>('csv2json')
   const [header, setHeader] = useState(true)
@@ -146,7 +170,11 @@ function CsvJson(): JSX.Element {
   }
 
   return (
-    <ToolShell title="CSV ↔ JSON" subtitle="Zet CSV om naar JSON en terug, met of zonder koprij.">
+    <ToolShell
+      title="CSV ↔ JSON"
+      subtitle="Zet CSV om naar JSON en terug, met of zonder koprij."
+      info={CSV_JSON_INFO}
+    >
       <div className="panel">
         <div className="tool-field">
           <label className="tool-label">Richting</label>

@@ -8,6 +8,27 @@ function isLeap(y: number): boolean {
 
 const MAX_RANGE = 500
 
+const LEAP_YEAR_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Controleert of een jaar een schrikkeljaar is en toont alle schrikkeljaren binnen een
+      opgegeven bereik. Een jaar is een schrikkeljaar als het deelbaar is door 4, behalve
+      eeuwjaren die niet door 400 deelbaar zijn.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Jaar</b> — het jaar dat je wilt controleren op schrikkeljaar.
+      </li>
+      <li>
+        <b>Van</b> en <b>Tot</b> — begin- en eindjaar van het bereik waarin schrikkeljaren
+        worden opgesomd. <code>Tot</code> moet gelijk zijn aan of groter dan <code>Van</code>.
+      </li>
+    </ul>
+  </>
+)
+
 function LeapYear(): JSX.Element {
   const now = new Date().getFullYear()
   const [year, setYear] = useState(now)
@@ -31,6 +52,7 @@ function LeapYear(): JSX.Element {
     <ToolShell
       title="Schrikkeljaar-checker"
       subtitle="Controleer of een jaar een schrikkeljaar is."
+      info={LEAP_YEAR_INFO}
     >
       <div className="panel tool-panel">
         <NumberField label="Jaar" value={year} onChange={setYear} />

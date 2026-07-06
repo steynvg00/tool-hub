@@ -9,6 +9,34 @@ function escape(input: string): string {
   return input.replace(/([\\;,:"])/g, '\\$1')
 }
 
+const WIFI_QR_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Maakt een QR-code waarmee een telefoon direct verbinding maakt met je wifi: de camera scant
+      de code en biedt aan om verbinding te maken, zonder het wachtwoord te typen. Je kunt de
+      QR-code als <code>PNG</code> downloaden.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Netwerknaam (SSID)</b> — de naam van het wifi-netwerk. Verplicht om een code te maken.
+      </li>
+      <li>
+        <b>Wachtwoord</b> — het wifi-wachtwoord. Niet nodig bij beveiliging <code>Geen</code>.
+      </li>
+      <li>
+        <b>Beveiliging</b> — het type versleuteling: <code>WPA/WPA2</code> (gangbaar),{' '}
+        <code>WEP</code> (oud) of <code>Geen</code> voor een open netwerk.
+      </li>
+      <li>
+        <b>Verborgen netwerk</b> — zet aan als het netwerk zijn SSID niet uitzendt.
+      </li>
+    </ul>
+    <p>Let op: het wachtwoord staat als leesbare tekst in de QR-code verwerkt.</p>
+  </>
+)
+
 function WifiQr(): JSX.Element {
   const [ssid, setSsid] = useState('')
   const [password, setPassword] = useState('')
@@ -66,6 +94,7 @@ function WifiQr(): JSX.Element {
     <ToolShell
       title="Wifi-QR"
       subtitle="Maak een scanbare QR-code waarmee een telefoon direct verbinding maakt met je wifi."
+      info={WIFI_QR_INFO}
     >
       <div className="panel tool-panel">
         <TextInput

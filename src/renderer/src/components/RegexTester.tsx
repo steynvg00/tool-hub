@@ -5,6 +5,31 @@ type Match = { index: number; full: string; groups: string[] }
 
 type Segment = { text: string; match: boolean }
 
+const REGEX_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Test een reguliere expressie live op je tekst. Matches worden gemarkeerd in het voorbeeld en
+      in een tabel getoond, met een kolom per opgevangen groep.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Patroon</b> — de reguliere expressie zelf (zonder omringende schuine strepen). Een
+        ongeldig patroon wordt rood gemarkeerd.
+      </li>
+      <li>
+        <b>Vlaggen</b> — de regex-vlaggen, zoals <code>g</code> (alle matches), <code>i</code>{' '}
+        (hoofdletterongevoelig) en <code>m</code> (meerdere regels). De tool zoekt altijd naar alle
+        matches, ook zonder <code>g</code>.
+      </li>
+      <li>
+        <b>Testtekst</b> — de tekst waarop het patroon wordt toegepast.
+      </li>
+    </ul>
+  </>
+)
+
 function RegexTester(): JSX.Element {
   const [pattern, setPattern] = useState('')
   const [flags, setFlags] = useState('g')
@@ -43,7 +68,11 @@ function RegexTester(): JSX.Element {
   const maxGroups = result.matches.reduce((n, m) => Math.max(n, m.groups.length), 0)
 
   return (
-    <ToolShell title="Regex-tester" subtitle="Test reguliere expressies live op je tekst.">
+    <ToolShell
+      title="Regex-tester"
+      subtitle="Test reguliere expressies live op je tekst."
+      info={REGEX_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-two">
           <label className="tool-field">

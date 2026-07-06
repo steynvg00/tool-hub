@@ -4,6 +4,26 @@ import { useFileResult } from '../lib/useFileResult'
 import { FileButton, ResultDownload } from './ToolFields'
 import { ToolShell, TextInput, ErrorBanner, Note } from './toolkit'
 
+const AUDIO_FADE_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Laat een fragment geleidelijk in- en uitfaden: aan het begin komt het geluid langzaam op, aan
+      het einde ebt het weg. Zo voorkom je een abrupte start of stop.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Fade-in (seconden)</b> — hoelang het geluid vanaf het begin opbouwt naar vol volume.
+      </li>
+      <li>
+        <b>Fade-out (seconden)</b> — hoelang het geluid aan het einde wegsterft naar stilte.
+      </li>
+    </ul>
+    <p>Zet een waarde op 0 om die fade over te slaan.</p>
+  </>
+)
+
 function AudioFade(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
   const [fadeIn, setFadeIn] = useState('2')
@@ -44,6 +64,7 @@ function AudioFade(): JSX.Element {
     <ToolShell
       title="Fades toevoegen"
       subtitle="Laat een fragment geleidelijk in- en uitfaden aan het begin en einde."
+      info={AUDIO_FADE_INFO}
     >
       <div className="panel tool-panel">
         <FileButton

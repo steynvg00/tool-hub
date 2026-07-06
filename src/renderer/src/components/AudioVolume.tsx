@@ -4,6 +4,24 @@ import { useFileResult } from '../lib/useFileResult'
 import { FileButton, ResultDownload } from './ToolFields'
 import { ToolShell, ErrorBanner, Note } from './toolkit'
 
+const AUDIO_VOLUME_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Maakt een audiobestand luider of zachter met een vaste versterking in decibel (dB) over het
+      hele fragment.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Versterking (dB)</b> — schuif naar rechts voor luider, naar links voor zachter.
+        Ongeveer +6 dB verdubbelt de luidheid, −6 dB halveert die. Te veel versterking kan
+        vervorming (clipping) veroorzaken.
+      </li>
+    </ul>
+  </>
+)
+
 function AudioVolume(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
   const [db, setDb] = useState(0)
@@ -36,6 +54,7 @@ function AudioVolume(): JSX.Element {
     <ToolShell
       title="Volume aanpassen"
       subtitle="Maak een audiobestand luider of zachter met een instelbare versterking in decibel."
+      info={AUDIO_VOLUME_INFO}
     >
       <div className="panel tool-panel">
         <FileButton

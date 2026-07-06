@@ -16,6 +16,31 @@ function niceStep(rough: number): number {
   return nice * pow
 }
 
+const FUNCTION_PLOTTER_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Tekent de grafiek van een functie <code>f(x)</code> over een instelbaar x-bereik. De y-as schaalt
+      automatisch mee met de waarden van de functie.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>f(x) =</b> — de functie in <code>x</code>, bv. <code>sin(x) * x</code> of <code>x^2 - 3</code>.
+        Dezelfde functies als de expressie-rekenmachine werken hier (<code>sin</code>, <code>sqrt</code>,{' '}
+        <code>abs</code>, <code>exp</code>, <code>log</code>, …).
+      </li>
+      <li>
+        <b>x-min</b> — de linkergrens van het bereik; moet kleiner zijn dan x-max.
+      </li>
+      <li>
+        <b>x-max</b> — de rechtergrens van het bereik.
+      </li>
+    </ul>
+    <p>Delen door nul of onderbrekingen laten een gat in de lijn.</p>
+  </>
+)
+
 function FunctionPlotter(): JSX.Element {
   const [expr, setExpr] = useState('sin(x) * x')
   const [xMinS, setXMinS] = useState('-10')
@@ -162,6 +187,7 @@ function FunctionPlotter(): JSX.Element {
     <ToolShell
       title="Functie-plotter"
       subtitle="Voer f(x) in en teken de grafiek met een instelbaar bereik."
+      info={FUNCTION_PLOTTER_INFO}
     >
       <div className="panel tool-panel">
         <TextInput

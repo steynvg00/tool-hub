@@ -2,8 +2,44 @@ import { JSX, useState } from 'react'
 import { processToFile, formatBytes } from '../lib/api'
 import { useFileResult } from '../lib/useFileResult'
 import { FileButton, NumberField, ResultDownload } from './ToolFields'
+import { ToolHeader } from './toolkit'
 
 type Mode = 'max' | 'exact'
+
+const IMAGE_RESIZE_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Schaalt een afbeelding naar een kleinere maat of naar exacte afmetingen en slaat het
+      resultaat op in het gekozen formaat.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Modus &mdash; Langste zijde</b> &mdash; verkleint de afbeelding zodat de langste zijde
+        de opgegeven grootte krijgt; de verhouding blijft behouden.
+      </li>
+      <li>
+        <b>Modus &mdash; Exacte maat</b> &mdash; forceert een exacte breedte en hoogte in pixels.
+      </li>
+      <li>
+        <b>Max. zijde (px)</b> &mdash; maximale lengte van de langste zijde in de modus Langste
+        zijde.
+      </li>
+      <li>
+        <b>Breedte / Hoogte (px)</b> &mdash; de doelafmetingen in de modus Exacte maat.
+      </li>
+      <li>
+        <b>Kwaliteit</b> &mdash; compressiekwaliteit (1&ndash;100) voor formaten met verlies zoals
+        JPEG en WEBP; hoger is mooier maar groter.
+      </li>
+      <li>
+        <b>Uitvoerformaat</b> &mdash; bewaar het originele formaat of converteer naar PNG, JPEG of
+        WEBP.
+      </li>
+    </ul>
+  </>
+)
 
 function ImageResize(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
@@ -48,10 +84,11 @@ function ImageResize(): JSX.Element {
 
   return (
     <div className="tool">
-      <header className="tool-header">
-        <h1>Afbeelding schalen</h1>
-        <p>Schaal een afbeelding naar een kleinere maat of exacte afmetingen.</p>
-      </header>
+      <ToolHeader
+        title="Afbeelding schalen"
+        subtitle="Schaal een afbeelding naar een kleinere maat of exacte afmetingen."
+        info={IMAGE_RESIZE_INFO}
+      />
 
       <div className="panel tool-panel">
         <FileButton label="Afbeelding" accept="image/*" file={file} onPick={pick} />

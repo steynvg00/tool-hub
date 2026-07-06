@@ -8,6 +8,33 @@ function toDatetimeLocal(d: Date): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
 }
 
+const UNIX_TIME_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Zet een Unix-timestamp om naar een leesbare datum (in UTC en je lokale tijd) en omgekeerd
+      een datum en tijd naar een timestamp. Een Unix-timestamp telt de tijd sinds
+      <code>1 januari 1970 00:00 UTC</code>.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Nu</b> — vult beide richtingen met het huidige moment.
+      </li>
+      <li>
+        <b>Timestamp</b> — het getal dat wordt omgezet naar een datum.
+      </li>
+      <li>
+        <b>Eenheid</b> — of de timestamp in <b>seconden</b> of <b>milliseconden</b> staat.
+      </li>
+      <li>
+        <b>Datum en tijd</b> — de datum die wordt omgezet naar een timestamp in seconden en
+        milliseconden.
+      </li>
+    </ul>
+  </>
+)
+
 function UnixTime(): JSX.Element {
   const [ts, setTs] = useState('')
   const [unit, setUnit] = useState<Unit>('s')
@@ -51,7 +78,11 @@ function UnixTime(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Unix-timestamp ↔ datum" subtitle="Zet timestamps om naar data en andersom.">
+    <ToolShell
+      title="Unix-timestamp ↔ datum"
+      subtitle="Zet timestamps om naar data en andersom."
+      info={UNIX_TIME_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-actions">
           <button className="btn" onClick={nu}>

@@ -5,6 +5,40 @@ function titleCaseLine(line: string): string {
   return line.replace(/\S+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
 }
 
+const TEXT_CLEANUP_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Bewerkt tekst regel voor regel en toont live het aantal tekens, woorden en regels. Elke knop
+      past een bewerking toe op de hele tekst.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Trim regels</b> — verwijdert spaties en tabs aan het begin en einde van elke regel.
+      </li>
+      <li>
+        <b>Dubbele spaties weg</b> — vervangt reeksen spaties of tabs door één enkele spatie.
+      </li>
+      <li>
+        <b>Lege regels weg</b> — verwijdert regels die leeg zijn of alleen witruimte bevatten.
+      </li>
+      <li>
+        <b>Sorteer A→Z / Z→A</b> — sorteert de regels alfabetisch, oplopend of aflopend.
+      </li>
+      <li>
+        <b>Ontdubbel regels</b> — houdt alleen de eerste van elke identieke regel over.
+      </li>
+      <li>
+        <b>UPPERCASE / kleine letters</b> — zet alle tekst om naar hoofdletters of kleine letters.
+      </li>
+      <li>
+        <b>Title Case</b> — geeft elk woord een hoofdletter en de rest kleine letters.
+      </li>
+    </ul>
+  </>
+)
+
 function TextCleanup(): JSX.Element {
   const [text, setText] = useState('')
 
@@ -20,6 +54,7 @@ function TextCleanup(): JSX.Element {
     <ToolShell
       title="Tekst opschonen & tellen"
       subtitle="Bewerk, tel en herstructureer tekst regel voor regel."
+      info={TEXT_CLEANUP_INFO}
     >
       <div className="panel">
         <TextArea label="Tekst" value={text} onChange={setText} rows={12} mono={false} />

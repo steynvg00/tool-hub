@@ -6,6 +6,32 @@ const eur = (n: number): string =>
 
 const PRESETS = ['5', '10', '12.5', '15', '20']
 
+const TIP_CALC_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>Berekent de fooi, het totaalbedrag en het bedrag per persoon om te delen.</p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Rekening (€)</b> — het bedrag van de rekening vóór fooi.
+      </li>
+      <li>
+        <b>Fooi (%)</b> — het fooipercentage; met de snelknoppen kies je snel 5 t/m 20%.
+      </li>
+      <li>
+        <b>Aantal personen</b> — waarover het totaal wordt verdeeld (minimaal 1).
+      </li>
+      <li>
+        <b>Afronden</b> — <code>Niet afronden</code> laat het totaal exact, <code>Totaal naar boven</code>{' '}
+        rondt het totaal af naar een heel bedrag; de effectieve fooi past zich dan aan.
+      </li>
+    </ul>
+    <p>
+      <b>Effectieve fooi</b> toont het werkelijke fooipercentage na afronden.
+    </p>
+  </>
+)
+
 function TipCalc(): JSX.Element {
   const [amount, setAmount] = useState('47.50')
   const [tip, setTip] = useState('10')
@@ -24,7 +50,11 @@ function TipCalc(): JSX.Element {
   const effectiveTip = a > 0 ? ((total - a) / a) * 100 : 0
 
   return (
-    <ToolShell title="Fooi-calculator" subtitle="Bereken de fooi, het totaal en het bedrag per persoon.">
+    <ToolShell
+      title="Fooi-calculator"
+      subtitle="Bereken de fooi, het totaal en het bedrag per persoon."
+      info={TIP_CALC_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-row">
           <TextInput label="Rekening (€)" value={amount} onChange={setAmount} mono />

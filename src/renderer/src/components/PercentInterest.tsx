@@ -142,12 +142,55 @@ function Compound(): JSX.Element {
   )
 }
 
+const PERCENT_INTEREST_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>Drie rekenmodi rond percentages en rente, te kiezen met de knoppen bovenaan.</p>
+    <h4>Modi</h4>
+    <ul>
+      <li>
+        <b>Procent van</b> — met <b>Percentage (%)</b> en <b>Van waarde</b>: berekent het percentage van
+        de waarde, welk percentage de waarde is, en de waarde plus/min dat percentage.
+      </li>
+      <li>
+        <b>Verandering</b> — met <b>Van (oud)</b> en <b>Naar (nieuw)</b>: geeft het absolute verschil, de
+        procentuele verandering en de vermenigvuldigingsfactor.
+      </li>
+      <li>
+        <b>Samengestelde rente</b> — projecteert een spaarbedrag over de tijd. Elke periode wordt het
+        saldo vermenigvuldigd met <code>(1 + rente/n)</code> en de inleg toegevoegd.
+      </li>
+    </ul>
+    <h4>Velden bij samengestelde rente</h4>
+    <ul>
+      <li>
+        <b>Startbedrag (€)</b> — het bedrag waarmee je begint.
+      </li>
+      <li>
+        <b>Rente per jaar (%)</b> — het jaarlijkse rentepercentage.
+      </li>
+      <li>
+        <b>Looptijd (jaren)</b> — het aantal jaren dat je rekent.
+      </li>
+      <li>
+        <b>Keer samengesteld / jaar</b> — hoe vaak per jaar rente wordt bijgeschreven (<code>n</code>),
+        bv. 12 voor maandelijks.
+      </li>
+      <li>
+        <b>Inleg per periode (€)</b> — bedrag dat je elke periode extra inlegt; zet op <code>0</code>{' '}
+        voor zuivere samengestelde rente.
+      </li>
+    </ul>
+  </>
+)
+
 function PercentInterest(): JSX.Element {
   const [mode, setMode] = useState<Mode>('of')
   return (
     <ToolShell
       title="Percentage & rente"
       subtitle="Procent van een waarde, procentuele verandering en samengestelde rente."
+      info={PERCENT_INTEREST_INFO}
     >
       <div className="panel tool-panel">
         <Segmented<Mode>

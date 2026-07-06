@@ -13,6 +13,31 @@ function fmtTime(s: number): string {
   return `${m}:${sec.toFixed(2).padStart(5, '0')}`
 }
 
+const AUDIO_TRIM_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Knip een fragment uit een audiobestand. Je kiest het bereik in de golfvorm en alleen dat
+      stuk wordt geëxporteerd; de rest valt weg.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Golfvorm-selectie</b> — sleep de randen van het gemarkeerde blok om start en einde te
+        verschuiven, of sleep het hele blok om het te verplaatsen.
+      </li>
+      <li>
+        <b>Speel selectie</b> — luistert alleen het gemarkeerde bereik af, zodat je je keuze kunt
+        controleren.
+      </li>
+      <li>
+        <b>Start (s) / Einde (s)</b> — stel het begin- en eindpunt exact in seconden in, handig voor
+        precieze knippen.
+      </li>
+    </ul>
+  </>
+)
+
 function AudioTrim(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
   const [fileUrl, setFileUrl] = useState<string | null>(null)
@@ -138,6 +163,7 @@ function AudioTrim(): JSX.Element {
     <ToolShell
       title="Audio knippen"
       subtitle="Selecteer een bereik in de golfvorm en knip dat fragment uit het bestand."
+      info={AUDIO_TRIM_INFO}
     >
       <div className="panel tool-panel">
         <FileButton

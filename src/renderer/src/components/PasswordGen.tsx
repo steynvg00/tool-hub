@@ -26,6 +26,34 @@ function strengthClass(bits: number): { cls: string; label: string } {
   return { cls: 's-strong', label: 'Sterk' }
 }
 
+const PASSWORD_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Genereert een sterk, willekeurig wachtwoord met de Web Crypto API. Een balk toont de geschatte
+      sterkte in bits op basis van de lengte en de gekozen tekensets.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Lengte</b> — het aantal tekens (tussen <code>4</code> en <code>128</code>).
+      </li>
+      <li>
+        <b>Kleine letters</b> — voegt <code>a-z</code> toe aan de tekens.
+      </li>
+      <li>
+        <b>Hoofdletters</b> — voegt <code>A-Z</code> toe aan de tekens.
+      </li>
+      <li>
+        <b>Cijfers</b> — voegt <code>0-9</code> toe aan de tekens.
+      </li>
+      <li>
+        <b>Symbolen</b> — voegt leestekens zoals <code>!@#$%</code> toe. Kies minstens één tekenset.
+      </li>
+    </ul>
+  </>
+)
+
 function PasswordGen(): JSX.Element {
   const [length, setLength] = useState(16)
   const [lower, setLower] = useState(true)
@@ -49,7 +77,11 @@ function PasswordGen(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Wachtwoord-generator" subtitle="Genereer een sterk, willekeurig wachtwoord.">
+    <ToolShell
+      title="Wachtwoord-generator"
+      subtitle="Genereer een sterk, willekeurig wachtwoord."
+      info={PASSWORD_INFO}
+    >
       <div className="panel tool-panel">
         <NumberField label="Lengte" value={length} min={4} max={128} onChange={setLength} />
 

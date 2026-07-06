@@ -26,6 +26,30 @@ function stripExt(name: string): string {
   return i > 0 ? name.slice(0, i) : name
 }
 
+const EXIF_TOOL_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Toont de EXIF-metadata die in een foto verborgen zit — zoals cameramodel, opname-instellingen,
+      datum en, als die aanwezig is, de <b>GPS-locatie</b> waar de foto is gemaakt. Handig om te zien
+      wat je onbedoeld deelt.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Afbeelding</b> — kies een foto (bij voorkeur <code>jpeg</code> of <code>tiff</code>). De
+        metadata wordt lokaal uitgelezen; er wordt niets geüpload. Een GPS-locatie krijgt een link
+        naar de kaart.
+      </li>
+      <li>
+        <b>Metadata verwijderen &amp; downloaden</b> — codeert de afbeelding opnieuw als{' '}
+        <code>jpeg</code>, waardoor alle metadata (inclusief GPS) verdwijnt, en biedt de schone
+        kopie aan om te downloaden.
+      </li>
+    </ul>
+  </>
+)
+
 function ExifTool(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
   const [tags, setTags] = useState<Tags | null>(null)
@@ -114,6 +138,7 @@ function ExifTool(): JSX.Element {
     <ToolShell
       title="EXIF-viewer & stripper"
       subtitle="Bekijk EXIF-metadata van een foto en download een schone kopie."
+      info={EXIF_TOOL_INFO}
     >
       <>
         <div className="panel">

@@ -176,6 +176,31 @@ function textBrightness(text: string, bins: number): { bright: Float32Array; w: 
   return { bright, w: canvas.width, h: canvas.height }
 }
 
+const SPECTROGRAM_MESSAGE_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Een spectrogram toont hoe de frequenties (toonhoogtes) in een geluid door de tijd verlopen.
+      Deze tool werkt twee kanten op: tekst in een geluid branden, of het spectrogram van bestaande
+      audio tekenen.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Tekst → geluid</b> — tekent je tekst met een bank sinustonen in het frequentiebeeld en
+        levert een <code>wav</code>-bestand op. Open dat in een spectrogram-viewer (of gebruik
+        &quot;Audio → spectrogram&quot; hierboven) en de letters worden zichtbaar.
+      </li>
+      <li>
+        <b>Audio → spectrogram</b> — analyseert een audiobestand (<code>mp3</code>, <code>wav</code>,{' '}
+        <code>m4a</code> en meer) en tekent er een spectrogram-afbeelding van. Lage tonen onderaan,
+        hoge bovenaan; helderder betekent meer energie. Lange bestanden worden tot ongeveer 30
+        seconden meegenomen.
+      </li>
+    </ul>
+  </>
+)
+
 function SpectrogramMessage(): JSX.Element {
   const [mode, setMode] = useState<Mode>('encode')
   const [text, setText] = useState('HALLO')
@@ -276,6 +301,7 @@ function SpectrogramMessage(): JSX.Element {
     <ToolShell
       title="Spectrogram-boodschap"
       subtitle="Bekijk audio als spectrogram — of brand tekst in een geluid zodat het zichtbaar wordt in het frequentiebeeld."
+      info={SPECTROGRAM_MESSAGE_INFO}
     >
       <div className="panel tool-panel">
         <Segmented<Mode>

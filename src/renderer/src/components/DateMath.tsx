@@ -41,6 +41,31 @@ function compute(start: Date, op: Op, amount: number, unit: Unit): Date {
   return d
 }
 
+const DATE_MATH_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Telt een periode op bij een datum of trekt deze ervan af. Naast de resultaatdatum toont de
+      tool de weekdag en het ISO-weeknummer.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Startdatum</b> — de datum waarvan wordt gerekend.
+      </li>
+      <li>
+        <b>Bewerking</b> — <b>Optellen</b> telt de periode op, <b>Aftrekken</b> trekt deze af.
+      </li>
+      <li>
+        <b>Aantal</b> — het aantal eenheden dat wordt opgeteld of afgetrokken.
+      </li>
+      <li>
+        <b>Eenheid</b> — de eenheid van de periode: dagen, weken, maanden of jaren.
+      </li>
+    </ul>
+  </>
+)
+
 function DateMath(): JSX.Element {
   const [startStr, setStartStr] = useState(todayISO())
   const [op, setOp] = useState<Op>('add')
@@ -73,6 +98,7 @@ function DateMath(): JSX.Element {
     <ToolShell
       title="Datum-rekenen"
       subtitle="Tel een periode op bij of trek deze af van een datum."
+      info={DATE_MATH_INFO}
     >
       <div className="panel tool-panel">
         <label className="tool-field">

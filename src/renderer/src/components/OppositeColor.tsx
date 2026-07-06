@@ -2,6 +2,32 @@ import { JSX, useState } from 'react'
 import { ToolShell, CopyButton, Note } from './toolkit'
 import { complementary, invert, contrastText } from '../lib/colorHarmony'
 
+const OPPOSITE_COLOR_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Kies een kleur en zie er drie &quot;tegenpolen&quot; bij: de complementaire kleur, de
+      RGB-inversie en de best leesbare tekstkleur. Elke waarde toont een staal en een{' '}
+      <code>hex</code>-code die je kunt kopiëren.
+    </p>
+    <h4>Resultaten</h4>
+    <ul>
+      <li>
+        <b>Complementair</b> — de kleur recht tegenover je basiskleur op het kleurenwiel (180°),
+        de klassieke design-tegenpool.
+      </li>
+      <li>
+        <b>RGB-inversie</b> — elk kanaal berekend als <code>255 − waarde</code>. Dit levert meestal
+        een andere kleur op dan de complementaire tint.
+      </li>
+      <li>
+        <b>Beste leesbare tekstkleur</b> — zwart of wit, afhankelijk van welke het meeste contrast
+        geeft op je basiskleur.
+      </li>
+    </ul>
+  </>
+)
+
 function OppositeColor(): JSX.Element {
   const [hex, setHex] = useState('#4a6cd4')
 
@@ -13,6 +39,7 @@ function OppositeColor(): JSX.Element {
     <ToolShell
       title="Tegenovergestelde kleur"
       subtitle="Vind de complementaire kleur, de RGB-inversie en de best leesbare tekstkleur."
+      info={OPPOSITE_COLOR_INFO}
     >
       <div className="panel">
         <div className="tool-field">

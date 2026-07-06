@@ -10,6 +10,27 @@ function formatLocal(d: Date): string {
   return d.toLocaleString('nl-NL', { dateStyle: 'full', timeStyle: 'short' })
 }
 
+const SEASONS_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Toont de exacte astronomische momenten van de seizoenswisselingen: de lente- en
+      herfstequinox en de zomer- en winterzonnewende. De tijden worden weergegeven in jouw
+      lokale tijdzone en zijn benaderd tot op de minuut.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Jaar</b> — het jaar waarvoor de vier seizoensmomenten worden berekend.
+      </li>
+      <li>
+        <b>Van</b> en <b>Tot</b> — begin- en eindjaar van een bereik dat de seizoenen per jaar
+        in een tabel zet. <code>Tot</code> moet gelijk zijn aan of groter dan <code>Van</code>.
+      </li>
+    </ul>
+  </>
+)
+
 function Seasons(): JSX.Element {
   const now = new Date().getFullYear()
   const [year, setYear] = useState(now)
@@ -33,6 +54,7 @@ function Seasons(): JSX.Element {
     <ToolShell
       title="Astronomische seizoenen"
       subtitle="De exacte momenten van de equinoxen en zonnewenden, in jouw tijdzone."
+      info={SEASONS_INFO}
     >
       <div className="panel tool-panel">
         <NumberField label="Jaar" value={year} onChange={setYear} />

@@ -18,6 +18,29 @@ function formatCs(ms: number): string {
   return `${pad(min)}:${pad(sec)}.${pad(cs)}`
 }
 
+const STOPWATCH_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Een stopwatch die de tijd meet in minuten, seconden en honderdsten. Tijdens het lopen kun je
+      rondes vastleggen, met per ronde de tussentijd en de totale tijd.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Start / Stop</b> — start de stopwatch of pauzeert hem; bij opnieuw starten telt hij
+        verder.
+      </li>
+      <li>
+        <b>Ronde</b> — legt de huidige tijd vast als ronde met de tussentijd sinds de vorige ronde.
+      </li>
+      <li>
+        <b>Reset</b> — zet de tijd en alle rondes terug op nul.
+      </li>
+    </ul>
+  </>
+)
+
 function Stopwatch(): JSX.Element {
   const [running, setRunning] = useState(false)
   const [elapsed, setElapsed] = useState(0)
@@ -73,7 +96,11 @@ function Stopwatch(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Stopwatch" subtitle="Meet tijd met rondes en tussentijden.">
+    <ToolShell
+      title="Stopwatch"
+      subtitle="Meet tijd met rondes en tussentijden."
+      info={STOPWATCH_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-center">
           <div className="tk-timer-display">{formatCs(elapsed)}</div>

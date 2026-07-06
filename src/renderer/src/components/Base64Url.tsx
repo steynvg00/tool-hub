@@ -15,6 +15,27 @@ function decodeBase64(b64: string): string {
   return new TextDecoder().decode(Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)))
 }
 
+const BASE64_URL_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Codeert en decodeert tekst als Base64 of als URL-codering. De uitvoer wordt live berekend
+      terwijl je typt.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Type</b> — <code>Base64</code> zet tekst om in Base64; <code>URL</code> gebruikt
+        percent-codering (<code>encodeURIComponent</code>) voor gebruik in URL&apos;s.
+      </li>
+      <li>
+        <b>Richting</b> — <code>Coderen</code> zet gewone tekst om; <code>Decoderen</code> zet een
+        gecodeerde waarde terug naar tekst.
+      </li>
+    </ul>
+  </>
+)
+
 function Base64Url(): JSX.Element {
   const [mode, setMode] = useState<Mode>('base64')
   const [direction, setDirection] = useState<Direction>('encode')
@@ -34,7 +55,7 @@ function Base64Url(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Base64 & URL" subtitle="Coderen en decoderen van tekst.">
+    <ToolShell title="Base64 & URL" subtitle="Coderen en decoderen van tekst." info={BASE64_URL_INFO}>
       <div className="panel">
         <div className="tk-row">
           <div className="tool-field">

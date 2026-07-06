@@ -4,6 +4,22 @@ import { useFileResult } from '../lib/useFileResult'
 import { FileButton, ResultDownload } from './ToolFields'
 import { ToolShell, ErrorBanner, Note } from './toolkit'
 
+const AUDIO_NORMALIZE_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Brengt het volume naar een consistente doelluidheid via loudness-normalisatie volgens de{' '}
+      <b>EBU R128</b>-standaard (doel −16 LUFS). Anders dan gewoon volume aanpassen kijkt dit niet
+      naar de piek maar naar hoe hard het geluid <em>klinkt</em>, zodat verschillende bestanden even
+      hard aanvoelen.
+    </p>
+    <p>
+      Ideaal om een afspeellijst of podcast-afleveringen op één lijn te krijgen. Er zijn geen
+      instellingen: kies een bestand en normaliseer.
+    </p>
+  </>
+)
+
 function AudioNormalize(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
   const [result, setResult] = useFileResult()
@@ -34,6 +50,7 @@ function AudioNormalize(): JSX.Element {
     <ToolShell
       title="Audio normaliseren"
       subtitle="Breng het volume naar een consistent, standaard luidheidsniveau."
+      info={AUDIO_NORMALIZE_INFO}
     >
       <div className="panel tool-panel">
         <FileButton

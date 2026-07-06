@@ -32,6 +32,40 @@ function CopySwatch({ hex }: { hex: string }): JSX.Element {
   )
 }
 
+const COLOR_SET_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Genereert een set bij elkaar passende kleuren op basis van één basiskleur. Klik op een staal
+      om de <code>hex</code>-code te kopiëren.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Basiskleur</b> — de kleur waaruit de set wordt afgeleid.
+      </li>
+      <li>
+        <b>Aantal</b> — hoeveel kleuren de set bevat (<code>1–12</code>).
+      </li>
+      <li>
+        <b>Modus</b> — bepaalt hoe de kleuren worden gekozen:
+        <ul>
+          <li>
+            <b>Harmonisch</b> — verspreid over het kleurenwiel voor een gevarieerd, evenwichtig
+            palet.
+          </li>
+          <li>
+            <b>Analoog</b> — tinten die dicht bij de basiskleur liggen.
+          </li>
+          <li>
+            <b>Monochroom</b> — dezelfde tint in verschillende lichtheden.
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </>
+)
+
 function ColorSet(): JSX.Element {
   const [hex, setHex] = useState('#4a6cd4')
   const [count, setCount] = useState(5)
@@ -43,6 +77,7 @@ function ColorSet(): JSX.Element {
     <ToolShell
       title="Kleurenset-generator"
       subtitle="Genereer een set passende kleuren op basis van één basiskleur."
+      info={COLOR_SET_INFO}
     >
       <div className="panel">
         <div className="tool-field">

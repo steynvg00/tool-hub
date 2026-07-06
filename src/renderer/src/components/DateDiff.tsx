@@ -43,6 +43,27 @@ function breakdown(start: Date, end: Date): { years: number; months: number; day
   return { years, months, days }
 }
 
+const DATE_DIFF_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Berekent het verschil tussen twee datums op meerdere manieren: het totaal aantal dagen en
+      weken, de kalenderopbouw in maanden en jaren, en het aantal werkdagen. De volgorde maakt
+      niet uit; het verschil is altijd positief.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Van</b> en <b>Tot</b> — de twee datums waartussen het verschil wordt berekend.
+      </li>
+    </ul>
+    <p>
+      <b>Werkdagen</b> (maandag t/m vrijdag) worden geteld vanaf de dag ná <code>Van</code> tot
+      en met <code>Tot</code>.
+    </p>
+  </>
+)
+
 function DateDiff(): JSX.Element {
   const [van, setVan] = useState(todayISO())
   const [tot, setTot] = useState(todayISO())
@@ -122,7 +143,11 @@ function DateDiff(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Datumverschil" subtitle="Bereken het verschil tussen twee datums.">
+    <ToolShell
+      title="Datumverschil"
+      subtitle="Bereken het verschil tussen twee datums."
+      info={DATE_DIFF_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-row">
           {dateField('Van', van, setVan)}

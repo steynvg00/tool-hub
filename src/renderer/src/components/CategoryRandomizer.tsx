@@ -130,6 +130,33 @@ function toItems(text: string): string[] {
     .filter((s) => s !== '')
 }
 
+const CATEGORY_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Kies een categorie en trek er een willekeurig item uit. Naast de meegeleverde
+      categorieën kun je ook je eigen lijsten aanmaken, bewerken en opslaan.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Lijst</b> — kies uit een ingebouwde categorie of een van je eigen opgeslagen lijsten.
+      </li>
+      <li>
+        <b>Trek</b> — toont een willekeurig item uit de gekozen lijst.
+      </li>
+      <li>
+        <b>Trek zonder herhaling</b> — elk item wordt maar één keer getrokken totdat de lijst op is;
+        met <b>Reset</b> begin je opnieuw.
+      </li>
+      <li>
+        <b>Eigen lijsten</b> — geef een naam en zet één item per regel; sla op om de lijst te
+        bewaren, of bewerk en verwijder bestaande lijsten.
+      </li>
+    </ul>
+  </>
+)
+
 function CategoryRandomizer(): JSX.Element {
   const [userLists, setUserLists] = useState<CustomRandomList[]>([])
   const [selected, setSelected] = useState<string>('builtin:' + Object.keys(BUILTIN)[0])
@@ -256,6 +283,7 @@ function CategoryRandomizer(): JSX.Element {
     <ToolShell
       title="Categorie-randomizer"
       subtitle="Kies een categorie en trek een willekeurig item."
+      info={CATEGORY_INFO}
     >
       <div className="panel">
         <label className="tool-field">

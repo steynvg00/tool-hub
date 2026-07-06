@@ -42,6 +42,27 @@ function diffLines(a: string[], b: string[]): Op[] {
   return ops
 }
 
+const DIFF_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Vergelijkt twee teksten regel voor regel en toont welke regels zijn toegevoegd, verwijderd of
+      gelijk gebleven. Toegevoegde regels krijgen een <code>+</code>, verwijderde een{' '}
+      <code>−</code>.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Origineel</b> — de oorspronkelijke tekst waarmee je vergelijkt.
+      </li>
+      <li>
+        <b>Gewijzigd</b> — de nieuwe tekst; verschillen ten opzichte van het origineel worden
+        gemarkeerd.
+      </li>
+    </ul>
+  </>
+)
+
 function TextDiff(): JSX.Element {
   const [a, setA] = useState('')
   const [b, setB] = useState('')
@@ -64,7 +85,11 @@ function TextDiff(): JSX.Element {
   }, [ops])
 
   return (
-    <ToolShell title="Tekst-diff" subtitle="Vergelijk twee teksten regel voor regel.">
+    <ToolShell
+      title="Tekst-diff"
+      subtitle="Vergelijk twee teksten regel voor regel."
+      info={DIFF_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-two">
           <TextArea label="Origineel" value={a} onChange={setA} rows={10} mono={false} />

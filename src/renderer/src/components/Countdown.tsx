@@ -1,6 +1,23 @@
 import { JSX, useEffect, useState } from 'react'
 import { ToolShell, Note, StatRow } from './toolkit'
 
+const COUNTDOWN_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Telt live af naar een gekozen doeldatum en -tijd en toont de resterende dagen, uren,
+      minuten en seconden. Zodra het moment is bereikt, laat de tool zien hoeveel tijd er sindsdien
+      verstreken is.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Doeldatum</b> — de datum en tijd waarnaar wordt afgeteld, in je lokale tijdzone.
+      </li>
+    </ul>
+  </>
+)
+
 function Countdown(): JSX.Element {
   const [target, setTarget] = useState('')
   const [now, setNow] = useState(() => Date.now())
@@ -64,7 +81,11 @@ function Countdown(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Aftellen naar datum" subtitle="Tel live af naar een doeldatum en -tijd.">
+    <ToolShell
+      title="Aftellen naar datum"
+      subtitle="Tel live af naar een doeldatum en -tijd."
+      info={COUNTDOWN_INFO}
+    >
       <div className="panel tool-panel">
         <label className="tool-field">
           <span className="tool-label">Doeldatum</span>

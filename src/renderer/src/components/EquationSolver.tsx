@@ -69,6 +69,30 @@ function solveQuadratic(a: number, b: number, c: number): Solved {
   }
 }
 
+const EQUATION_SOLVER_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Lost een lineaire of kwadratische vergelijking op en toont de tussenstappen naar de oplossing.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Lineair · a·x + b = 0</b> — vraagt om coëfficiënten <code>a</code> en <code>b</code> en lost{' '}
+        <code>x</code> op.
+      </li>
+      <li>
+        <b>Kwadratisch · a·x² + b·x + c = 0</b> — vraagt ook om <code>c</code>; berekent de discriminant{' '}
+        <code>D</code> en geeft twee reële, één dubbele of twee complexe oplossingen.
+      </li>
+      <li>
+        <b>a, b, c</b> — de coëfficiënten; mogen decimaal of negatief zijn. Zet <code>a = 0</code> om
+        automatisch terug te vallen op de lineaire oplossing.
+      </li>
+    </ul>
+  </>
+)
+
 function EquationSolver(): JSX.Element {
   const [mode, setMode] = useState<Mode>('quadratic')
   const [a, setA] = useState('1')
@@ -95,6 +119,7 @@ function EquationSolver(): JSX.Element {
     <ToolShell
       title="Vergelijking oplossen"
       subtitle="Los een lineaire of kwadratische vergelijking op, met tussenstappen."
+      info={EQUATION_SOLVER_INFO}
     >
       <div className="panel tool-panel">
         <Segmented<Mode>

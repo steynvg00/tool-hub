@@ -57,6 +57,28 @@ function fmt(instant: number, zone: string): string {
   )
 }
 
+const TIMEZONE_CONVERT_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Zet een tijd om van de ene tijdzone naar de andere. De tool houdt rekening met zomertijd en
+      toont naast het resultaat ook het bijbehorende moment in UTC.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Tijd</b> — de datum en tijd zoals die geldt in de bronzone.
+      </li>
+      <li>
+        <b>Van zone</b> — de tijdzone waarin de opgegeven tijd geldt.
+      </li>
+      <li>
+        <b>Naar zone</b> — de tijdzone waarnaar de tijd wordt omgezet.
+      </li>
+    </ul>
+  </>
+)
+
 function TimezoneConvert(): JSX.Element {
   const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone
   const [wall, setWall] = useState('')
@@ -95,7 +117,11 @@ function TimezoneConvert(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Tijdzone-omzetter" subtitle="Zet een tijd om van de ene tijdzone naar de andere.">
+    <ToolShell
+      title="Tijdzone-omzetter"
+      subtitle="Zet een tijd om van de ene tijdzone naar de andere."
+      info={TIMEZONE_CONVERT_INFO}
+    >
       <div className="panel tool-panel">
         <label className="tool-field">
           <span className="tool-label">Tijd</span>

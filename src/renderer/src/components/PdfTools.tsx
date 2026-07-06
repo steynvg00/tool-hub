@@ -2,8 +2,40 @@ import { JSX, useState } from 'react'
 import { processToFile } from '../lib/api'
 import { useFileResult } from '../lib/useFileResult'
 import { FileButton, MultiFileButton, ResultDownload } from './ToolFields'
+import { ToolHeader } from './toolkit'
 
 type Action = 'merge' | 'split' | 'rotate' | 'compress'
+
+const PDF_TOOLS_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Bewerkt PDF-bestanden op vier manieren. Kies eerst een actie; de bijbehorende opties
+      verschijnen daaronder.
+    </p>
+    <h4>Acties</h4>
+    <ul>
+      <li>
+        <b>Samenvoegen</b> &mdash; voegt meerdere PDF&apos;s samen tot één bestand, in de volgorde
+        waarin je ze kiest.
+      </li>
+      <li>
+        <b>Splitsen</b> &mdash; haalt pagina&apos;s uit een PDF. Met <b>Pagina&apos;s kiezen</b>
+        geef je een bereik op (bijv. <code>1-3,5</code>) dat in één nieuwe PDF komt; met{' '}
+        <b>Elke pagina (zip)</b> wordt elke pagina een los bestand in een zip.
+      </li>
+      <li>
+        <b>Draaien</b> &mdash; draait pagina&apos;s met <b>Graden</b> (90° rechtsom, 180° of 270°).
+        Vul bij <b>Pagina&apos;s</b> een bereik in of laat het leeg om alle pagina&apos;s te
+        draaien.
+      </li>
+      <li>
+        <b>Comprimeren</b> &mdash; verkleint het bestand. Met <b>Beeldkwaliteit</b> (1&ndash;100)
+        bepaal je de kwaliteit van de afbeeldingen; lager geeft een kleiner bestand.
+      </li>
+    </ul>
+  </>
+)
 
 const ACTIONS: { id: Action; label: string }[] = [
   { id: 'merge', label: 'Samenvoegen' },
@@ -83,10 +115,11 @@ function PdfTools(): JSX.Element {
 
   return (
     <div className="tool">
-      <header className="tool-header">
-        <h1>PDF-gereedschap</h1>
-        <p>Voeg samen, splits, draai of comprimeer PDF-bestanden.</p>
-      </header>
+      <ToolHeader
+        title="PDF-gereedschap"
+        subtitle="Voeg samen, splits, draai of comprimeer PDF-bestanden."
+        info={PDF_TOOLS_INFO}
+      />
 
       <div className="panel tool-panel">
         <div className="tool-field">

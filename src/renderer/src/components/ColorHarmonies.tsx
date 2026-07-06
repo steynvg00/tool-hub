@@ -34,6 +34,38 @@ function CopySwatch({ hex }: { hex: string }): JSX.Element {
   )
 }
 
+const COLOR_HARMONIES_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Toont de klassieke kleurharmonieën die horen bij één gekozen kleur. Elke harmonie is een
+      vaste manier om kleuren op het kleurenwiel te combineren. Klik op een staal om de{' '}
+      <code>hex</code>-code te kopiëren.
+    </p>
+    <h4>Harmonieën</h4>
+    <ul>
+      <li>
+        <b>Complementair</b> — de kleur recht tegenover de jouwe (180°).
+      </li>
+      <li>
+        <b>Analoog</b> — buurkleuren dicht bij de basiskleur.
+      </li>
+      <li>
+        <b>Triadisch</b> — drie kleuren gelijkmatig verdeeld (120°).
+      </li>
+      <li>
+        <b>Tetradisch</b> — vier kleuren in twee complementaire paren.
+      </li>
+      <li>
+        <b>Split-complementair</b> — de basiskleur plus de twee buren van zijn complement.
+      </li>
+      <li>
+        <b>Monochroom</b> — dezelfde tint in verschillende lichtheden.
+      </li>
+    </ul>
+  </>
+)
+
 function ColorHarmonies(): JSX.Element {
   const [hex, setHex] = useState('#4a6cd4')
 
@@ -41,6 +73,7 @@ function ColorHarmonies(): JSX.Element {
     <ToolShell
       title="Kleurharmonieën"
       subtitle="Bekijk klassieke kleurharmonieën op basis van één kleur."
+      info={COLOR_HARMONIES_INFO}
     >
       <div className="panel">
         <div className="tool-field">

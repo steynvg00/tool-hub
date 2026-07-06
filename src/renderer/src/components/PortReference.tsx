@@ -41,6 +41,25 @@ const PORTS: { port: number; proto: string; service: string; desc: string }[] = 
   { port: 25565, proto: 'TCP', service: 'Minecraft', desc: 'Minecraft-gameserver' }
 ]
 
+const PORT_REFERENCE_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Een doorzoekbare lijst van bekende netwerkpoorten en de diensten die er standaard op draaien.
+      Handig om snel op te zoeken wat bijvoorbeeld poort <code>443</code> doet, of op welke poort
+      een dienst luistert.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Zoeken</b> — filtert de lijst op poortnummer (<code>443</code>), dienstnaam (
+        <code>SSH</code>) of een woord uit de omschrijving (<code>database</code>). Leeg laten toont
+        alle poorten.
+      </li>
+    </ul>
+  </>
+)
+
 function PortReference(): JSX.Element {
   const [query, setQuery] = useState('')
 
@@ -58,6 +77,7 @@ function PortReference(): JSX.Element {
     <ToolShell
       title="Poort-referentie"
       subtitle="Zoek snel op welke dienst bij een bekende netwerkpoort hoort."
+      info={PORT_REFERENCE_INFO}
     >
       <div className="panel tool-panel">
         <TextInput

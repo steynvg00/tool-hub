@@ -26,6 +26,31 @@ function formatMs(ms: number): string {
   return `${pad(min)}:${pad(sec)}`
 }
 
+const POMODORO_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Een pomodoro-timer die automatisch wisselt tussen werk- en pauzeperiodes. Bij elke overgang
+      klinkt een geluidssignaal, en de teller houdt bij hoeveel werksessies je hebt voltooid.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Werk (min)</b> — de lengte van een werkperiode in minuten.
+      </li>
+      <li>
+        <b>Pauze (min)</b> — de lengte van een pauzeperiode in minuten.
+      </li>
+      <li>
+        <b>Start / Pauze</b> — start de timer of pauzeert hem tijdelijk.
+      </li>
+      <li>
+        <b>Reset</b> — zet terug naar het begin van een werkperiode.
+      </li>
+    </ul>
+  </>
+)
+
 function Pomodoro(): JSX.Element {
   const [werkMin, setWerkMin] = useState(25)
   const [pauzeMin, setPauzeMin] = useState(5)
@@ -130,7 +155,11 @@ function Pomodoro(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Pomodoro" subtitle="Wissel automatisch tussen werk en pauze.">
+    <ToolShell
+      title="Pomodoro"
+      subtitle="Wissel automatisch tussen werk en pauze."
+      info={POMODORO_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-row">
           <NumberField label="Werk (min)" value={werkMin} min={1} onChange={changeWerk} />

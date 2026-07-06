@@ -11,6 +11,42 @@ import {
   type Preset
 } from '../lib/api'
 import type { UserPreset } from '../../../preload'
+import { ToolHeader } from './toolkit'
+
+const BACKGROUND_REMOVER_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Verwijdert de achtergrond van een afbeelding. Je bouwt zelf een pijplijn van technieken: een{' '}
+      <b>generator</b> maakt eerst een masker en <b>modifiers</b> verfijnen dat masker daarna. De
+      stappen worden op volgorde van boven naar beneden uitgevoerd.
+    </p>
+    <h4>Werkwijze</h4>
+    <ul>
+      <li>
+        <b>1 · Afbeelding</b> &mdash; upload een PNG, JPEG of WEBP als bronbeeld.
+      </li>
+      <li>
+        <b>2 · Technieken</b> &mdash; klik op een <b>generator</b> om een masker aan te maken en
+        voeg eventueel <b>modifiers</b> toe om het masker te verfijnen. Elke techniek heeft eigen
+        instelbare parameters.
+      </li>
+      <li>
+        <b>Presets</b> &mdash; kies een ingebouwde of eigen preset om de pijplijn in één klik te
+        vullen; de stappen blijven daarna aanpasbaar. Sla je huidige pijplijn op onder een naam om
+        hem later opnieuw te gebruiken of te verwijderen.
+      </li>
+      <li>
+        <b>3 · Pijplijn</b> &mdash; hier staan je stappen. Gebruik de pijltjes om de volgorde te
+        wijzigen, het kruisje om een stap te verwijderen of <b>wissen</b> om alles te leegmaken.
+      </li>
+      <li>
+        <b>4 · Resultaat</b> &mdash; bekijk het eindresultaat plus een preview per stap en download
+        het als transparante PNG.
+      </li>
+    </ul>
+  </>
+)
 
 let stepCounter = 0
 const nextId = (): string => `step-${++stepCounter}`
@@ -183,10 +219,11 @@ function BackgroundRemover(): JSX.Element {
 
   return (
     <div className="tool">
-      <header className="tool-header">
-        <h1>Achtergrond verwijderen</h1>
-        <p>Upload een afbeelding, bouw een pijplijn van technieken en verwijder de achtergrond.</p>
-      </header>
+      <ToolHeader
+        title="Achtergrond verwijderen"
+        subtitle="Upload een afbeelding, bouw een pijplijn van technieken en verwijder de achtergrond."
+        info={BACKGROUND_REMOVER_INFO}
+      />
 
       {catalogError && (
         <div className="banner banner-error">

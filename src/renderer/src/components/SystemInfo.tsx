@@ -40,6 +40,22 @@ function collect(): Info {
   return { userAgent, rows }
 }
 
+const SYSTEM_INFO_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Toont de gegevens die je browser over dit systeem prijsgeeft: platform, talen,
+      schermresolutie, venstergrootte, tijdzone, kleurschema, online-status, aantal CPU-kernen en
+      geheugen, plus de volledige user-agent-tekst. Met <b>Vernieuwen</b> lees je de waarden opnieuw
+      uit.
+    </p>
+    <p>
+      Dit is dezelfde informatie die websites kunnen zien; sommige velden tonen <code>onbekend</code>{' '}
+      als je browser ze afschermt.
+    </p>
+  </>
+)
+
 function SystemInfo(): JSX.Element {
   const [info, setInfo] = useState<Info>(collect)
 
@@ -47,6 +63,7 @@ function SystemInfo(): JSX.Element {
     <ToolShell
       title="User-agent & systeeminfo"
       subtitle="Bekijk de gegevens die je browser over dit systeem prijsgeeft."
+      info={SYSTEM_INFO_INFO}
     >
       <div className="panel tool-panel">
         <div className="tk-actions">

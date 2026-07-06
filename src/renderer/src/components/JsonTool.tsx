@@ -3,6 +3,32 @@ import { ToolShell, TextArea, Segmented, OutputArea, ErrorBanner } from './toolk
 
 type Indent = '2' | '4' | 'tab'
 
+const JSON_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Maakt JSON leesbaar op, comprimeert het tot één regel of controleert of het geldig is. Bij een
+      fout wordt de regel en kolom van het probleem getoond.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Inspringing</b> — kies de inspringing voor het opmaken: <code>2</code> spaties,{' '}
+        <code>4</code> spaties of een <code>tab</code>.
+      </li>
+      <li>
+        <b>Opmaken</b> — herschrijft de JSON met inspringing en regeleinden.
+      </li>
+      <li>
+        <b>Minify</b> — verwijdert alle overbodige witruimte tot één compacte regel.
+      </li>
+      <li>
+        <b>Valideren</b> — controleert of de invoer geldige JSON is zonder de uitvoer te wijzigen.
+      </li>
+    </ul>
+  </>
+)
+
 function JsonTool(): JSX.Element {
   const [input, setInput] = useState('')
   const [indent, setIndent] = useState<Indent>('2')
@@ -59,7 +85,11 @@ function JsonTool(): JSX.Element {
   }
 
   return (
-    <ToolShell title="JSON-gereedschap" subtitle="Opmaken, minificeren en valideren van JSON.">
+    <ToolShell
+      title="JSON-gereedschap"
+      subtitle="Opmaken, minificeren en valideren van JSON."
+      info={JSON_INFO}
+    >
       <div className="tk-two">
         <div className="panel">
           <TextArea label="JSON" value={input} onChange={setInput} rows={14} />

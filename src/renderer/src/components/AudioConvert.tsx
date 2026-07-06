@@ -7,6 +7,30 @@ import { ToolShell, StatRow, ErrorBanner, Note } from './toolkit'
 const FORMATS = ['mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg']
 const LOSSY = new Set(['mp3', 'm4a', 'aac', 'ogg'])
 
+const AUDIO_CONVERT_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Zet een audiobestand om naar een ander formaat. Na afloop zie je de grootte voor en na de
+      conversie en het procentuele verschil.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Doelformaat</b> — het uitvoerformaat. <code>wav</code> en <code>flac</code> zijn
+        verliesvrij (lossless): ze bewaren de volledige kwaliteit maar zijn groter.{' '}
+        <code>mp3</code>, <code>m4a</code>, <code>aac</code> en <code>ogg</code> zijn lossy: ze
+        comprimeren door detail weg te laten, wat kleinere bestanden geeft.
+      </li>
+      <li>
+        <b>Bitrate (kbps)</b> — alleen bij lossy formaten. Meer kbps betekent hogere kwaliteit en
+        een groter bestand. <code>192</code> is een goede middenweg; <code>320</code> is de hoogste
+        kwaliteit.
+      </li>
+    </ul>
+  </>
+)
+
 function AudioConvert(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
   const [format, setFormat] = useState('mp3')
@@ -41,6 +65,7 @@ function AudioConvert(): JSX.Element {
     <ToolShell
       title="Audio converteren"
       subtitle="Zet een audiobestand om naar een ander formaat, met instelbare bitrate."
+      info={AUDIO_CONVERT_INFO}
     >
       <div className="panel tool-panel">
         <FileButton

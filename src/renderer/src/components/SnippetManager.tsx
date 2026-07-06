@@ -3,6 +3,35 @@ import { ToolShell, TextInput, TextArea, CopyButton, Note, ErrorBanner } from '.
 
 type Snippet = Awaited<ReturnType<typeof window.api.snippets.list>>[number]
 
+const SNIPPET_MANAGER_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Bewaart korte teksten die je vaak nodig hebt — een e-mailhandtekening, standaardantwoord of
+      codefragment — met een herkenbaar label. Je snippets blijven bewaard tussen sessies.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Nieuwe snippet</b> — geef een <b>label</b> en de <b>tekst</b> op en klik op toevoegen.
+        De tekst mag niet leeg zijn.
+      </li>
+      <li>
+        <b>Zoeken</b> — filtert je snippets op label of inhoud terwijl je typt.
+      </li>
+      <li>
+        <b>Kopiëren</b> — zet de tekst van een snippet met één klik op het klembord.
+      </li>
+      <li>
+        <b>Bewerken</b> — laadt een snippet terug in het formulier om label of tekst aan te passen.
+      </li>
+      <li>
+        <b>Verwijderen</b> — wist een snippet definitief.
+      </li>
+    </ul>
+  </>
+)
+
 function SnippetManager(): JSX.Element {
   const [snippets, setSnippets] = useState<Snippet[]>([])
   const [query, setQuery] = useState('')
@@ -72,6 +101,7 @@ function SnippetManager(): JSX.Element {
     <ToolShell
       title="Snippet-manager"
       subtitle="Bewaar korte teksten met een label, doorzoek ze en kopieer met één klik."
+      info={SNIPPET_MANAGER_INFO}
     >
       <div className="tk-two">
         <div className="panel tool-panel">

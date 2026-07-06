@@ -13,6 +13,28 @@ function gcd(a: number, b: number): number {
 const fmt = (n: number): string =>
   Number.isInteger(n) ? String(n) : String(Number(n.toPrecision(8)))
 
+const RATIO_CALC_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Lost een verhouding <code>a : b = c : d</code> op via kruisvermenigvuldiging. Vul drie velden in en
+      laat er precies één leeg om de ontbrekende waarde te berekenen.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>a, b, c, d</b> — de vier termen van de verhouding. Laat precies één veld leeg; die waarde wordt
+        berekend.
+      </li>
+    </ul>
+    <p>
+      Zijn <code>a</code> en <code>b</code> hele getallen, dan wordt de verhouding ook vereenvoudigd
+      getoond, samen met de factor <code>a/b</code>. Handig voor schaal (bv. <code>1 : 100</code>) of
+      recepten opschalen. Voorbeeld: <code>1 : 4 = 5 : ?</code> → 20.
+    </p>
+  </>
+)
+
 function RatioCalc(): JSX.Element {
   // Proportion a : b = c : d — leave exactly one field empty to solve it.
   const [a, setA] = useState('1')
@@ -66,6 +88,7 @@ function RatioCalc(): JSX.Element {
     <ToolShell
       title="Verhouding & schaal"
       subtitle="Los een verhouding a : b = c : d op — laat één veld leeg voor de ontbrekende waarde."
+      info={RATIO_CALC_INFO}
     >
       <div className="panel tool-panel">
         <div className="tk-ratio">

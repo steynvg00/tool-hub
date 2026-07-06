@@ -4,6 +4,30 @@ import { NumberField } from './ToolFields'
 
 type Maatsoort = '2' | '3' | '4' | '6'
 
+const METRONOME_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Een metronoom die met een nauwkeurige audioklik de maat aangeeft. De eerste tel van elke maat
+      krijgt een hogere accentklik, en de balletjes tonen welke tel op dat moment klinkt. BPM en
+      maatsoort kun je aanpassen terwijl de metronoom loopt.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>BPM</b> — het tempo in slagen per minuut (30 tot 300).
+      </li>
+      <li>
+        <b>Maatsoort</b> — het aantal tellen per maat (2, 3, 4 of 6); de eerste tel wordt
+        geaccentueerd.
+      </li>
+      <li>
+        <b>Start / Stop</b> — start of stopt de klik.
+      </li>
+    </ul>
+  </>
+)
+
 function Metronome(): JSX.Element {
   const [bpm, setBpm] = useState(100)
   const [maatsoort, setMaatsoort] = useState<Maatsoort>('4')
@@ -90,7 +114,11 @@ function Metronome(): JSX.Element {
   const beats = Number(maatsoort)
 
   return (
-    <ToolShell title="Metronoom" subtitle="Houd de maat met een nauwkeurige audioklik.">
+    <ToolShell
+      title="Metronoom"
+      subtitle="Houd de maat met een nauwkeurige audioklik."
+      info={METRONOME_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-row">
           <NumberField label="BPM" value={bpm} min={30} max={300} onChange={setBpm} />

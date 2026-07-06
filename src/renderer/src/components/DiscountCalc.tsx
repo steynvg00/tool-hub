@@ -6,6 +6,29 @@ const eur = (n: number): string =>
 
 const PRESETS = ['10', '15', '20', '25', '50', '70']
 
+const DISCOUNT_CALC_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>Rekent van originele prijs en korting naar de eindprijs, je besparing en de totale korting.</p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Originele prijs (€)</b> — de prijs vóór korting.
+      </li>
+      <li>
+        <b>Korting (%)</b> — het kortingspercentage; met de snelknoppen kies je snel 10 t/m 70%.
+      </li>
+      <li>
+        <b>Extra stapelkorting (%)</b> — een tweede korting die over de al verlaagde prijs wordt gerekend.
+        Laat leeg of <code>0</code> voor geen stapelkorting.
+      </li>
+    </ul>
+    <p>
+      Stapelkorting werkt na elkaar: twee keer 20% is samen 36%, niet 40%.
+    </p>
+  </>
+)
+
 function DiscountCalc(): JSX.Element {
   const [price, setPrice] = useState('79.99')
   const [discount, setDiscount] = useState('25')
@@ -24,7 +47,11 @@ function DiscountCalc(): JSX.Element {
   const effective = p > 0 ? (saved / p) * 100 : 0
 
   return (
-    <ToolShell title="Korting-rekenaar" subtitle="Van originele prijs en korting naar eindprijs en besparing.">
+    <ToolShell
+      title="Korting-rekenaar"
+      subtitle="Van originele prijs en korting naar eindprijs en besparing."
+      info={DISCOUNT_CALC_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-row">
           <TextInput label="Originele prijs (€)" value={price} onChange={setPrice} mono />

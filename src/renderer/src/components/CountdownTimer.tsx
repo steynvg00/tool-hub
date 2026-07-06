@@ -33,6 +33,35 @@ function formatMs(ms: number): string {
   return `${pad(min)}:${pad(sec)}`
 }
 
+const COUNTDOWN_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Maak meerdere afteltimers die onafhankelijk naast elkaar lopen. Als een timer op nul komt,
+      klinkt er een geluidssignaal en toont de kaart &quot;Klaar!&quot;.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Label</b> — een naam voor de timer; laat je dit leeg, dan krijgt de timer automatisch een
+        naam.
+      </li>
+      <li>
+        <b>Minuten</b> en <b>Seconden</b> — de duur van de timer.
+      </li>
+      <li>
+        <b>Toevoegen &amp; starten</b> — voegt een nieuwe timer toe die meteen begint af te tellen.
+      </li>
+      <li>
+        <b>Pauze / Hervat</b> — pauzeert een lopende timer of laat hem verdergaan.
+      </li>
+      <li>
+        <b>Verwijderen</b> — haalt de timer uit de lijst.
+      </li>
+    </ul>
+  </>
+)
+
 function CountdownTimer(): JSX.Element {
   const [label, setLabel] = useState('')
   const [minuten, setMinuten] = useState(5)
@@ -122,7 +151,11 @@ function CountdownTimer(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Afteltimer" subtitle="Meerdere onafhankelijke timers naast elkaar.">
+    <ToolShell
+      title="Afteltimer"
+      subtitle="Meerdere onafhankelijke timers naast elkaar."
+      info={COUNTDOWN_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-row">
           <TextInput label="Label" value={label} onChange={setLabel} />

@@ -11,6 +11,32 @@ function shuffle<T>(input: T[]): T[] {
   return arr
 }
 
+const SHUFFLE_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Zet je items in een willekeurige volgorde. Het bovenste item is telkens &quot;aan de
+      beurt&quot;. Handig om bijvoorbeeld een beurtvolgorde te bepalen.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Items</b> — één item per regel; lege regels worden genegeerd.
+      </li>
+      <li>
+        <b>Shuffle</b> — bepaalt een nieuwe willekeurige volgorde.
+      </li>
+      <li>
+        <b>Nummeren bij kopiëren</b> — zet er nummers voor (1. 2. 3.) wanneer je de volgorde
+        kopieert.
+      </li>
+      <li>
+        <b>Kopiëer volgorde</b> — kopieert de geschudde lijst naar het klembord.
+      </li>
+    </ul>
+  </>
+)
+
 function Shuffle(): JSX.Element {
   const [text, setText] = useState('')
   const [numbered, setNumbered] = useState(true)
@@ -28,7 +54,11 @@ function Shuffle(): JSX.Element {
   const copyValue = order.map((item, i) => (numbered ? `${i + 1}. ${item}` : item)).join('\n')
 
   return (
-    <ToolShell title="Volgorde / shuffle" subtitle="Zet je items in een willekeurige volgorde.">
+    <ToolShell
+      title="Volgorde / shuffle"
+      subtitle="Zet je items in een willekeurige volgorde."
+      info={SHUFFLE_INFO}
+    >
       <div className="panel">
         <TextArea
           label="Items (één per regel)"

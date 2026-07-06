@@ -2,6 +2,26 @@ import { JSX, useState } from 'react'
 import { ToolShell, StatRow } from './toolkit'
 import { NumberField } from './ToolFields'
 
+const DICE_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Gooi een of meer dobbelstenen. Elke worp toont de afzonderlijke uitkomsten plus het aantal
+      dobbelstenen en de som van alle ogen.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Aantal zijden</b> — het aantal zijden per dobbelsteen (2 tot 1000), bijv. 6 voor een
+        gewone dobbelsteen of 20 voor een D20.
+      </li>
+      <li>
+        <b>Aantal dobbelstenen</b> — hoeveel dobbelstenen je tegelijk gooit (1 tot 100).
+      </li>
+    </ul>
+  </>
+)
+
 function Dice(): JSX.Element {
   const [sides, setSides] = useState(6)
   const [dice, setDice] = useState(2)
@@ -26,6 +46,7 @@ function Dice(): JSX.Element {
     <ToolShell
       title="Dobbelsteen"
       subtitle="Gooi een of meer dobbelstenen met een instelbaar aantal zijden."
+      info={DICE_INFO}
     >
       <div className="panel">
         <NumberField label="Aantal zijden" value={sides} min={2} max={1000} onChange={setSides} />

@@ -4,6 +4,26 @@ import { ToolShell, TextArea, Note } from './toolkit'
 const SIZE = 300
 const TAU = Math.PI * 2
 
+const WHEEL_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Vul je eigen opties in en draai aan het rad. Het rad komt willekeurig tot stilstand en de
+      optie onder de pijl bovenaan is de winnaar.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Opties</b> — één optie per regel; elke regel wordt een gekleurde taartpunt op het rad. Je
+        hebt minstens twee opties nodig om te kunnen draaien.
+      </li>
+      <li>
+        <b>Draai</b> — laat het rad draaien; na afloop verschijnt de gekozen optie.
+      </li>
+    </ul>
+  </>
+)
+
 function WheelOfFortune(): JSX.Element {
   const [raw, setRaw] = useState('Ja\nNee\nMisschien\nOpnieuw')
   const [rotation, setRotation] = useState(0)
@@ -129,6 +149,7 @@ function WheelOfFortune(): JSX.Element {
     <ToolShell
       title="Rad van fortuin"
       subtitle="Voeg opties toe, draai aan het rad en zie wie wint."
+      info={WHEEL_INFO}
     >
       <div className="panel">
         <TextArea

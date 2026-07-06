@@ -43,6 +43,39 @@ sin(45 deg)
 log(1000, 10)
 2^10`
 
+const MATH_EXPRESSION_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Een werkblad-rekenmachine: elke regel is een aparte expressie die van boven naar beneden wordt
+      berekend. Regels delen dezelfde scope, dus je kunt op een regel een variabele of functie
+      definiëren en die daaronder hergebruiken.
+    </p>
+    <h4>Gebruik</h4>
+    <ul>
+      <li>
+        <b>Variabelen</b> — met <code>naam = waarde</code> (bv. <code>straal = 2.5</code>) en verderop
+        opnieuw gebruiken.
+      </li>
+      <li>
+        <b>Eigen functies</b> — definieer met <code>f(x) = …</code> (bv. <code>btw(bedrag) = bedrag * 1.21</code>).
+      </li>
+      <li>
+        <b>Functies &amp; constanten</b> — o.a. <code>pi</code>, <code>e</code>, <code>sqrt</code>,{' '}
+        <code>sin/cos/tan</code> (gebruik <code>deg</code> voor graden), <code>log(x, grondtal)</code>,{' '}
+        <code>ln</code>, <code>abs</code>, <code>round</code> en faculteit <code>5!</code>.
+      </li>
+      <li>
+        <b>Eenheden</b> — omrekenen met bv. <code>3 cm to inch</code>.
+      </li>
+      <li>
+        <b>Commentaar</b> — regels die met <code>#</code> of <code>//</code> beginnen worden overgeslagen.
+      </li>
+    </ul>
+    <p>Onderaan staat het laatst berekende resultaat apart uitgelicht.</p>
+  </>
+)
+
 function MathExpression(): JSX.Element {
   const [source, setSource] = useState(EXAMPLE)
   const results = useMemo(() => evaluateSheet(source), [source])
@@ -53,6 +86,7 @@ function MathExpression(): JSX.Element {
     <ToolShell
       title="Expressie-rekenmachine"
       subtitle="Wetenschappelijke expressies met variabelen en eigen functies — elke regel bouwt voort op de vorige."
+      info={MATH_EXPRESSION_INFO}
     >
       <div className="panel tool-panel">
         <div className="tk-two">

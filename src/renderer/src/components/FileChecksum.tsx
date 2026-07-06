@@ -7,6 +7,28 @@ function toHex(buf: ArrayBuffer): string {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
+const FILE_CHECKSUM_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Berekent de <code>SHA-256</code>-hash van een bestand: een unieke vingerafdruk van de inhoud.
+      Verandert er ook maar één byte, dan verandert de hele hash. Zo controleer je of een download
+      onbeschadigd en ongewijzigd is.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Bestand</b> — het bestand waarvan de hash wordt berekend. Dit gebeurt lokaal; er wordt
+        niets geüpload.
+      </li>
+      <li>
+        <b>Verwachte hash</b> — plak hier optioneel de hash die je verwacht (bijvoorbeeld van een
+        downloadpagina). De tool vergelijkt hoofdletter-ongevoelig en toont of het overeenkomt.
+      </li>
+    </ul>
+  </>
+)
+
 function FileChecksum(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
   const [hash, setHash] = useState('')
@@ -38,6 +60,7 @@ function FileChecksum(): JSX.Element {
     <ToolShell
       title="Bestand-checksum"
       subtitle="Bereken de SHA-256-hash van een bestand en vergelijk met een verwachte waarde."
+      info={FILE_CHECKSUM_INFO}
     >
       <>
         <div className="panel">

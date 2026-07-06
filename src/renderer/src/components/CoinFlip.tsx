@@ -3,6 +3,17 @@ import { ToolShell, StatRow } from './toolkit'
 
 type Side = 'K' | 'M'
 
+const COINFLIP_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Gooi een virtuele munt op: de uitkomst is willekeurig kop of munt. Onderaan houdt de tool een
+      telling bij van hoe vaak je kop en munt hebt gegooid; met <b>Reset telling</b> zet je die
+      teller weer op nul.
+    </p>
+  </>
+)
+
 function CoinFlip(): JSX.Element {
   const [side, setSide] = useState<Side | null>(null)
   const [flipping, setFlipping] = useState(false)
@@ -32,7 +43,11 @@ function CoinFlip(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Munt opgooien" subtitle="Kop of munt, met een lopende telling.">
+    <ToolShell
+      title="Munt opgooien"
+      subtitle="Kop of munt, met een lopende telling."
+      info={COINFLIP_INFO}
+    >
       <div className="panel">
         <div className={flipping ? 'tk-coin flipping' : 'tk-coin'}>{side ?? '?'}</div>
 

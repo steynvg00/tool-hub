@@ -45,6 +45,27 @@ function makeParagraph(): string {
   return arr.join(' ')
 }
 
+const LOREM_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Genereert willekeurige lorem-ipsum opvultekst voor ontwerpen en mockups. Klik op{' '}
+      <b>Genereren</b> voor een nieuw resultaat.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Eenheid</b> — bepaalt wat je genereert: <code>Alinea&apos;s</code> (elk met meerdere
+        zinnen), <code>Zinnen</code> of losse <code>Woorden</code>.
+      </li>
+      <li>
+        <b>Aantal</b> — hoeveel eenheden er worden gegenereerd (tussen <code>1</code> en{' '}
+        <code>200</code>).
+      </li>
+    </ul>
+  </>
+)
+
 function LoremIpsum(): JSX.Element {
   const [unit, setUnit] = useState<Unit>('paragraphs')
   const [count, setCount] = useState(3)
@@ -66,7 +87,11 @@ function LoremIpsum(): JSX.Element {
   }
 
   return (
-    <ToolShell title="Lorem ipsum" subtitle="Genereer opvultekst voor ontwerpen en mockups.">
+    <ToolShell
+      title="Lorem ipsum"
+      subtitle="Genereer opvultekst voor ontwerpen en mockups."
+      info={LOREM_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tool-field">
           <span className="tool-label">Eenheid</span>

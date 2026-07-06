@@ -38,6 +38,31 @@ function parsePrefix(input: string): number | null {
   return prefix
 }
 
+const SUBNET_CALC_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Berekent uit een IPv4-adres en een subnet alle netwerkgegevens: netwerkadres, broadcast,
+      subnetmasker, wildcard, het hostbereik en het aantal bruikbare hosts.
+    </p>
+    <h4>Invoer</h4>
+    <ul>
+      <li>
+        <b>IP-adres</b> — een IPv4-adres van vier octetten <code>0–255</code>, bijvoorbeeld{' '}
+        <code>192.168.1.10</code>.
+      </li>
+      <li>
+        <b>CIDR of subnetmasker</b> — de grootte van het netwerk als prefix (<code>/24</code> of{' '}
+        <code>24</code>) of als dotted masker (<code>255.255.255.0</code>).
+      </li>
+    </ul>
+    <p>
+      Bij <code>/31</code> en <code>/32</code> gelden speciale regels (respectievelijk 0 en 1
+      bruikbare host).
+    </p>
+  </>
+)
+
 function SubnetCalc(): JSX.Element {
   const [ip, setIp] = useState('192.168.1.10')
   const [cidr, setCidr] = useState('/24')
@@ -89,6 +114,7 @@ function SubnetCalc(): JSX.Element {
     <ToolShell
       title="Subnet-calculator"
       subtitle="Bereken netwerk, broadcast, hostbereik en meer uit een IP-adres en subnet."
+      info={SUBNET_CALC_INFO}
     >
       <div className="panel tool-panel">
         <TextInput label="IP-adres" value={ip} onChange={setIp} mono placeholder="192.168.1.10" />

@@ -35,6 +35,28 @@ async function localIps(): Promise<string[]> {
   })
 }
 
+const MY_IP_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Toont zowel je publieke als je lokale IP-adres. Met <b>Vernieuwen</b> haal je de gegevens
+      opnieuw op.
+    </p>
+    <h4>Wat je ziet</h4>
+    <ul>
+      <li>
+        <b>Publiek IP</b> — het adres waarmee je op internet zichtbaar bent, opgehaald via een
+        externe dienst. Vereist een internetverbinding.
+      </li>
+      <li>
+        <b>Lokaal IP</b> — je adres binnen het thuis- of kantoornetwerk, gevonden via WebRTC.
+        Moderne browsers verbergen dit vaak achter een <code>.local</code>-naam, waardoor het niet
+        altijd verschijnt.
+      </li>
+    </ul>
+  </>
+)
+
 function MyIp(): JSX.Element {
   const [publicIp, setPublicIp] = useState('')
   const [local, setLocal] = useState<string[]>([])
@@ -76,7 +98,11 @@ function MyIp(): JSX.Element {
   const localText = local.length ? local.join(', ') : ''
 
   return (
-    <ToolShell title="Mijn IP" subtitle="Bekijk je publieke en lokale IP-adres.">
+    <ToolShell
+      title="Mijn IP"
+      subtitle="Bekijk je publieke en lokale IP-adres."
+      info={MY_IP_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tk-actions">
           <button className="btn" onClick={refresh} disabled={loading}>

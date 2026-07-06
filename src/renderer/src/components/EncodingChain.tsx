@@ -114,6 +114,50 @@ interface Stage {
   value: string
 }
 
+const ENCODING_CHAIN_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Jaagt tekst door meerdere codeerlagen na elkaar en toont elke tussenstap. Zo kun je
+      geneste codering opbouwen of juist ontrafelen.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Invoer</b> — de tekst waarmee de keten begint.
+      </li>
+      <li>
+        <b>Richting</b> — <b>Coderen</b> voegt de lagen in volgorde toe; <b>Decoderen</b> pelt ze in
+        omgekeerde volgorde weer af.
+      </li>
+      <li>
+        <b>Lagen toevoegen</b> — klik op een laag om die achteraan de keten te zetten. Klik in de
+        keten op een laag om die te verwijderen, of gebruik &quot;Wissen&quot; voor alles.
+      </li>
+    </ul>
+    <h4>Lagen</h4>
+    <ul>
+      <li>
+        <b>Base64</b> — codeert de UTF-8 bytes als <code>base64</code>-tekst.
+      </li>
+      <li>
+        <b>Hex</b> — toont elke byte als twee hexadecimale tekens.
+      </li>
+      <li>
+        <b>Binair</b> — toont elke byte als acht bits (nullen en enen).
+      </li>
+      <li>
+        <b>Morse</b> — zet letters om in morsecode. Werkt op tekenniveau en is
+        hoofdletter-ongevoelig: bij decoderen komt alles in hoofdletters terug.
+      </li>
+    </ul>
+    <p>
+      <code>base64</code>, <code>hex</code> en binair werken op de UTF-8 bytes en zijn exact
+      omkeerbaar.
+    </p>
+  </>
+)
+
 function EncodingChain(): JSX.Element {
   const [input, setInput] = useState('Hallo, wereld!')
   const [chain, setChain] = useState<LayerId[]>(['base64', 'hex'])
@@ -145,6 +189,7 @@ function EncodingChain(): JSX.Element {
     <ToolShell
       title="Encoding-keten"
       subtitle="Jaag tekst door meerdere lagen (Base64, hex, binair, morse) en zie elke tussenstap."
+      info={ENCODING_CHAIN_INFO}
     >
       <div className="panel tool-panel">
         <TextArea label="Invoer" value={input} onChange={setInput} rows={3} mono={false} />

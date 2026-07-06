@@ -1,6 +1,27 @@
 import { JSX, useState } from 'react'
 import { extractPalette, type PaletteColour } from '../lib/api'
 import { FileButton } from './ToolFields'
+import { ToolHeader } from './toolkit'
+
+const IMAGE_PALETTE_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Analyseert een afbeelding en haalt de meest voorkomende kleuren eruit. Elke kleur toont zijn
+      hex-code en het percentage van het beeld dat die kleur beslaat. Klik op een staaltje om de
+      hex-code naar het klembord te kopiëren.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Afbeelding</b> &mdash; het bestand waaruit de kleuren worden gehaald.
+      </li>
+      <li>
+        <b>Aantal kleuren</b> &mdash; hoeveel dominante kleuren (1&ndash;12) je wilt terugkrijgen.
+      </li>
+    </ul>
+  </>
+)
 
 function ImagePalette(): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
@@ -42,10 +63,11 @@ function ImagePalette(): JSX.Element {
 
   return (
     <div className="tool">
-      <header className="tool-header">
-        <h1>Color pick</h1>
-        <p>Haal de dominante kleuren op. Klik op een staaltje om de hex-code te kopiëren.</p>
-      </header>
+      <ToolHeader
+        title="Color pick"
+        subtitle="Haal de dominante kleuren op. Klik op een staaltje om de hex-code te kopiëren."
+        info={IMAGE_PALETTE_INFO}
+      />
 
       <div className="panel tool-panel">
         <FileButton label="Afbeelding" accept="image/*" file={file} onPick={pick} />

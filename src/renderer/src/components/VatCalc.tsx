@@ -9,6 +9,31 @@ const eur = (n: number): string =>
 
 const RATES = ['0', '9', '21']
 
+const VAT_CALC_INFO = (
+  <>
+    <h4>Wat doet deze tool?</h4>
+    <p>
+      Splitst een bedrag in netto (exclusief btw), de btw zelf en bruto (inclusief btw) — of je nu een
+      bedrag met of zonder btw invoert.
+    </p>
+    <h4>Opties</h4>
+    <ul>
+      <li>
+        <b>Het ingevoerde bedrag is…</b> — <code>Exclusief btw</code> telt de btw bij het bedrag op;{' '}
+        <code>Inclusief btw</code> rekent de btw uit een bedrag dat de btw al bevat.
+      </li>
+      <li>
+        <b>Bedrag (€)</b> — het bedrag dat je invoert.
+      </li>
+      <li>
+        <b>Btw-tarief (%)</b> — het tarief; met de snelknoppen kies je de Nederlandse tarieven 0, 9 of
+        21%.
+      </li>
+    </ul>
+    <p>Nederlandse tarieven: 21% (algemeen), 9% (o.a. eten, boeken), 0% (bepaalde diensten).</p>
+  </>
+)
+
 function VatCalc(): JSX.Element {
   const [amount, setAmount] = useState('100')
   const [rate, setRate] = useState('21')
@@ -32,7 +57,11 @@ function VatCalc(): JSX.Element {
   }
 
   return (
-    <ToolShell title="BTW-rekenaar" subtitle="Reken tussen bedragen in- en exclusief btw, met instelbaar tarief.">
+    <ToolShell
+      title="BTW-rekenaar"
+      subtitle="Reken tussen bedragen in- en exclusief btw, met instelbaar tarief."
+      info={VAT_CALC_INFO}
+    >
       <div className="panel tool-panel">
         <div className="tool-field">
           <span className="tool-label">Het ingevoerde bedrag is…</span>
