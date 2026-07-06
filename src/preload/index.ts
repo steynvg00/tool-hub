@@ -27,6 +27,29 @@ export type Shortcut = { label: string; path: string }
 export type BrowserState = { pinned: string[]; lastDir: string | null; sort: SortMode }
 export type FileBytes = { name: string; type: string; data: Uint8Array }
 
+export type DiskFile = { path: string; name: string; size: number; mtime: number; ext: string }
+export type DiskGroup = { count: number; bytes: number; files: DiskFile[]; truncated: boolean }
+export type DiskDupGroup = { size: number; hash: string; files: DiskFile[]; reclaimable: number }
+export type DiskScanResult = {
+  root: string
+  totalFiles: number
+  totalBytes: number
+  largest: DiskGroup
+  videos: DiskGroup
+  old: DiskGroup
+  caches: DiskGroup
+  duplicates: { count: number; reclaimable: number; groups: DiskDupGroup[]; truncated: boolean }
+}
+export type DiskScanProgress = {
+  phase: 'walk' | 'hash'
+  files: number
+  bytes: number
+  hashed?: number
+  toHash?: number
+}
+export type DiskTrashResult = { trashed: string[]; failed: { path: string; reason: string }[] }
+export type DiskScanOptions = { oldMonths: number; videoMinMb: number }
+
 // Custom APIs for renderer
 const api = {
   backend: {
@@ -62,6 +85,20 @@ const api = {
   network: {
     getLocalIps: (): Promise<string[]> => ipcRenderer.invoke('network:local-ips'),
     getPublicIp: (): Promise<string> => ipcRenderer.invoke('network:public-ip')
+  },
+  disk: {
+    shortcuts: (): Promise<Shortcut[]> => ipcRenderer.invoke('disk:shortcuts'),
+    pickDir: (): Promise<string | { error: string } | null> => ipcRenderer.invoke('disk:pick-dir'),
+    scan: (root: string, opts: DiskScanOptions): Promise<DiskScanResult> =>
+      ipcRenderer.invoke('disk:scan', root, opts),
+    cancelScan: (): Promise<void> => ipcRenderer.invoke('disk:cancel-scan'),
+    trash: (root: string, paths: string[]): Promise<DiskTrashResult> =>
+      ipcRenderer.invoke('disk:trash', root, paths),
+    onScanProgress: (cb: (p: DiskScanProgress) => void): (() => void) => {
+      const listener = (_: unknown, p: DiskScanProgress): void => cb(p)
+      ipcRenderer.on('disk:scan-progress', listener)
+      return () => ipcRenderer.removeListener('disk:scan-progress', listener)
+    }
   },
   browser: {
     shortcuts: (): Promise<Shortcut[]> => ipcRenderer.invoke('browser:shortcuts'),

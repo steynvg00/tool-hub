@@ -26,6 +26,29 @@ export type Shortcut = { label: string; path: string }
 export type BrowserState = { pinned: string[]; lastDir: string | null; sort: SortMode }
 export type FileBytes = { name: string; type: string; data: Uint8Array }
 
+export type DiskFile = { path: string; name: string; size: number; mtime: number; ext: string }
+export type DiskGroup = { count: number; bytes: number; files: DiskFile[]; truncated: boolean }
+export type DiskDupGroup = { size: number; hash: string; files: DiskFile[]; reclaimable: number }
+export type DiskScanResult = {
+  root: string
+  totalFiles: number
+  totalBytes: number
+  largest: DiskGroup
+  videos: DiskGroup
+  old: DiskGroup
+  caches: DiskGroup
+  duplicates: { count: number; reclaimable: number; groups: DiskDupGroup[]; truncated: boolean }
+}
+export type DiskScanProgress = {
+  phase: 'walk' | 'hash'
+  files: number
+  bytes: number
+  hashed?: number
+  toHash?: number
+}
+export type DiskTrashResult = { trashed: string[]; failed: { path: string; reason: string }[] }
+export type DiskScanOptions = { oldMonths: number; videoMinMb: number }
+
 export interface ToolHubAPI {
   backend: {
     getStatus: () => Promise<BackendStatus>
@@ -51,6 +74,14 @@ export interface ToolHubAPI {
   network: {
     getLocalIps: () => Promise<string[]>
     getPublicIp: () => Promise<string>
+  }
+  disk: {
+    shortcuts: () => Promise<Shortcut[]>
+    pickDir: () => Promise<string | { error: string } | null>
+    scan: (root: string, opts: DiskScanOptions) => Promise<DiskScanResult>
+    cancelScan: () => Promise<void>
+    trash: (root: string, paths: string[]) => Promise<DiskTrashResult>
+    onScanProgress: (cb: (p: DiskScanProgress) => void) => () => void
   }
   browser: {
     shortcuts: () => Promise<Shortcut[]>

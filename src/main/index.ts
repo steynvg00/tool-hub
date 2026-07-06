@@ -30,6 +30,14 @@ import {
   cleanupLegacyCollectedFiles,
   type SortMode
 } from './browser'
+import {
+  shortcuts as diskShortcuts,
+  scan as diskScan,
+  cancelScan as diskCancelScan,
+  trash as diskTrash,
+  isSafeRoot,
+  type ScanOptions
+} from './diskCleaner'
 
 // Tracks the sidecar lifecycle so the renderer can show a loading / error gate.
 type BackendStatus = {
@@ -150,6 +158,24 @@ app.whenReady().then(() => {
 
   // Best-effort removal of the previous copy-based collection.
   cleanupLegacyCollectedFiles()
+
+  // Disk cleaner — the only feature that can remove files (to Trash only).
+  ipcMain.handle('disk:shortcuts', () => diskShortcuts())
+  ipcMain.handle('disk:pick-dir', async () => {
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    const res = await dialog.showOpenDialog(win, {
+      title: 'Map om op te ruimen',
+      properties: ['openDirectory']
+    })
+    if (res.canceled || res.filePaths.length === 0) return null
+    const dir = res.filePaths[0]
+    return isSafeRoot(dir) ? dir : { error: 'buiten-home' }
+  })
+  ipcMain.handle('disk:scan', (event, root: string, opts: ScanOptions) =>
+    diskScan(root, opts, (p) => event.sender.send('disk:scan-progress', p))
+  )
+  ipcMain.handle('disk:cancel-scan', () => diskCancelScan())
+  ipcMain.handle('disk:trash', (_e, root: string, paths: string[]) => diskTrash(root, paths))
 
   createWindow()
 
