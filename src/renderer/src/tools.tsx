@@ -57,6 +57,8 @@ import TipCalc from './components/TipCalc'
 import VatCalc from './components/VatCalc'
 import DiscountCalc from './components/DiscountCalc'
 import RatioCalc from './components/RatioCalc'
+// Notities
+import SnippetManager from './components/SnippetManager'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -89,6 +91,7 @@ const CAT_GAMES = 'Spellen & random'
 const CAT_TIMERS = 'Timers'
 const CAT_MATH = 'Wiskunde'
 const CAT_CALC = 'Rekenaars'
+const CAT_NOTES = 'Notities'
 
 /** Tools that call the Python sidecar are gated on backend readiness. */
 function BackendGate({
@@ -588,6 +591,16 @@ export const TOOLS: ToolDef[] = [
     category: CAT_CALC,
     description: 'Los een verhouding a : b = c : d op en vereenvoudig — laat één veld leeg.',
     render: () => <RatioCalc />
+  },
+
+  // ---- Notities ----
+  {
+    id: 'snippets',
+    label: 'Snippet-manager',
+    icon: '📌',
+    category: CAT_NOTES,
+    description: 'Bewaar korte teksten met een label, doorzoekbaar, met kopieerknop per snippet.',
+    render: () => <SnippetManager />
   }
 ]
 

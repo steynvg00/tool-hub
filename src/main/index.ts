@@ -20,6 +20,7 @@ import {
   saveCustomRandomList,
   deleteCustomRandomList
 } from './randomLists'
+import { listSnippets, saveSnippet, deleteSnippet } from './snippets'
 
 // Tracks the sidecar lifecycle so the renderer can show a loading / error gate.
 type BackendStatus = {
@@ -113,6 +114,13 @@ app.whenReady().then(() => {
     saveCustomRandomList(input)
   )
   ipcMain.handle('random-lists:delete', (_e, id: string) => deleteCustomRandomList(id))
+
+  // User-saved text snippets, persisted in userData.
+  ipcMain.handle('snippets:list', () => listSnippets())
+  ipcMain.handle('snippets:save', (_e, input: { id?: string; label: string; text: string }) =>
+    saveSnippet(input)
+  )
+  ipcMain.handle('snippets:delete', (_e, id: string) => deleteSnippet(id))
 
   createWindow()
 

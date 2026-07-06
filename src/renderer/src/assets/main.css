@@ -1593,6 +1593,54 @@ code {
   height: 380px;
 }
 
+/* Snippet-manager list */
+.tk-snips {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  max-height: 460px;
+  overflow-y: auto;
+}
+.tk-snip {
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--color-background-mute);
+}
+.tk-snip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.tk-snip-label {
+  font-weight: 600;
+  font-size: 14px;
+}
+.tk-snip-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.tk-snip-text {
+  margin: 8px 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 140px;
+  overflow: auto;
+  color: var(--ev-c-text-2);
+  user-select: text;
+}
+.tk-copy.tk-danger:hover:not(:disabled) {
+  background: rgba(224, 90, 90, 0.2);
+  border-color: #e05a5a;
+}
+
 /* Verhouding: a : b = c : d row */
 .tk-ratio {
   display: flex;
