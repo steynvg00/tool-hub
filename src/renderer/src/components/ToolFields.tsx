@@ -1,5 +1,39 @@
-import { JSX, useRef } from 'react'
+import { JSX, useEffect, useRef, useState } from 'react'
 import { formatBytes, type FileResult } from '../lib/api'
+
+/**
+ * Thumbnail preview for a picked file: a live image thumbnail for images,
+ * otherwise a document icon. Always shows the name + size.
+ */
+export function FilePreview({ file }: { file: File | null }): JSX.Element | null {
+  const isImage = !!file && file.type.startsWith('image/')
+  const [url, setUrl] = useState<string | null>(null)
+  useEffect(() => {
+    if (!file || !isImage) {
+      setUrl(null)
+      return
+    }
+    const u = URL.createObjectURL(file)
+    setUrl(u)
+    return () => URL.revokeObjectURL(u)
+  }, [file, isImage])
+  if (!file) return null
+  return (
+    <div className="tk-file-preview">
+      {isImage && url ? (
+        <img className="tk-file-thumb" src={url} alt={file.name} />
+      ) : (
+        <div className="tk-file-thumb tk-file-thumb-doc">📄</div>
+      )}
+      <div className="tk-file-meta">
+        <span className="tk-file-name" title={file.name}>
+          {file.name}
+        </span>
+        <span className="tk-file-size">{formatBytes(file.size)}</span>
+      </div>
+    </div>
+  )
+}
 
 export function FileButton({
   label,
@@ -24,8 +58,9 @@ export function FileButton({
         onChange={(e) => onPick(e.target.files?.[0] ?? null)}
       />
       <button className="btn" onClick={() => ref.current?.click()}>
-        {file ? file.name : 'Bestand kiezen'}
+        {file ? 'Ander bestand kiezen' : 'Bestand kiezen'}
       </button>
+      <FilePreview file={file} />
     </div>
   )
 }
@@ -57,11 +92,11 @@ export function MultiFileButton({
         {files.length ? `${files.length} bestand(en) gekozen` : 'Bestanden kiezen'}
       </button>
       {files.length > 0 && (
-        <ul className="file-list">
+        <div className="tk-file-previews">
           {files.map((f, i) => (
-            <li key={i}>{f.name}</li>
+            <FilePreview key={i} file={f} />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   )

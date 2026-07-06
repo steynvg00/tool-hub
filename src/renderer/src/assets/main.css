@@ -1530,6 +1530,123 @@ code {
   margin-left: 8px;
 }
 
+/* ---------- Info button + panel (per-tool help) ---------- */
+.tool-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tk-info-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--ev-c-gray-2);
+  background: var(--color-background-mute);
+  color: var(--ev-c-text-2);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tk-info-btn:hover {
+  background: #4a6cd4;
+  border-color: #4a6cd4;
+  color: #fff;
+}
+.tk-info-panel {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--ev-c-gray-2);
+  border-left: 3px solid #4a6cd4;
+  border-radius: 10px;
+  background: var(--color-background-mute);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ev-c-text-2);
+  user-select: text;
+}
+.tk-info-panel h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--ev-c-text-1);
+}
+.tk-info-panel p {
+  margin: 0 0 8px;
+}
+.tk-info-panel ul {
+  margin: 6px 0 8px;
+  padding-left: 18px;
+}
+.tk-info-panel li {
+  margin: 2px 0;
+}
+.tk-info-panel code {
+  background: var(--color-background);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+.tk-info-panel :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- File preview (upload thumbnail / name + size) ---------- */
+.tk-file-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 10px;
+  background: var(--color-background-mute);
+}
+.tk-file-thumb {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--ev-c-gray-3);
+  background: var(--color-background);
+}
+.tk-file-thumb-doc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+.tk-file-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tk-file-name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tk-file-size {
+  font-size: 12px;
+  color: var(--ev-c-text-3);
+}
+.tk-file-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.tk-file-previews .tk-file-preview {
+  margin-top: 0;
+  flex: 1 1 200px;
+}
+
 /* ---------- Wiskunde: expression worksheet ---------- */
 .tk-mathsheet {
   background: var(--color-background);

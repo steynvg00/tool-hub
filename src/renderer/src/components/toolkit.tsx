@@ -4,22 +4,60 @@ import { JSX, ReactNode, useEffect, useRef, useState } from 'react'
 // existing app CSS (.tool, .panel, .tool-field, .banner …) plus a "Utility
 // tools" section in main.css, so every tool looks native to the hub.
 
-/** Standard page scaffold: title + subtitle header, then children. */
+/**
+ * Tool header with title, subtitle and an optional (i) info toggle that opens
+ * an explanation panel. Shared by ToolShell and the older custom-header tools
+ * so every tool can carry the same help affordance.
+ */
+export function ToolHeader({
+  title,
+  subtitle,
+  info
+}: {
+  title: string
+  subtitle: string
+  info?: ReactNode
+}): JSX.Element {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <header className="tool-header">
+        <div className="tool-header-row">
+          <h1>{title}</h1>
+          {info && (
+            <button
+              className="tk-info-btn"
+              aria-label="Uitleg over deze tool"
+              aria-expanded={open}
+              title="Wat doet deze tool?"
+              onClick={() => setOpen((o) => !o)}
+            >
+              i
+            </button>
+          )}
+        </div>
+        <p>{subtitle}</p>
+      </header>
+      {info && open && <div className="tk-info-panel">{info}</div>}
+    </>
+  )
+}
+
+/** Standard page scaffold: title + subtitle header (with optional info), then children. */
 export function ToolShell({
   title,
   subtitle,
+  info,
   children
 }: {
   title: string
   subtitle: string
+  info?: ReactNode
   children: JSX.Element | JSX.Element[]
 }): JSX.Element {
   return (
     <div className="tool">
-      <header className="tool-header">
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
-      </header>
+      <ToolHeader title={title} subtitle={subtitle} info={info} />
       {children}
     </div>
   )
