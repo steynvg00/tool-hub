@@ -1565,6 +1565,20 @@ code {
   color: #e05a5a;
 }
 
+/* Vergelijking oplossen: worked steps */
+.tk-eq-steps {
+  margin: 14px 0 4px;
+  border-left: 3px solid var(--ev-c-gray-2);
+  padding-left: 12px;
+}
+.tk-eq-step {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ev-c-text-2);
+  user-select: text;
+}
+
 /* ---------- Print: show only the A4 page at true mm size ---------- */
 @media print {
   @page {

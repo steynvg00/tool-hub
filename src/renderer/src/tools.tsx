@@ -48,6 +48,7 @@ import Pomodoro from './components/Pomodoro'
 import Metronome from './components/Metronome'
 // Wiskunde
 import MathExpression from './components/MathExpression'
+import EquationSolver from './components/EquationSolver'
 // Netwerk & systeem
 import WifiQr from './components/WifiQr'
 import MyIp from './components/MyIp'
@@ -512,6 +513,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_MATH,
     description: 'Wetenschappelijke expressies met variabelen en eigen functies, regel voor regel.',
     render: () => <MathExpression />
+  },
+  {
+    id: 'equation-solver',
+    label: 'Vergelijking oplossen',
+    icon: '📐',
+    category: CAT_MATH,
+    description: 'Los lineaire en kwadratische vergelijkingen op, met tussenstappen en discriminant.',
+    render: () => <EquationSolver />
   }
 ]
 
