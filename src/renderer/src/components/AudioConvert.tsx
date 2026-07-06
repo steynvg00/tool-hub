@@ -1,7 +1,8 @@
 import { JSX, useState } from 'react'
-import { processToFile, formatBytes } from '../lib/api'
+import { processToFile, formatBytes, type FileResult } from '../lib/api'
 import { useFileResult } from '../lib/useFileResult'
-import { FileButton, ResultDownload } from './ToolFields'
+import { runBulk } from '../lib/bulk'
+import { MultiFileButton, ResultDownload } from './ToolFields'
 import { ToolShell, StatRow, ErrorBanner, Note } from './toolkit'
 
 const FORMATS = ['mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg']
@@ -32,11 +33,12 @@ const AUDIO_CONVERT_INFO = (
 )
 
 function AudioConvert(): JSX.Element {
-  const [file, setFile] = useState<File | null>(null)
+  const [files, setFiles] = useState<File[]>([])
   const [format, setFormat] = useState('mp3')
   const [bitrate, setBitrate] = useState('192')
   const [result, setResult] = useFileResult()
   const [busy, setBusy] = useState(false)
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const reset = (): void => {
@@ -45,15 +47,21 @@ function AudioConvert(): JSX.Element {
   }
 
   const run = async (): Promise<void> => {
-    if (!file) return
+    if (files.length === 0) return
     setBusy(true)
     reset()
+    setProgress(null)
+    const outName = (f: File): string => `${f.name.replace(/\.[^.]+$/, '')}.${format}`
     try {
-      const form = new FormData()
-      form.append('file', file)
-      form.append('format', format)
-      if (LOSSY.has(format) && bitrate.trim()) form.append('bitrate', String(Number(bitrate)))
-      setResult(await processToFile('/audio/convert', form, `converted.${format}`))
+      const processOne = async (f: File): Promise<FileResult> => {
+        const form = new FormData()
+        form.append('file', f)
+        form.append('format', format)
+        if (LOSSY.has(format) && bitrate.trim()) form.append('bitrate', String(Number(bitrate)))
+        const r = await processToFile('/audio/convert', form, outName(f))
+        return { ...r, filename: outName(f) }
+      }
+      setResult(await runBulk(files, processOne, (done, total) => setProgress({ done, total })))
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -64,16 +72,16 @@ function AudioConvert(): JSX.Element {
   return (
     <ToolShell
       title="Audio converteren"
-      subtitle="Zet een audiobestand om naar een ander formaat, met instelbare bitrate."
+      subtitle="Zet audiobestanden om naar een ander formaat, met instelbare bitrate."
       info={AUDIO_CONVERT_INFO}
     >
       <div className="panel tool-panel">
-        <FileButton
-          label="Audiobestand"
+        <MultiFileButton
+          label="Audiobestand(en)"
           accept="audio/*"
-          file={file}
-          onPick={(f) => {
-            setFile(f)
+          files={files}
+          onPick={(fs) => {
+            setFiles(fs)
             reset()
           }}
         />
@@ -102,26 +110,36 @@ function AudioConvert(): JSX.Element {
           )}
         </div>
         <ErrorBanner message={error} />
-        <button className="btn btn-primary" disabled={!file || busy} onClick={run}>
-          {busy ? 'Bezig…' : 'Converteren'}
+        <button className="btn btn-primary" disabled={files.length === 0 || busy} onClick={run}>
+          {busy
+            ? progress && progress.total > 1
+              ? `Bezig… ${progress.done}/${progress.total}`
+              : 'Bezig…'
+            : files.length > 1
+              ? `Converteer ${files.length} bestanden`
+              : 'Converteren'}
         </button>
         {result && (
           <>
-            <StatRow
-              stats={[
-                { label: 'Voor', value: file ? formatBytes(file.size) : '—' },
-                { label: 'Na', value: formatBytes(result.size) },
-                {
-                  label: 'Verschil',
-                  value:
-                    file && file.size > 0
-                      ? `${result.size <= file.size ? '−' : '+'}${Math.abs(
-                          Math.round((1 - result.size / file.size) * 100)
-                        )}%`
-                      : '—'
-                }
-              ]}
-            />
+            {files.length === 1 ? (
+              <StatRow
+                stats={[
+                  { label: 'Voor', value: formatBytes(files[0].size) },
+                  { label: 'Na', value: formatBytes(result.size) },
+                  {
+                    label: 'Verschil',
+                    value:
+                      files[0].size > 0
+                        ? `${result.size <= files[0].size ? '−' : '+'}${Math.abs(
+                            Math.round((1 - result.size / files[0].size) * 100)
+                          )}%`
+                        : '—'
+                  }
+                ]}
+              />
+            ) : (
+              <Note>{files.length} bestanden geconverteerd en gebundeld in één zip.</Note>
+            )}
             <ResultDownload result={result} />
           </>
         )}

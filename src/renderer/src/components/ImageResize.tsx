@@ -1,10 +1,13 @@
 import { JSX, useState } from 'react'
-import { processToFile, formatBytes } from '../lib/api'
+import { processToFile, formatBytes, type FileResult } from '../lib/api'
 import { useFileResult } from '../lib/useFileResult'
-import { FileButton, NumberField, ResultDownload } from './ToolFields'
-import { ToolHeader } from './toolkit'
+import { runBulk } from '../lib/bulk'
+import { MultiFileButton, NumberField, ResultDownload } from './ToolFields'
+import { ToolHeader, Note } from './toolkit'
 
 type Mode = 'max' | 'exact'
+
+const baseNoExt = (name: string): string => name.replace(/\.[^.]+$/, '')
 
 const IMAGE_RESIZE_INFO = (
   <>
@@ -42,7 +45,7 @@ const IMAGE_RESIZE_INFO = (
 )
 
 function ImageResize(): JSX.Element {
-  const [file, setFile] = useState<File | null>(null)
+  const [files, setFiles] = useState<File[]>([])
   const [mode, setMode] = useState<Mode>('max')
   const [maxDim, setMaxDim] = useState(1200)
   const [width, setWidth] = useState(800)
@@ -51,30 +54,38 @@ function ImageResize(): JSX.Element {
   const [fmt, setFmt] = useState('') // '' = keep source format
   const [result, setResult] = useFileResult()
   const [busy, setBusy] = useState(false)
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const pick = (f: File | null): void => {
-    setFile(f)
+  const pick = (fs: File[]): void => {
+    setFiles(fs)
     setResult(null)
     setError(null)
   }
 
   const run = async (): Promise<void> => {
-    if (!file) return
+    if (files.length === 0) return
     setBusy(true)
     setError(null)
     setResult(null)
+    setProgress(null)
+    const outName = (f: File): string =>
+      `${baseNoExt(f.name)}.${fmt || (f.name.split('.').pop() || 'png').toLowerCase()}`
     try {
-      const form = new FormData()
-      form.append('image', file)
-      if (mode === 'max') form.append('max_dim', String(maxDim))
-      else {
-        form.append('width', String(width))
-        form.append('height', String(height))
+      const processOne = async (f: File): Promise<FileResult> => {
+        const form = new FormData()
+        form.append('image', f)
+        if (mode === 'max') form.append('max_dim', String(maxDim))
+        else {
+          form.append('width', String(width))
+          form.append('height', String(height))
+        }
+        form.append('quality', String(quality))
+        if (fmt) form.append('fmt', fmt)
+        const r = await processToFile('/image/resize', form, outName(f))
+        return { ...r, filename: outName(f) }
       }
-      form.append('quality', String(quality))
-      if (fmt) form.append('fmt', fmt)
-      setResult(await processToFile('/image/resize', form, 'resized'))
+      setResult(await runBulk(files, processOne, (done, total) => setProgress({ done, total })))
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -91,7 +102,7 @@ function ImageResize(): JSX.Element {
       />
 
       <div className="panel tool-panel">
-        <FileButton label="Afbeelding" accept="image/*" file={file} onPick={pick} />
+        <MultiFileButton label="Afbeelding(en)" accept="image/*" files={files} onPick={pick} />
 
         <div className="tool-field">
           <label className="tool-label">Modus</label>
@@ -135,19 +146,29 @@ function ImageResize(): JSX.Element {
           </select>
         </label>
 
-        <button className="btn btn-primary" disabled={!file || busy} onClick={run}>
-          {busy ? 'Bezig…' : 'Verkleinen'}
+        <button className="btn btn-primary" disabled={files.length === 0 || busy} onClick={run}>
+          {busy
+            ? progress && progress.total > 1
+              ? `Bezig… ${progress.done}/${progress.total}`
+              : 'Bezig…'
+            : files.length > 1
+              ? `Verklein ${files.length} afbeeldingen`
+              : 'Verkleinen'}
         </button>
 
         {error && <div className="banner banner-error">{error}</div>}
 
-        {result && file && (
+        {result && (
           <>
-            <div className="size-compare">
-              <span>Voor: {formatBytes(file.size)}</span>
-              <span className="arrow">→</span>
-              <span>Na: {formatBytes(result.size)}</span>
-            </div>
+            {files.length === 1 ? (
+              <div className="size-compare">
+                <span>Voor: {formatBytes(files[0].size)}</span>
+                <span className="arrow">→</span>
+                <span>Na: {formatBytes(result.size)}</span>
+              </div>
+            ) : (
+              <Note>{files.length} afbeeldingen verwerkt en gebundeld in één zip.</Note>
+            )}
             <ResultDownload result={result} />
           </>
         )}

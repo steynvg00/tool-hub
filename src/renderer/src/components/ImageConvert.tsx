@@ -1,8 +1,9 @@
 import { JSX, useState } from 'react'
-import { processToFile } from '../lib/api'
+import { processToFile, type FileResult } from '../lib/api'
 import { useFileResult } from '../lib/useFileResult'
-import { FileButton, MultiFileButton, ResultDownload } from './ToolFields'
-import { ToolHeader } from './toolkit'
+import { runBulk } from '../lib/bulk'
+import { MultiFileButton, ResultDownload } from './ToolFields'
+import { ToolHeader, Note } from './toolkit'
 
 type Sub = 'image' | 'pdf'
 
@@ -38,7 +39,7 @@ function ImageConvert(): JSX.Element {
   const [sub, setSub] = useState<Sub>('image')
 
   // image -> image
-  const [file, setFile] = useState<File | null>(null)
+  const [imgFiles, setImgFiles] = useState<File[]>([])
   const [fmt, setFmt] = useState('png')
 
   // images -> pdf
@@ -46,6 +47,7 @@ function ImageConvert(): JSX.Element {
 
   const [result, setResult] = useFileResult()
   const [busy, setBusy] = useState(false)
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const reset = (): void => {
@@ -54,15 +56,21 @@ function ImageConvert(): JSX.Element {
   }
 
   const runConvert = async (): Promise<void> => {
-    if (!file) return
+    if (imgFiles.length === 0) return
     setBusy(true)
     reset()
+    setProgress(null)
+    const outName = (f: File): string => `${f.name.replace(/\.[^.]+$/, '')}.${fmt}`
     try {
-      const form = new FormData()
-      form.append('image', file)
-      form.append('fmt', fmt)
-      form.append('quality', String(LOSSY_QUALITY))
-      setResult(await processToFile('/image/convert', form, `converted.${fmt}`))
+      const processOne = async (f: File): Promise<FileResult> => {
+        const form = new FormData()
+        form.append('image', f)
+        form.append('fmt', fmt)
+        form.append('quality', String(LOSSY_QUALITY))
+        const r = await processToFile('/image/convert', form, outName(f))
+        return { ...r, filename: outName(f) }
+      }
+      setResult(await runBulk(imgFiles, processOne, (done, total) => setProgress({ done, total })))
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -120,12 +128,12 @@ function ImageConvert(): JSX.Element {
 
         {sub === 'image' ? (
           <>
-            <FileButton
-              label="Afbeelding"
+            <MultiFileButton
+              label="Afbeelding(en)"
               accept="image/*"
-              file={file}
+              files={imgFiles}
               onPick={(f) => {
-                setFile(f)
+                setImgFiles(f)
                 reset()
               }}
             />
@@ -140,9 +148,16 @@ function ImageConvert(): JSX.Element {
             {fmt !== 'png' && (
               <p className="tk-note">Wordt opgeslagen op hoge vaste kwaliteit ({LOSSY_QUALITY}).</p>
             )}
-            <button className="btn btn-primary" disabled={!file || busy} onClick={runConvert}>
-              {busy ? 'Bezig…' : 'Omzetten'}
+            <button className="btn btn-primary" disabled={imgFiles.length === 0 || busy} onClick={runConvert}>
+              {busy
+                ? progress && progress.total > 1
+                  ? `Bezig… ${progress.done}/${progress.total}`
+                  : 'Bezig…'
+                : imgFiles.length > 1
+                  ? `Zet ${imgFiles.length} afbeeldingen om`
+                  : 'Omzetten'}
             </button>
+            {imgFiles.length > 1 && <Note>Meerdere bestanden worden als één zip geleverd.</Note>}
           </>
         ) : (
           <>
