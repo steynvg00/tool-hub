@@ -2,6 +2,7 @@ import { JSX, useEffect, useRef, useState } from 'react'
 import QRCode from 'qrcode'
 import { ToolShell, TextArea, ErrorBanner } from './toolkit'
 import { NumberField } from './ToolFields'
+import { sendToPrintLayout } from '../lib/printHandoff'
 
 const QR_INFO = (
   <>
@@ -26,7 +27,7 @@ const QR_INFO = (
   </>
 )
 
-function QrCode(): JSX.Element {
+function QrCode({ openTool }: { openTool: (id: string) => void }): JSX.Element {
   const [text, setText] = useState('')
   const [size, setSize] = useState(256)
   const [error, setError] = useState<string | null>(null)
@@ -72,6 +73,12 @@ function QrCode(): JSX.Element {
     a.click()
   }
 
+  const toPrint = (): void => {
+    const canvas = canvasRef.current
+    if (!canvas || !ready) return
+    sendToPrintLayout(canvas.toDataURL('image/png'), openTool)
+  }
+
   return (
     <ToolShell
       title="QR-code generator"
@@ -91,6 +98,9 @@ function QrCode(): JSX.Element {
         <div className="tk-actions">
           <button className="btn btn-primary" disabled={!ready} onClick={download}>
             Download als PNG
+          </button>
+          <button className="btn" style={{ width: 'auto' }} disabled={!ready} onClick={toPrint}>
+            Stuur naar Print layout
           </button>
         </div>
       </div>

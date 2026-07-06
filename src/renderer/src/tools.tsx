@@ -181,7 +181,11 @@ export const TOOLS: ToolDef[] = [
     icon: '🎨',
     category: CAT_IMAGES,
     description: 'Haal de dominante kleuren op als klikbare staaltjes met hex-code.',
-    render: gated(<ImagePalette />)
+    render: (ctx) => (
+      <BackendGate status={ctx.backendStatus}>
+        <ImagePalette openTool={ctx.openTool} />
+      </BackendGate>
+    )
   },
   {
     id: 'exif',
@@ -293,7 +297,7 @@ export const TOOLS: ToolDef[] = [
     icon: '🔳',
     category: CAT_TEXT,
     description: 'Maak een QR-code van tekst of een URL en download hem als PNG.',
-    render: () => <QrCode />
+    render: (ctx) => <QrCode openTool={ctx.openTool} />
   },
   {
     id: 'hash',

@@ -2,6 +2,37 @@ import { JSX, useState } from 'react'
 import { extractPalette, type PaletteColour } from '../lib/api'
 import { FileButton } from './ToolFields'
 import { ToolHeader } from './toolkit'
+import { sendToPrintLayout } from '../lib/printHandoff'
+
+// Render the palette as a clean printable image: a colour block per row with
+// its hex code and share of the image.
+function paletteToDataUrl(colours: PaletteColour[]): string {
+  const rowH = 64
+  const W = 460
+  const pad = 16
+  const canvas = document.createElement('canvas')
+  canvas.width = W
+  canvas.height = pad * 2 + colours.length * rowH
+  const ctx = canvas.getContext('2d')!
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  colours.forEach((c, i) => {
+    const y = pad + i * rowH
+    ctx.fillStyle = c.hex
+    ctx.fillRect(pad, y + 6, 120, rowH - 12)
+    ctx.strokeStyle = '#ddd'
+    ctx.strokeRect(pad, y + 6, 120, rowH - 12)
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'middle'
+    ctx.fillStyle = '#111'
+    ctx.font = 'bold 22px ui-monospace, monospace'
+    ctx.fillText(c.hex.toUpperCase(), pad + 140, y + rowH / 2 - 9)
+    ctx.fillStyle = '#666'
+    ctx.font = '14px sans-serif'
+    ctx.fillText(`${Math.round(c.fraction * 100)}% van de afbeelding`, pad + 140, y + rowH / 2 + 14)
+  })
+  return canvas.toDataURL('image/png')
+}
 
 const IMAGE_PALETTE_INFO = (
   <>
@@ -23,7 +54,7 @@ const IMAGE_PALETTE_INFO = (
   </>
 )
 
-function ImagePalette(): JSX.Element {
+function ImagePalette({ openTool }: { openTool: (id: string) => void }): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
   const [count, setCount] = useState(6)
   const [colours, setColours] = useState<PaletteColour[] | null>(null)
@@ -90,20 +121,31 @@ function ImagePalette(): JSX.Element {
         {error && <div className="banner banner-error">{error}</div>}
 
         {colours && (
-          <div className="swatches">
-            {colours.map((c) => (
+          <>
+            <div className="swatches">
+              {colours.map((c) => (
+                <button
+                  key={c.hex}
+                  className="swatch"
+                  title="Klik om te kopiëren"
+                  onClick={() => copy(c.hex)}
+                >
+                  <span className="swatch-chip" style={{ background: c.hex }} />
+                  <span className="swatch-hex">{copied === c.hex ? 'Gekopieerd!' : c.hex}</span>
+                  <span className="swatch-pct">{Math.round(c.fraction * 100)}%</span>
+                </button>
+              ))}
+            </div>
+            <div className="tk-actions">
               <button
-                key={c.hex}
-                className="swatch"
-                title="Klik om te kopiëren"
-                onClick={() => copy(c.hex)}
+                className="btn"
+                style={{ width: 'auto' }}
+                onClick={() => sendToPrintLayout(paletteToDataUrl(colours), openTool)}
               >
-                <span className="swatch-chip" style={{ background: c.hex }} />
-                <span className="swatch-hex">{copied === c.hex ? 'Gekopieerd!' : c.hex}</span>
-                <span className="swatch-pct">{Math.round(c.fraction * 100)}%</span>
+                Stuur palet naar Print layout
               </button>
-            ))}
-          </div>
+            </div>
+          </>
         )}
       </div>
     </div>
