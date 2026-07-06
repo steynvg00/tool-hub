@@ -43,6 +43,10 @@ export interface ToolHubAPI {
     save: (input: { id?: string; label: string; text: string }) => Promise<Snippet[]>
     delete: (id: string) => Promise<Snippet[]>
   }
+  network: {
+    getLocalIps: () => Promise<string[]>
+    getPublicIp: () => Promise<string>
+  }
 }
 
 declare global {

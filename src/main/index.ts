@@ -21,6 +21,7 @@ import {
   deleteCustomRandomList
 } from './randomLists'
 import { listSnippets, saveSnippet, deleteSnippet } from './snippets'
+import { getLocalIps, getPublicIp } from './network'
 
 // Tracks the sidecar lifecycle so the renderer can show a loading / error gate.
 type BackendStatus = {
@@ -121,6 +122,10 @@ app.whenReady().then(() => {
     saveSnippet(input)
   )
   ipcMain.handle('snippets:delete', (_e, id: string) => deleteSnippet(id))
+
+  // Network lookups run here (main process) to bypass the renderer CSP.
+  ipcMain.handle('network:local-ips', () => getLocalIps())
+  ipcMain.handle('network:public-ip', () => getPublicIp())
 
   createWindow()
 

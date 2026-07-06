@@ -1,40 +1,6 @@
 import { JSX, useEffect, useState } from 'react'
 import { ToolShell, ErrorBanner, CopyButton, Note } from './toolkit'
 
-async function localIps(): Promise<string[]> {
-  return new Promise((resolve) => {
-    const ips = new Set<string>()
-    let pc: RTCPeerConnection
-    try {
-      pc = new RTCPeerConnection({ iceServers: [] })
-    } catch {
-      resolve([])
-      return
-    }
-    pc.createDataChannel('')
-    pc.onicecandidate = (e) => {
-      if (!e.candidate) {
-        pc.close()
-        resolve([...ips])
-        return
-      }
-      const m = /([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[a-f0-9:]+)/i.exec(e.candidate.candidate)
-      if (m) ips.add(m[1])
-    }
-    pc.createOffer()
-      .then((o) => pc.setLocalDescription(o))
-      .catch(() => resolve([]))
-    setTimeout(() => {
-      try {
-        pc.close()
-      } catch {
-        /* already closed */
-      }
-      resolve([...ips])
-    }, 1500)
-  })
-}
-
 const MY_IP_INFO = (
   <>
     <h4>Wat doet deze tool?</h4>
@@ -46,12 +12,11 @@ const MY_IP_INFO = (
     <ul>
       <li>
         <b>Publiek IP</b> — het adres waarmee je op internet zichtbaar bent, opgehaald via een
-        externe dienst. Vereist een internetverbinding.
+        externe dienst (met meerdere back-ups). Vereist een internetverbinding.
       </li>
       <li>
-        <b>Lokaal IP</b> — je adres binnen het thuis- of kantoornetwerk, gevonden via WebRTC.
-        Moderne browsers verbergen dit vaak achter een <code>.local</code>-naam, waardoor het niet
-        altijd verschijnt.
+        <b>Lokaal IP</b> — je adres(sen) binnen het thuis- of kantoornetwerk, rechtstreeks uit de
+        netwerkadapters van je apparaat gelezen.
       </li>
     </ul>
   </>
@@ -63,27 +28,32 @@ function MyIp(): JSX.Element {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fires only async setState (inside promise callbacks), safe to call from an effect.
   const fetchIps = (isCancelled: () => boolean): void => {
-    fetch('https://api.ipify.org?format=json')
-      .then((r) => r.json() as Promise<{ ip: string }>)
-      .then((d) => {
-        if (!isCancelled()) setPublicIp(d.ip)
+    window.api.network
+      .getPublicIp()
+      .then((ip) => {
+        if (!isCancelled()) setPublicIp(ip)
       })
-      .catch(() => {
-        if (!isCancelled()) setError('Kon het publieke IP niet ophalen — geen internetverbinding?')
+      .catch((e: Error) => {
+        if (!isCancelled()) setError(e?.message || 'Kon het publieke IP niet ophalen.')
       })
       .finally(() => {
         if (!isCancelled()) setLoading(false)
       })
-    localIps().then((ips) => {
-      if (!isCancelled()) setLocal(ips)
-    })
+    window.api.network
+      .getLocalIps()
+      .then((ips) => {
+        if (!isCancelled()) setLocal(ips)
+      })
+      .catch(() => {
+        if (!isCancelled()) setLocal([])
+      })
   }
 
   const refresh = (): void => {
     setLoading(true)
     setError(null)
+    setPublicIp('')
     fetchIps(() => false)
   }
 
@@ -141,8 +111,8 @@ function MyIp(): JSX.Element {
           </dd>
         </dl>
         <Note>
-          Moderne browsers verbergen het lokale adres vaak achter een mDNS-naam die eindigt op
-          .local om je privacy te beschermen, waardoor het hier niet altijd verschijnt.
+          Het lokale adres wordt rechtstreeks uit je netwerkadapters gelezen. Zie je er meerdere, dan
+          heb je bijvoorbeeld zowel wifi als ethernet, of een VPN/virtuele adapter actief.
         </Note>
       </div>
     </ToolShell>

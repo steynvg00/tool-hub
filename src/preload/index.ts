@@ -55,6 +55,10 @@ const api = {
     save: (input: { id?: string; label: string; text: string }): Promise<Snippet[]> =>
       ipcRenderer.invoke('snippets:save', input),
     delete: (id: string): Promise<Snippet[]> => ipcRenderer.invoke('snippets:delete', id)
+  },
+  network: {
+    getLocalIps: (): Promise<string[]> => ipcRenderer.invoke('network:local-ips'),
+    getPublicIp: (): Promise<string> => ipcRenderer.invoke('network:public-ip')
   }
 }
 
