@@ -183,7 +183,7 @@ function App(): JSX.Element {
 
       <main className="tool-content">
         {activeTool ? (
-          activeTool.render({ backendStatus: status })
+          activeTool.render({ backendStatus: status, openTool: setView })
         ) : (
           <Home
             tools={TOOLS}

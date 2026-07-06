@@ -1,5 +1,6 @@
 import { JSX, useEffect, useRef, useState } from 'react'
 import { fileFromDataTransfer } from '../lib/collectedFiles'
+import { consumePendingPrint } from '../lib/printHandoff'
 
 // px per mm at 96dpi — used only for the on-screen preview scale & drag math.
 // The page itself is sized in real mm, so what you see prints 1:1.
@@ -99,22 +100,30 @@ function PrintLayout(): JSX.Element {
 
   useEffect(() => () => document.getElementById('pl-page-rule')?.remove(), [])
 
+  const loadDataUrl = (dataUrl: string): void => {
+    const img = new Image()
+    img.onload = () => {
+      setSrc(dataUrl)
+      setNat({ w: img.naturalWidth, h: img.naturalHeight })
+      // sensible default width: ~1/3 of the page width
+      setWMm(Math.round(pageMm(orient).w / 3))
+    }
+    img.src = dataUrl
+  }
+
   const loadFile = (file?: File | null): void => {
     if (!file || !file.type.startsWith('image/')) return
     const reader = new FileReader()
-    reader.onload = () => {
-      const dataUrl = reader.result as string
-      const img = new Image()
-      img.onload = () => {
-        setSrc(dataUrl)
-        setNat({ w: img.naturalWidth, h: img.naturalHeight })
-        // sensible default width: ~1/3 of the page width
-        setWMm(Math.round(pageMm(orient).w / 3))
-      }
-      img.src = dataUrl
-    }
+    reader.onload = () => loadDataUrl(reader.result as string)
     reader.readAsDataURL(file)
   }
+
+  // If another tool sent us an image (e.g. the bingo generator), load it.
+  useEffect(() => {
+    const img = consumePendingPrint()
+    if (img) loadDataUrl(img)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const onFreeMouseDown = (e: React.MouseEvent): void => {
     if (!src) return

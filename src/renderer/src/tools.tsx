@@ -81,6 +81,8 @@ import PortReference from './components/PortReference'
 // Everything a tool needs from the app shell to render.
 export interface ToolContext {
   backendStatus: BackendStatus
+  /** Open another tool by id (e.g. to hand an image to the Print layout tool). */
+  openTool: (id: string) => void
 }
 
 export interface ToolDef {
