@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -17,6 +17,7 @@ import { initAutoUpdater, checkForUpdatesManually } from './updater'
 import { listFavorites, toggleFavorite } from './favorites'
 import { listSnippets, saveSnippet, deleteSnippet } from './snippets'
 import { getLocalIps, getPublicIp } from './network'
+import { listFiles, addFiles, removeFile, setPinned, readFileBytes } from './files'
 
 // Tracks the sidecar lifecycle so the renderer can show a loading / error gate.
 type BackendStatus = {
@@ -114,6 +115,22 @@ app.whenReady().then(() => {
   // Network lookups run here (main process) to bypass the renderer CSP.
   ipcMain.handle('network:local-ips', () => getLocalIps())
   ipcMain.handle('network:public-ip', () => getPublicIp())
+
+  // Collected files ("Bestanden" panel), copied into userData.
+  ipcMain.handle('files:list', () => listFiles())
+  ipcMain.handle('files:add-paths', (_e, paths: string[]) => addFiles(paths))
+  ipcMain.handle('files:add-dialog', async () => {
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    const res = await dialog.showOpenDialog(win, {
+      title: 'Bestanden of map kiezen',
+      properties: ['openFile', 'openDirectory', 'multiSelections']
+    })
+    if (res.canceled || res.filePaths.length === 0) return listFiles()
+    return addFiles(res.filePaths)
+  })
+  ipcMain.handle('files:remove', (_e, id: string) => removeFile(id))
+  ipcMain.handle('files:pin', (_e, id: string, pinned: boolean) => setPinned(id, pinned))
+  ipcMain.handle('files:read', (_e, id: string) => readFileBytes(id))
 
   createWindow()
 

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 export type BackendStatus = {
@@ -15,6 +15,15 @@ export type UserPreset = {
   steps: PresetStep[]
 }
 export type Snippet = { id: string; label: string; text: string; updatedAt: number }
+export type CollectedFile = {
+  id: string
+  name: string
+  type: string
+  size: number
+  addedAt: number
+  pinned: boolean
+}
+export type CollectedFileBytes = { name: string; type: string; data: Uint8Array }
 
 // Custom APIs for renderer
 const api = {
@@ -51,6 +60,19 @@ const api = {
   network: {
     getLocalIps: (): Promise<string[]> => ipcRenderer.invoke('network:local-ips'),
     getPublicIp: (): Promise<string> => ipcRenderer.invoke('network:public-ip')
+  },
+  files: {
+    list: (): Promise<CollectedFile[]> => ipcRenderer.invoke('files:list'),
+    addViaDialog: (): Promise<CollectedFile[]> => ipcRenderer.invoke('files:add-dialog'),
+    addPaths: (paths: string[]): Promise<CollectedFile[]> =>
+      ipcRenderer.invoke('files:add-paths', paths),
+    remove: (id: string): Promise<CollectedFile[]> => ipcRenderer.invoke('files:remove', id),
+    setPinned: (id: string, pinned: boolean): Promise<CollectedFile[]> =>
+      ipcRenderer.invoke('files:pin', id, pinned),
+    read: (id: string): Promise<CollectedFileBytes | null> =>
+      ipcRenderer.invoke('files:read', id),
+    /** Resolve the on-disk path of a File dropped from the OS (Electron webUtils). */
+    getPathForFile: (file: File): string => webUtils.getPathForFile(file)
   }
 }
 

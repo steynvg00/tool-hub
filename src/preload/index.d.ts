@@ -14,6 +14,15 @@ export type UserPreset = {
   steps: PresetStep[]
 }
 export type Snippet = { id: string; label: string; text: string; updatedAt: number }
+export type CollectedFile = {
+  id: string
+  name: string
+  type: string
+  size: number
+  addedAt: number
+  pinned: boolean
+}
+export type CollectedFileBytes = { name: string; type: string; data: Uint8Array }
 
 export interface ToolHubAPI {
   backend: {
@@ -40,6 +49,15 @@ export interface ToolHubAPI {
   network: {
     getLocalIps: () => Promise<string[]>
     getPublicIp: () => Promise<string>
+  }
+  files: {
+    list: () => Promise<CollectedFile[]>
+    addViaDialog: () => Promise<CollectedFile[]>
+    addPaths: (paths: string[]) => Promise<CollectedFile[]>
+    remove: (id: string) => Promise<CollectedFile[]>
+    setPinned: (id: string, pinned: boolean) => Promise<CollectedFile[]>
+    read: (id: string) => Promise<CollectedFileBytes | null>
+    getPathForFile: (file: File) => string
   }
 }
 
