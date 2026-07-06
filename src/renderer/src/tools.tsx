@@ -42,6 +42,7 @@ import CoinFlip from './components/CoinFlip'
 import WheelOfFortune from './components/WheelOfFortune'
 import Shuffle from './components/Shuffle'
 import Bingo from './components/Bingo'
+import CardDealer from './components/CardDealer'
 // Timers
 import Stopwatch from './components/Stopwatch'
 import CountdownTimer from './components/CountdownTimer'
@@ -506,6 +507,14 @@ export const TOOLS: ToolDef[] = [
     category: CAT_GAMES,
     description: 'Genereer bingokaarten met getallen, woorden of afbeeldingen en print ze.',
     render: (ctx) => <Bingo openTool={ctx.openTool} />
+  },
+  {
+    id: 'card-dealer',
+    label: 'Kaartspel-deler',
+    icon: '🃏',
+    category: CAT_GAMES,
+    description: 'Deel pesten, toepen of zweeds pesten eerlijk uit met een pass-and-play-flow.',
+    render: () => <CardDealer />
   },
 
   // ---- Timers ----
