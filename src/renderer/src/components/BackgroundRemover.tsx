@@ -13,6 +13,9 @@ import {
 import type { UserPreset } from '../../../preload'
 import { ToolHeader } from './toolkit'
 import { fileFromDataTransfer, dragHasFile } from '../lib/collectedFiles'
+import { sendToPrintLayout } from '../lib/printHandoff'
+
+const baseNoExt = (name: string): string => name.replace(/\.[^.]+$/, '')
 
 const BACKGROUND_REMOVER_INFO = (
   <>
@@ -61,7 +64,7 @@ function defaultParams(def: StepDef): Record<string, unknown> {
   return params
 }
 
-function BackgroundRemover(): JSX.Element {
+function BackgroundRemover({ openTool }: { openTool: (id: string) => void }): JSX.Element {
   const [catalog, setCatalog] = useState<StepDef[]>([])
   const [catalogError, setCatalogError] = useState<string | null>(null)
 
@@ -454,10 +457,18 @@ function BackgroundRemover(): JSX.Element {
               <a
                 className="btn btn-primary"
                 href={pngDataUrl(result.final)}
-                download="background-removed.png"
+                download={`${image ? baseNoExt(image.name) : 'afbeelding'} background removed.png`}
               >
                 PNG downloaden
               </a>
+              <div className="tk-actions">
+                <button
+                  className="btn"
+                  onClick={() => sendToPrintLayout(pngDataUrl(result.final), openTool)}
+                >
+                  Stuur naar Print layout
+                </button>
+              </div>
 
               {result.steps.length > 0 && (
                 <>

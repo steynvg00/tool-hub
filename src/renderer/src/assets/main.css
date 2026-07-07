@@ -83,6 +83,7 @@ body {
 }
 .fb-controls {
   display: flex;
+  align-items: center;
   gap: 6px;
   padding: 4px 4px 2px;
 }
@@ -92,6 +93,9 @@ body {
 .fb-seg button {
   padding: 5px 10px;
   font-size: 12px;
+  /* Size to their short labels instead of the global 90px min so the filter
+     dropdown next to them keeps room in the narrow sidebar. */
+  min-width: 0;
 }
 .fb-filter {
   flex: 1;
@@ -143,6 +147,14 @@ body {
 }
 .fb-file:active {
   cursor: grabbing;
+}
+.fb-file.selected,
+.fb-file.selected:hover {
+  background: #4a6cd4;
+  color: #fff;
+}
+.fb-file.selected .fb-icon {
+  color: #fff;
 }
 .fb-chevron {
   width: 12px;
@@ -502,6 +514,17 @@ code {
   .tool-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Consistent vertical rhythm between stacked blocks in a tool view: cards
+   (.panel), two-column groups (.tk-two), action rows and banners that would
+   otherwise sit flush against each other. Grids and flex rows keep their own
+   internal gaps; this only spaces the top-level blocks. */
+.tool > * + * {
+  margin-top: 16px;
+}
+.tool > * + .tool-grid {
+  margin-top: 20px;
 }
 
 .panel {

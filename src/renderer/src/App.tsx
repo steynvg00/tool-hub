@@ -1,7 +1,7 @@
 import { JSX, useEffect, useState } from 'react'
 import type { BackendStatus } from '../../preload'
 import Home from './components/Home'
-import FilesPanel from './components/FilesPanel'
+import FilesPanel, { type Sort, type FilterKey } from './components/FilesPanel'
 import { TOOLS, groupByCategory, type ToolDef } from './tools'
 
 // 'home' shows the landing page; any other value is a tool id.
@@ -49,11 +49,19 @@ function App(): JSX.Element {
   const [favorites, setFavorites] = useState<string[]>([])
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>('tools')
+  // Files-tab sort & filter live here so they survive the panel unmounting when
+  // switching to the Tools tab and back.
+  const [filesSort, setFilesSort] = useState<Sort>('name')
+  const [filesFilter, setFilesFilter] = useState<FilterKey>('all')
 
   useEffect(() => {
     window.api.backend.getStatus().then(setStatus).catch(() => {})
     const unsub = window.api.backend.onStatus(setStatus)
     window.api.favorites.list().then(setFavorites).catch(() => {})
+    window.api.browser
+      .getState()
+      .then((s) => setFilesSort(s.sort))
+      .catch(() => {})
     return unsub
   }, [])
 
@@ -169,7 +177,14 @@ function App(): JSX.Element {
           </>
         )}
 
-        {sidebarTab === 'files' && <FilesPanel />}
+        {sidebarTab === 'files' && (
+          <FilesPanel
+            sort={filesSort}
+            setSort={setFilesSort}
+            filter={filesFilter}
+            setFilter={setFilesFilter}
+          />
+        )}
 
         <button className="nav-update" onClick={() => window.api.updates.check()}>
           Controleer op updates

@@ -4,6 +4,7 @@ import { useFileResult } from '../lib/useFileResult'
 import { runBulk } from '../lib/bulk'
 import { MultiFileButton, NumberField, ResultDownload } from './ToolFields'
 import { ToolHeader, Note } from './toolkit'
+import { sendToPrintLayout } from '../lib/printHandoff'
 
 type Mode = 'max' | 'exact'
 
@@ -44,7 +45,7 @@ const IMAGE_RESIZE_INFO = (
   </>
 )
 
-function ImageResize(): JSX.Element {
+function ImageResize({ openTool }: { openTool: (id: string) => void }): JSX.Element {
   const [files, setFiles] = useState<File[]>([])
   const [mode, setMode] = useState<Mode>('max')
   const [maxDim, setMaxDim] = useState(1200)
@@ -91,6 +92,15 @@ function ImageResize(): JSX.Element {
     } finally {
       setBusy(false)
     }
+  }
+
+  // Hand the (single) resized image to the Print layout tool. The blob is read
+  // as a data: URL because the renderer CSP blocks blob: URLs for <img>.
+  const toPrintLayout = (): void => {
+    if (!result) return
+    const reader = new FileReader()
+    reader.onload = () => sendToPrintLayout(reader.result as string, openTool)
+    reader.readAsDataURL(result.blob)
   }
 
   return (
@@ -170,6 +180,13 @@ function ImageResize(): JSX.Element {
               <Note>{files.length} afbeeldingen verwerkt en gebundeld in één zip.</Note>
             )}
             <ResultDownload result={result} />
+            {files.length === 1 && (
+              <div className="tk-actions">
+                <button className="btn" onClick={toPrintLayout}>
+                  Stuur naar Print layout
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>

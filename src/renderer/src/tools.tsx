@@ -92,7 +92,10 @@ export interface ToolDef {
   id: string
   label: string
   icon: string
+  /** Primary category; also determines where the tool first appears. */
   category: string
+  /** Extra categories this tool should ALSO show up under, besides its primary. */
+  extraCategories?: string[]
   description: string
   render: (ctx: ToolContext) => JSX.Element
 }
@@ -111,6 +114,9 @@ const CAT_CALC = 'Rekenaars'
 const CAT_NOTES = 'Notities'
 const CAT_ALCHEMY = 'Data-alchemie'
 const CAT_AUDIO = 'Audio'
+// Cross-cutting category: tools that convert a file from one format to another
+// live in their primary category AND here, via `extraCategories`.
+const CAT_FILECONVERT = 'Bestandsconversie'
 
 /** Tools that call the Python sidecar are gated on backend readiness. */
 function BackendGate({
@@ -157,7 +163,11 @@ export const TOOLS: ToolDef[] = [
     icon: '✂️',
     category: CAT_IMAGES,
     description: 'Verwijder de achtergrond van een afbeelding met een pijplijn van technieken.',
-    render: gated(<BackgroundRemover />)
+    render: (ctx) => (
+      <BackendGate status={ctx.backendStatus}>
+        <BackgroundRemover openTool={ctx.openTool} />
+      </BackendGate>
+    )
   },
   {
     id: 'resize',
@@ -165,13 +175,18 @@ export const TOOLS: ToolDef[] = [
     icon: '📐',
     category: CAT_IMAGES,
     description: 'Schaal een afbeelding naar een kleinere maat of exacte afmetingen.',
-    render: gated(<ImageResize />)
+    render: (ctx) => (
+      <BackendGate status={ctx.backendStatus}>
+        <ImageResize openTool={ctx.openTool} />
+      </BackendGate>
+    )
   },
   {
     id: 'convert',
     label: 'Formaat omzetten',
     icon: '🔄',
     category: CAT_IMAGES,
+    extraCategories: [CAT_FILECONVERT],
     description: 'Zet afbeeldingen om naar PNG/JPEG/WEBP of bundel ze tot één PDF.',
     render: gated(<ImageConvert />)
   },
@@ -280,6 +295,7 @@ export const TOOLS: ToolDef[] = [
     label: 'CSV ↔ JSON',
     icon: '🔀',
     category: CAT_TEXT,
+    extraCategories: [CAT_FILECONVERT],
     description: 'Zet CSV om naar JSON en terug, met detectie van de kop-rij.',
     render: () => <CsvJson />
   },
@@ -690,6 +706,7 @@ export const TOOLS: ToolDef[] = [
     label: 'Audio converteren',
     icon: '🎧',
     category: CAT_AUDIO,
+    extraCategories: [CAT_FILECONVERT],
     description: 'Zet audio om naar MP3, WAV, FLAC, M4A, AAC of OGG, met instelbare bitrate.',
     render: gated(<AudioConvert />)
   },
@@ -730,6 +747,7 @@ export const TOOLS: ToolDef[] = [
     label: 'Audio uit video',
     icon: '🎬',
     category: CAT_AUDIO,
+    extraCategories: [CAT_FILECONVERT],
     description: 'Haal de audiotrack uit een videobestand en sla die op als los audiobestand.',
     render: gated(<AudioExtract />)
   }
@@ -740,16 +758,22 @@ export interface ToolGroup {
   tools: ToolDef[]
 }
 
-/** Group tools by category, preserving first-seen category and tool order. */
+/**
+ * Group tools by category, preserving first-seen category and tool order. A
+ * tool with `extraCategories` is listed under its primary category and under
+ * each extra one, so a single tool can appear in multiple sidebar/home groups.
+ */
 export function groupByCategory(tools: ToolDef[]): ToolGroup[] {
   const groups: ToolGroup[] = []
   for (const t of tools) {
-    let g = groups.find((x) => x.category === t.category)
-    if (!g) {
-      g = { category: t.category, tools: [] }
-      groups.push(g)
+    for (const category of [t.category, ...(t.extraCategories ?? [])]) {
+      let g = groups.find((x) => x.category === category)
+      if (!g) {
+        g = { category, tools: [] }
+        groups.push(g)
+      }
+      g.tools.push(t)
     }
-    g.tools.push(t)
   }
   return groups
 }
