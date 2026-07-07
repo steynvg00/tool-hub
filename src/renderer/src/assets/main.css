@@ -1501,6 +1501,67 @@ code {
   border-radius: 8px;
 }
 
+/* EXIF editor: per-field keep + edit rows. */
+.ex-group h3 {
+  margin: 14px 0 6px;
+}
+.ex-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.ex-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 2px;
+  border-radius: 6px;
+}
+.ex-row.off {
+  opacity: 0.5;
+}
+.ex-keep {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+.ex-keep input {
+  accent-color: #4a6cd4;
+  cursor: pointer;
+}
+.ex-name {
+  flex: 0 0 42%;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ev-c-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ex-val {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-family: ui-monospace, monospace;
+}
+input.ex-val {
+  background: var(--color-background);
+  border: 1px solid var(--ev-c-gray-2);
+  color: var(--ev-c-text-1);
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+.ex-val-ro {
+  color: var(--ev-c-text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 5px 0;
+}
+.ex-gps .field-row {
+  margin-top: 8px;
+}
+
 /* Colour tool. */
 .tk-color-preview {
   height: 90px;

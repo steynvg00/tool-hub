@@ -204,10 +204,10 @@ export const TOOLS: ToolDef[] = [
   },
   {
     id: 'exif',
-    label: 'EXIF-viewer & stripper',
+    label: 'EXIF-viewer & editor',
     icon: '📷',
     category: CAT_IMAGES,
-    description: 'Bekijk EXIF-data (incl. GPS) en download een kopie zonder metadata.',
+    description: 'Bekijk EXIF-data (incl. GPS), kies per veld wat weg mag en pas waarden of GPS aan.',
     render: () => <ExifTool />
   },
 
