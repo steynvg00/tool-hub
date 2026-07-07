@@ -1,4 +1,4 @@
-import { JSX, useState } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { processToFile, formatBytes, type FileResult } from '../lib/api'
 import { useFileResult } from '../lib/useFileResult'
 import { runBulk } from '../lib/bulk'
@@ -6,32 +6,26 @@ import { MultiFileButton, NumberField, ResultDownload } from './ToolFields'
 import { ToolHeader, Note } from './toolkit'
 import { sendToPrintLayout } from '../lib/printHandoff'
 
-type Mode = 'max' | 'exact'
-
 const baseNoExt = (name: string): string => name.replace(/\.[^.]+$/, '')
 
 const IMAGE_RESIZE_INFO = (
   <>
     <h4>Wat doet deze tool?</h4>
     <p>
-      Schaalt een afbeelding naar een kleinere maat of naar exacte afmetingen en slaat het
-      resultaat op in het gekozen formaat.
+      Schaalt een afbeelding naar nieuwe afmetingen en slaat het resultaat op in het gekozen
+      formaat. Vul een breedte en/of hoogte in; het slotje ertussen bepaalt of de verhouding
+      behouden blijft.
     </p>
     <h4>Opties</h4>
     <ul>
       <li>
-        <b>Modus &mdash; Langste zijde</b> &mdash; verkleint de afbeelding zodat de langste zijde
-        de opgegeven grootte krijgt; de verhouding blijft behouden.
+        <b>Breedte / Hoogte (px)</b> &mdash; de doelafmetingen. Met het <b>slot gesloten</b> 🔒 volgt
+        de andere waarde automatisch zodat de verhouding klopt; met het <b>slot open</b> 🔓 stel je
+        beide vrij in (de afbeelding wordt dan uitgerekt).
       </li>
       <li>
-        <b>Modus &mdash; Exacte maat</b> &mdash; forceert een exacte breedte en hoogte in pixels.
-      </li>
-      <li>
-        <b>Max. zijde (px)</b> &mdash; maximale lengte van de langste zijde in de modus Langste
-        zijde.
-      </li>
-      <li>
-        <b>Breedte / Hoogte (px)</b> &mdash; de doelafmetingen in de modus Exacte maat.
+        <b>Meerdere bestanden</b> &mdash; met het slot gesloten wordt elk bestand op zijn eigen
+        verhouding geschaald op basis van de as die je instelt; het resultaat komt als één zip.
       </li>
       <li>
         <b>Kwaliteit</b> &mdash; compressiekwaliteit (1&ndash;100) voor formaten met verlies zoals
@@ -47,10 +41,14 @@ const IMAGE_RESIZE_INFO = (
 
 function ImageResize({ openTool }: { openTool: (id: string) => void }): JSX.Element {
   const [files, setFiles] = useState<File[]>([])
-  const [mode, setMode] = useState<Mode>('max')
-  const [maxDim, setMaxDim] = useState(1200)
   const [width, setWidth] = useState(800)
   const [height, setHeight] = useState(600)
+  const [locked, setLocked] = useState(true)
+  // Which axis the user is driving while locked, so bulk resizes stay
+  // aspect-correct per file (backend derives the other axis from each source).
+  const [driver, setDriver] = useState<'w' | 'h'>('w')
+  const [nat, setNat] = useState<{ w: number; h: number } | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [quality, setQuality] = useState(85)
   const [fmt, setFmt] = useState('') // '' = keep source format
   const [result, setResult] = useFileResult()
@@ -58,10 +56,55 @@ function ImageResize({ openTool }: { openTool: (id: string) => void }): JSX.Elem
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // Load a large preview + the natural dimensions of the first picked file, and
+  // seed the width/height fields with the original size.
+  useEffect(() => {
+    const f = files[0]
+    if (!f) {
+      setPreviewUrl(null)
+      setNat(null)
+      return
+    }
+    const url = URL.createObjectURL(f)
+    setPreviewUrl(url)
+    const img = new Image()
+    img.onload = () => {
+      setNat({ w: img.naturalWidth, h: img.naturalHeight })
+      setWidth(img.naturalWidth)
+      setHeight(img.naturalHeight)
+    }
+    img.src = url
+    return () => URL.revokeObjectURL(url)
+  }, [files])
+
   const pick = (fs: File[]): void => {
     setFiles(fs)
     setResult(null)
     setError(null)
+  }
+
+  const ratio = nat && nat.h > 0 ? nat.w / nat.h : null
+
+  const onWidth = (v: number): void => {
+    setWidth(v)
+    setDriver('w')
+    if (locked && ratio) setHeight(Math.max(1, Math.round(v / ratio)))
+  }
+  const onHeight = (v: number): void => {
+    setHeight(v)
+    setDriver('h')
+    if (locked && ratio) setWidth(Math.max(1, Math.round(v * ratio)))
+  }
+  const toggleLock = (): void => {
+    setLocked((was) => {
+      const next = !was
+      // Re-snap the derived axis so the ratio is consistent when re-locking.
+      if (next && ratio) {
+        if (driver === 'w') setHeight(Math.max(1, Math.round(width / ratio)))
+        else setWidth(Math.max(1, Math.round(height * ratio)))
+      }
+      return next
+    })
   }
 
   const run = async (): Promise<void> => {
@@ -76,8 +119,12 @@ function ImageResize({ openTool }: { openTool: (id: string) => void }): JSX.Elem
       const processOne = async (f: File): Promise<FileResult> => {
         const form = new FormData()
         form.append('image', f)
-        if (mode === 'max') form.append('max_dim', String(maxDim))
-        else {
+        // Locked → send only the driven axis so each file keeps its own ratio.
+        // Unlocked → send both for an exact (stretched) size.
+        if (locked) {
+          if (driver === 'w') form.append('width', String(width))
+          else form.append('height', String(height))
+        } else {
           form.append('width', String(width))
           form.append('height', String(height))
         }
@@ -107,33 +154,43 @@ function ImageResize({ openTool }: { openTool: (id: string) => void }): JSX.Elem
     <div className="tool">
       <ToolHeader
         title="Afbeelding schalen"
-        subtitle="Schaal een afbeelding naar een kleinere maat of exacte afmetingen."
+        subtitle="Schaal een afbeelding naar nieuwe afmetingen, met of zonder verhouding vast."
         info={IMAGE_RESIZE_INFO}
       />
 
       <div className="panel tool-panel">
         <MultiFileButton label="Afbeelding(en)" accept="image/*" files={files} onPick={pick} />
 
-        <div className="tool-field">
-          <label className="tool-label">Modus</label>
-          <div className="tool-seg">
-            <button className={mode === 'max' ? 'on' : ''} onClick={() => setMode('max')}>
-              Langste zijde
-            </button>
-            <button className={mode === 'exact' ? 'on' : ''} onClick={() => setMode('exact')}>
-              Exacte maat
-            </button>
-          </div>
-        </div>
-
-        {mode === 'max' ? (
-          <NumberField label="Max. zijde (px)" value={maxDim} min={16} max={8000} onChange={setMaxDim} />
-        ) : (
-          <div className="field-row">
-            <NumberField label="Breedte (px)" value={width} min={1} max={10000} onChange={setWidth} />
-            <NumberField label="Hoogte (px)" value={height} min={1} max={10000} onChange={setHeight} />
+        {previewUrl && (
+          <div className="thumb">
+            <div className="source-preview checkerboard">
+              <img src={previewUrl} alt="bron" />
+            </div>
+            <span className="thumb-name">
+              {nat ? `Origineel: ${nat.w} × ${nat.h} px` : 'Afmetingen laden…'}
+              {files.length > 1 && ` · +${files.length - 1} meer`}
+            </span>
           </div>
         )}
+
+        <div className="ir-dims">
+          <NumberField label="Breedte (px)" value={width} min={1} max={20000} onChange={onWidth} />
+          <button
+            type="button"
+            className={locked ? 'ir-lock on' : 'ir-lock'}
+            onClick={toggleLock}
+            title={locked ? 'Verhouding vergrendeld — klik om vrij te maken' : 'Verhouding vrij — klik om te vergrendelen'}
+            aria-pressed={locked}
+          >
+            {locked ? '🔒' : '🔓'}
+          </button>
+          <NumberField label="Hoogte (px)" value={height} min={1} max={20000} onChange={onHeight} />
+        </div>
+
+        <Note>
+          Nieuw formaat: {width} × {height} px
+          {locked && ratio ? ' (verhouding behouden)' : ''}
+        </Note>
 
         <div className="tool-field">
           <label className="tool-label">Kwaliteit: {quality}</label>

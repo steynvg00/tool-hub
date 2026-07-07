@@ -907,6 +907,36 @@ code {
   padding: 2px 0;
   word-break: break-all;
 }
+/* Afbeelding schalen: width / lock / height row. */
+.ir-dims {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.ir-dims .tool-field {
+  flex: 1;
+  margin-bottom: 0;
+}
+.ir-lock {
+  flex: 0 0 auto;
+  height: 37px;
+  width: 40px;
+  margin-bottom: 0;
+  border: 1px solid var(--ev-c-gray-2);
+  border-radius: 8px;
+  background: var(--color-background);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.ir-lock.on {
+  border-color: #4a6cd4;
+  background: rgba(74, 108, 212, 0.14);
+}
+.ir-lock:hover {
+  border-color: #4a6cd4;
+}
+
 .size-compare {
   display: flex;
   align-items: center;
