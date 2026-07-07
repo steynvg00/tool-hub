@@ -10,6 +10,7 @@ const clamp = (v: number, lo: number, hi: number): number => Math.max(lo, Math.m
 
 type Orient = 'portrait' | 'landscape'
 type Mode = 'free' | 'grid'
+type GridFill = 'repeat' | 'multi'
 
 const pageMm = (orient: Orient): { w: number; h: number } =>
   orient === 'portrait' ? { w: 210, h: 297 } : { w: 297, h: 210 }
@@ -41,12 +42,17 @@ function PrintLayout(): JSX.Element {
   const [gap, setGap] = useState(4)
   const [margin, setMargin] = useState(8)
 
+  const [cutlines, setCutlines] = useState(false)
+  const [gridFill, setGridFill] = useState<GridFill>('repeat')
+  const [gridImages, setGridImages] = useState<string[]>([])
+
   const [scale, setScale] = useState(1)
   const [dragging, setDragging] = useState(false)
   const [hl, setHl] = useState(false)
 
   const stageRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const multiRef = useRef<HTMLInputElement>(null)
   const scaleRef = useRef(1)
 
   // Scale the preview so a full A4 fits comfortably inside the stage.
@@ -118,6 +124,22 @@ function PrintLayout(): JSX.Element {
     reader.readAsDataURL(file)
   }
 
+  // Add a batch of images to the grid pool (one image per raster cell).
+  const addGridImages = (list: FileList | File[] | null): void => {
+    const imgs = Array.from(list ?? []).filter((f) => f.type.startsWith('image/'))
+    if (imgs.length === 0) return
+    Promise.all(
+      imgs.map(
+        (f) =>
+          new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(reader.result as string)
+            reader.readAsDataURL(f)
+          })
+      )
+    ).then((urls) => setGridImages((prev) => [...prev, ...urls]))
+  }
+
   // If another tool sent us an image (e.g. the bingo generator), load it.
   useEffect(() => {
     const img = consumePendingPrint()
@@ -169,6 +191,10 @@ function PrintLayout(): JSX.Element {
   const hMm = wMm * (nat.h / nat.w)
   const left = clamp(xMm, 0, Math.max(0, p.w - wMm))
   const top = clamp(yMm, 0, Math.max(0, p.h - hMm))
+
+  // In the multi-image grid you print the pool, not the single free image.
+  const gridMulti = mode === 'grid' && gridFill === 'multi'
+  const hasContent = gridMulti ? gridImages.length > 0 : !!src
 
   return (
     <div className="pl-tool">
@@ -308,14 +334,90 @@ function PrintLayout(): JSX.Element {
                 />
               </div>
             </div>
-            <p className="hint">
-              Dezelfde afbeelding wordt in elk vak herhaald — handig voor labels of kaartjes.
-            </p>
+            <div className="pl-group">
+              <label className="pl-title">Rasterinhoud</label>
+              <div className="pl-seg">
+                <button
+                  className={gridFill === 'repeat' ? 'on' : ''}
+                  onClick={() => setGridFill('repeat')}
+                >
+                  Zelfde afbeelding
+                </button>
+                <button
+                  className={gridFill === 'multi' ? 'on' : ''}
+                  onClick={() => setGridFill('multi')}
+                >
+                  Verschillende
+                </button>
+              </div>
+            </div>
+
+            {gridFill === 'repeat' ? (
+              <p className="hint">
+                Dezelfde afbeelding wordt in elk vak herhaald — handig voor labels of kaartjes.
+              </p>
+            ) : (
+              <div className="pl-group">
+                <div
+                  className="pl-drop"
+                  onClick={() => multiRef.current?.click()}
+                  onDragEnter={(e) => e.preventDefault()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    addGridImages(e.dataTransfer.files)
+                  }}
+                >
+                  {gridImages.length > 0
+                    ? `${gridImages.length} afbeelding(en) — klik of sleep om meer toe te voegen`
+                    : 'Klik of sleep meerdere afbeeldingen hierheen (één per vak)'}
+                </div>
+                <input
+                  ref={multiRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  onChange={(e) => addGridImages(e.target.files)}
+                />
+                {gridImages.length > 0 && (
+                  <div className="pl-thumbs">
+                    {gridImages.map((s, i) => (
+                      <div className="pl-thumb" key={i}>
+                        <img src={s} alt="" />
+                        <button
+                          className="pl-thumb-x"
+                          title="Verwijderen"
+                          onClick={() => setGridImages((prev) => prev.filter((_, j) => j !== i))}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="hint">
+                  De afbeeldingen worden op volgorde over de {cols * rows} vakken verdeeld (één per
+                  vak). Overige vakken blijven leeg.
+                </p>
+              </div>
+            )}
           </>
         )}
 
+        <div className="pl-group">
+          <label className="tk-toggle">
+            <input
+              type="checkbox"
+              checked={cutlines}
+              onChange={(e) => setCutlines(e.target.checked)}
+            />
+            Snijlijnen (stippellijn) rond {mode === 'grid' ? 'elk vak' : 'de afbeelding'}
+          </label>
+        </div>
+
         <div className="pl-group pl-print">
-          <button className="pl-printbtn" disabled={!src} onClick={() => window.print()}>
+          <button className="pl-printbtn" disabled={!hasContent} onClick={() => window.print()}>
             Printen
           </button>
           <p className="hint">
@@ -328,11 +430,11 @@ function PrintLayout(): JSX.Element {
       <main className="pl-stage" ref={stageRef}>
         <div className="pl-stage-inner" style={{ transform: `scale(${scale})` }}>
           <div id="print-page" className={orient === 'landscape' ? 'landscape' : ''}>
-            {!src && <div className="pl-empty">Nog geen afbeelding</div>}
+            {!hasContent && <div className="pl-empty">Nog geen afbeelding</div>}
 
             {src && mode === 'free' && (
               <div
-                className={dragging ? 'pl-free dragging' : 'pl-free'}
+                className={`pl-free${dragging ? ' dragging' : ''}${cutlines ? ' cutlines' : ''}`}
                 style={{ left: `${left}mm`, top: `${top}mm`, width: `${wMm}mm`, height: `${hMm}mm` }}
                 onMouseDown={onFreeMouseDown}
               >
@@ -340,7 +442,7 @@ function PrintLayout(): JSX.Element {
               </div>
             )}
 
-            {src && mode === 'grid' && (
+            {hasContent && mode === 'grid' && (
               <div
                 className="pl-grid"
                 style={{
@@ -350,11 +452,14 @@ function PrintLayout(): JSX.Element {
                   gridTemplateRows: `repeat(${rows}, 1fr)`
                 }}
               >
-                {Array.from({ length: cols * rows }).map((_, i) => (
-                  <div className="pl-cell" key={i}>
-                    <img src={src} alt="" />
-                  </div>
-                ))}
+                {Array.from({ length: cols * rows }).map((_, i) => {
+                  const cellSrc = gridMulti ? gridImages[i] : src
+                  return (
+                    <div className={cutlines ? 'pl-cell cutlines' : 'pl-cell'} key={i}>
+                      {cellSrc && <img src={cellSrc} alt="" />}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
