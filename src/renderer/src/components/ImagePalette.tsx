@@ -1,7 +1,7 @@
-import { JSX, useState } from 'react'
+import { JSX, useEffect, useRef, useState } from 'react'
 import { extractPalette, type PaletteColour } from '../lib/api'
 import { FileButton } from './ToolFields'
-import { ToolHeader } from './toolkit'
+import { ToolHeader, CopyButton } from './toolkit'
 import { sendToPrintLayout } from '../lib/printHandoff'
 
 // Render the palette as a clean printable image: a colour block per row with
@@ -34,21 +34,24 @@ function paletteToDataUrl(colours: PaletteColour[]): string {
   return canvas.toDataURL('image/png')
 }
 
+const toHex = (n: number): string => n.toString(16).padStart(2, '0')
+
 const IMAGE_PALETTE_INFO = (
   <>
     <h4>Wat doet deze tool?</h4>
     <p>
-      Analyseert een afbeelding en haalt de meest voorkomende kleuren eruit. Elke kleur toont zijn
-      hex-code en het percentage van het beeld dat die kleur beslaat. Klik op een staaltje om de
-      hex-code naar het klembord te kopiëren.
+      Analyseert een afbeelding en haalt de meest voorkomende kleuren eruit, óf laat je met de pipet
+      een exacte kleur op een specifieke plek prikken.
     </p>
     <h4>Opties</h4>
     <ul>
       <li>
-        <b>Afbeelding</b> &mdash; het bestand waaruit de kleuren worden gehaald.
+        <b>Aantal kleuren</b> &mdash; hoeveel dominante kleuren (1&ndash;12) je uit de hele
+        afbeelding wilt terugkrijgen. Klik op een staaltje om de hex-code te kopiëren.
       </li>
       <li>
-        <b>Aantal kleuren</b> &mdash; hoeveel dominante kleuren (1&ndash;12) je wilt terugkrijgen.
+        <b>Pipet</b> &mdash; klik ergens in de voorbeeldweergave om de exacte kleur van díe pixel te
+        samplen. De gekozen kleur verschijnt als hex en rgb met kopieerknoppen.
       </li>
     </ul>
   </>
@@ -56,15 +59,44 @@ const IMAGE_PALETTE_INFO = (
 
 function ImagePalette({ openTool }: { openTool: (id: string) => void }): JSX.Element {
   const [file, setFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [count, setCount] = useState(6)
   const [colours, setColours] = useState<PaletteColour[] | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
+  const [picked, setPicked] = useState<{ hex: string; rgb: [number, number, number] } | null>(null)
+
+  const imgRef = useRef<HTMLImageElement>(null)
+  // Full-resolution offscreen copy of the source, so the pipet samples the exact
+  // source pixel regardless of how small the on-screen preview is drawn.
+  const sampleCanvas = useRef<HTMLCanvasElement | null>(null)
+
+  // Build the preview URL + the full-res sampling canvas whenever the file changes.
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null)
+      sampleCanvas.current = null
+      return
+    }
+    const url = URL.createObjectURL(file)
+    setPreviewUrl(url)
+    const img = new Image()
+    img.onload = () => {
+      const c = document.createElement('canvas')
+      c.width = img.naturalWidth
+      c.height = img.naturalHeight
+      c.getContext('2d')?.drawImage(img, 0, 0)
+      sampleCanvas.current = c
+    }
+    img.src = url
+    return () => URL.revokeObjectURL(url)
+  }, [file])
 
   const pick = (f: File | null): void => {
     setFile(f)
     setColours(null)
+    setPicked(null)
     setError(null)
   }
 
@@ -92,16 +124,63 @@ function ImagePalette({ openTool }: { openTool: (id: string) => void }): JSX.Ele
     }
   }
 
+  // Sample the exact pixel under the click from the full-res canvas.
+  const sampleAt = (e: React.MouseEvent<HTMLImageElement>): void => {
+    const img = imgRef.current
+    const canvas = sampleCanvas.current
+    if (!img || !canvas) return
+    const rect = img.getBoundingClientRect()
+    if (rect.width === 0 || rect.height === 0) return
+    const px = Math.min(canvas.width - 1, Math.floor(((e.clientX - rect.left) / rect.width) * canvas.width))
+    const py = Math.min(canvas.height - 1, Math.floor(((e.clientY - rect.top) / rect.height) * canvas.height))
+    const d = canvas.getContext('2d')?.getImageData(px, py, 1, 1).data
+    if (!d) return
+    const rgb: [number, number, number] = [d[0], d[1], d[2]]
+    setPicked({ hex: `#${toHex(d[0])}${toHex(d[1])}${toHex(d[2])}`, rgb })
+  }
+
   return (
     <div className="tool">
       <ToolHeader
         title="Color pick"
-        subtitle="Haal de dominante kleuren op. Klik op een staaltje om de hex-code te kopiëren."
+        subtitle="Haal de dominante kleuren op of prik met de pipet een exacte kleur uit de afbeelding."
         info={IMAGE_PALETTE_INFO}
       />
 
       <div className="panel tool-panel">
         <FileButton label="Afbeelding" accept="image/*" file={file} onPick={pick} />
+
+        {previewUrl && (
+          <div className="thumb">
+            <div className="source-preview checkerboard">
+              <img
+                ref={imgRef}
+                className="ip-sample"
+                src={previewUrl}
+                alt="bron"
+                onClick={sampleAt}
+                draggable={false}
+              />
+            </div>
+            <span className="thumb-name">Klik in de afbeelding om een kleur te prikken (pipet).</span>
+          </div>
+        )}
+
+        {picked && (
+          <div className="ip-picked">
+            <span className="ip-pick-chip" style={{ background: picked.hex }} />
+            <div className="ip-pick-codes">
+              <div className="ip-pick-row">
+                <code>{picked.hex}</code>
+                <CopyButton value={picked.hex} />
+              </div>
+              <div className="ip-pick-row">
+                <code>rgb({picked.rgb.join(', ')})</code>
+                <CopyButton value={`rgb(${picked.rgb.join(', ')})`} />
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="tool-field">
           <label className="tool-label">Aantal kleuren: {count}</label>

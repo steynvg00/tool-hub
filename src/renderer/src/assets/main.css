@@ -907,6 +907,43 @@ code {
   padding: 2px 0;
   word-break: break-all;
 }
+/* Color pick: pipet sampler + picked-colour readout. */
+.ip-sample {
+  cursor: crosshair;
+}
+.ip-picked {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 10px;
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 10px;
+  background: var(--color-background-mute);
+}
+.ip-pick-chip {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid var(--ev-c-gray-2);
+}
+.ip-pick-codes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ip-pick-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ip-pick-row code {
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+  color: var(--ev-c-text-1);
+}
+
 /* Afbeelding schalen: width / lock / height row. */
 .ir-dims {
   display: flex;
