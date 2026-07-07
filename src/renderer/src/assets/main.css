@@ -1511,6 +1511,64 @@ code {
   color: var(--ev-c-text-3);
 }
 
+/* Category-randomizer: collapsible pool selector. */
+.cr-cats-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--ev-c-text-1);
+  font-size: 15px;
+  font-weight: 700;
+}
+.cr-cats-chevron {
+  font-size: 11px;
+  color: var(--ev-c-text-3);
+  width: 12px;
+}
+.cr-cats-title {
+  flex: 1;
+  text-align: left;
+}
+.cr-cats-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ev-c-text-3);
+}
+.cr-catlist {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 2px 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding: 4px 2px;
+  border: 1px solid var(--ev-c-gray-3);
+  border-radius: 10px;
+}
+.cr-catitem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--ev-c-text-2);
+  cursor: pointer;
+  user-select: none;
+}
+.cr-catitem:hover {
+  background: var(--color-background-mute);
+}
+.cr-catitem input {
+  accent-color: #4a6cd4;
+  flex-shrink: 0;
+}
+
 /* Dice. */
 .tk-dice {
   display: flex;

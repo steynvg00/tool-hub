@@ -75,8 +75,13 @@ const CATEGORY_INFO = (
     <h4>Opties</h4>
     <ul>
       <li>
-        <b>Trek een categorie</b> — toont een willekeurige categorie uit de ingebouwde én je eigen
-        categorieën samen.
+        <b>Trek een categorie</b> — toont een willekeurige categorie uit de categorieën die je in de
+        pool hebt aangevinkt (ingebouwde én je eigen).
+      </li>
+      <li>
+        <b>Categorieën in de pool</b> — klap de lijst uit om precies te kiezen welke categorieën
+        meedoen. Gebruik <b>alles selecteren</b>/<b>alles deselecteren</b> of vink losse categorieën
+        aan en uit.
       </li>
       <li>
         <b>Trek zonder herhaling</b> — elke categorie komt maar één keer langs totdat ze allemaal
@@ -96,14 +101,20 @@ function CategoryRandomizer(): JSX.Element {
   const [drawn, setDrawn] = useState<string[]>([])
   const [custom, setCustom] = useState<string[]>([])
   const [newCat, setNewCat] = useState('')
+  // Categories the user has switched OFF; everything else (incl. new ones) is in
+  // the pool by default. Tracking the excluded set keeps async-loaded custom
+  // categories enabled without extra bookkeeping.
+  const [disabled, setDisabled] = useState<Set<string>>(new Set())
+  const [catsOpen, setCatsOpen] = useState(false)
 
   useEffect(() => {
     window.api.categories.list().then(setCustom).catch(() => {})
   }, [])
 
   const all = [...BUILTIN, ...custom]
-  const remaining = all.filter((c) => !drawn.includes(c))
-  const exhausted = noRepeat && remaining.length === 0
+  const pool = all.filter((c) => !disabled.has(c))
+  const remaining = pool.filter((c) => !drawn.includes(c))
+  const exhausted = noRepeat ? remaining.length === 0 : pool.length === 0
 
   const draw = (): void => {
     if (noRepeat) {
@@ -112,7 +123,8 @@ function CategoryRandomizer(): JSX.Element {
       setDrawn((d) => [...d, pick])
       setResult(pick)
     } else {
-      setResult(all[Math.floor(Math.random() * all.length)])
+      if (pool.length === 0) return
+      setResult(pool[Math.floor(Math.random() * pool.length)])
     }
   }
 
@@ -120,6 +132,17 @@ function CategoryRandomizer(): JSX.Element {
     setDrawn([])
     setResult(null)
   }
+
+  const toggleCat = (name: string): void => {
+    setDisabled((prev) => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
+  }
+  const selectAll = (): void => setDisabled(new Set())
+  const deselectAll = (): void => setDisabled(new Set(all))
 
   const addCategory = async (): Promise<void> => {
     const name = newCat.trim()
@@ -129,6 +152,12 @@ function CategoryRandomizer(): JSX.Element {
   }
   const removeCategory = async (name: string): Promise<void> => {
     setCustom(await window.api.categories.remove(name))
+    setDisabled((prev) => {
+      if (!prev.has(name)) return prev
+      const next = new Set(prev)
+      next.delete(name)
+      return next
+    })
   }
 
   return (
@@ -159,12 +188,49 @@ function CategoryRandomizer(): JSX.Element {
           {result ?? 'Klik op “Trek een categorie”'}
         </div>
 
-        {noRepeat && (
+        {pool.length === 0 ? (
+          <Note>Geen categorieën in de pool — vink er hieronder minstens één aan.</Note>
+        ) : noRepeat ? (
           <Note>
             {exhausted
               ? 'Alle categorieën zijn geweest — klik op Reset om opnieuw te beginnen.'
-              : `${drawn.length} van ${all.length} getrokken.`}
+              : `${drawn.length} van ${pool.length} getrokken.`}
           </Note>
+        ) : null}
+      </div>
+
+      <div className="panel tool-panel">
+        <button className="cr-cats-head" onClick={() => setCatsOpen((o) => !o)}>
+          <span className="cr-cats-chevron">{catsOpen ? '▾' : '▸'}</span>
+          <span className="cr-cats-title">Categorieën in de pool</span>
+          <span className="cr-cats-count">
+            {pool.length} / {all.length} actief
+          </span>
+        </button>
+
+        {catsOpen && (
+          <>
+            <div className="tk-actions">
+              <button className="btn" style={{ width: 'auto' }} onClick={selectAll}>
+                Alles selecteren
+              </button>
+              <button className="btn" style={{ width: 'auto' }} onClick={deselectAll}>
+                Alles deselecteren
+              </button>
+            </div>
+            <div className="cr-catlist">
+              {all.map((c) => (
+                <label className="cr-catitem" key={c}>
+                  <input
+                    type="checkbox"
+                    checked={!disabled.has(c)}
+                    onChange={() => toggleCat(c)}
+                  />
+                  <span>{c}</span>
+                </label>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
