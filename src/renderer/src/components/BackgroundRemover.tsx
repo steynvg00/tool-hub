@@ -17,6 +17,14 @@ import { sendToPrintLayout } from '../lib/printHandoff'
 
 const baseNoExt = (name: string): string => name.replace(/\.[^.]+$/, '')
 
+/** Decode a base64 (no data: prefix) PNG payload into a Blob. */
+function base64ToBlob(base64: string, type = 'image/png'): Blob {
+  const bin = atob(base64)
+  const bytes = new Uint8Array(bin.length)
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i)
+  return new Blob([bytes], { type })
+}
+
 const BACKGROUND_REMOVER_INFO = (
   <>
     <h4>Wat doet deze tool?</h4>
@@ -45,8 +53,53 @@ const BACKGROUND_REMOVER_INFO = (
         wijzigen, het kruisje om een stap te verwijderen of <b>wissen</b> om alles te leegmaken.
       </li>
       <li>
-        <b>4 · Resultaat</b> &mdash; bekijk het eindresultaat plus een preview per stap en download
-        het als transparante PNG.
+        <b>4 · Resultaat</b> &mdash; bekijk het eindresultaat plus een preview per stap, download
+        het als transparante PNG of kopieer het rechtstreeks naar je klembord.
+      </li>
+    </ul>
+    <h4>Generators (maken een masker)</h4>
+    <ul>
+      <li>
+        <b>Chroma key (uniforme kleur)</b> &mdash; verwijdert één egale achtergrondkleur (zoals een
+        green/blue screen). Gebruik dit als de achtergrond overal ongeveer dezelfde kleur heeft;
+        laat de kleur leeg om die automatisch uit de hoeken te bepalen.
+      </li>
+      <li>
+        <b>Flood fill (toverstaf)</b> &mdash; vult vanaf de hoeken (of eigen klikpunten) alle
+        aangrenzende, gelijkende pixels weg. Ideaal voor een effen achtergrond met scherpe randen
+        rond het onderwerp; voeg punten toe voor ingesloten gaten.
+      </li>
+      <li>
+        <b>Threshold (helderheid splitsen)</b> &mdash; scheidt op basis van licht/donker. Werkt goed
+        bij een duidelijk contrast tussen onderwerp en achtergrond (bijv. donker object op wit).
+      </li>
+      <li>
+        <b>GrabCut (algemeen)</b> &mdash; slim algoritme dat een onderwerp binnen een kader uitknipt.
+        De beste keuze voor foto&apos;s met een rommelige of geleidelijke achtergrond.
+      </li>
+      <li>
+        <b>Edge contour (omlijnde objecten)</b> &mdash; zoekt randen en vult de gevonden vorm.
+        Handig voor duidelijk omlijnde objecten, logo&apos;s of tekeningen.
+      </li>
+    </ul>
+    <h4>Modifiers (verfijnen het masker)</h4>
+    <ul>
+      <li>
+        <b>Morphology (vullen / randen opschonen)</b> &mdash; dicht gaatjes of verwijdert losse
+        pixels. Gebruik <i>close</i> om gaten te vullen en <i>open</i>/<i>erode</i> om ruis en
+        uitstekende randjes weg te halen.
+      </li>
+      <li>
+        <b>Feather (zachte randen)</b> &mdash; maakt de rand van het masker geleidelijk zacht, zodat
+        het onderwerp natuurlijker in een nieuwe achtergrond past.
+      </li>
+      <li>
+        <b>Keep largest blob</b> &mdash; behoudt alleen het grootste aaneengesloten gebied en gooit
+        losse restjes weg. Handig als er na het maskeren kleine vlekjes overblijven.
+      </li>
+      <li>
+        <b>Invert mask</b> &mdash; keert de selectie om (voorgrond &harr; achtergrond). Gebruik dit
+        als per ongeluk het onderwerp is weggeknipt in plaats van de achtergrond.
       </li>
     </ul>
   </>
@@ -82,6 +135,8 @@ function BackgroundRemover({ openTool }: { openTool: (id: string) => void }): JS
   const [userPresets, setUserPresets] = useState<UserPreset[]>([])
   const [presetName, setPresetName] = useState('')
   const [presetError, setPresetError] = useState<string | null>(null)
+
+  const [copied, setCopied] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -227,6 +282,19 @@ function BackgroundRemover({ openTool }: { openTool: (id: string) => void }): JS
       setUserPresets(await window.api.presets.deleteUser(id))
     } catch (e) {
       setPresetError((e as Error).message)
+    }
+  }
+
+  // Copy the transparent result straight to the clipboard as a PNG.
+  const copyResult = async (): Promise<void> => {
+    if (!result) return
+    try {
+      const blob = base64ToBlob(result.final)
+      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })])
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1400)
+    } catch {
+      setRunError('Kon de afbeelding niet naar het klembord kopiëren.')
     }
   }
 
@@ -462,6 +530,9 @@ function BackgroundRemover({ openTool }: { openTool: (id: string) => void }): JS
                 PNG downloaden
               </a>
               <div className="tk-actions">
+                <button className="btn" onClick={copyResult}>
+                  {copied ? '✓ Gekopieerd' : 'Kopieer naar klembord'}
+                </button>
                 <button
                   className="btn"
                   onClick={() => sendToPrintLayout(pngDataUrl(result.final), openTool)}
